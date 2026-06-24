@@ -261,6 +261,24 @@ p { text-wrap: pretty; }
 .partner-row img { max-height: 64px; width: auto; opacity: 0.85; transition: opacity 0.15s ease; }
 .partner-row a:hover img { opacity: 1; }
 
+/* — Viertel cards (neighbourhood offers) ——————————————————————— */
+.viertel-card {
+  display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+}
+.viertel-card > img { width: 100%; height: 200px; object-fit: cover; background: var(--mist); }
+.viertel-card__body { padding: 1.4rem; }
+.viertel-card__body h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.5rem; }
+.viertel-card__body p { color: var(--ink-soft); }
+.viertel-card__body p + p { margin-top: 0.6rem; }
+.badge {
+  font-family: var(--font-body); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: #3a2a08; background: var(--honey);
+  padding: 0.2rem 0.55rem; border-radius: 999px; line-height: 1.4;
+}
+
 /* — Header controls + theme toggle ———————————————————————————— */
 .header-controls { display: flex; align-items: center; gap: 0.5rem; }
 .theme-toggle {

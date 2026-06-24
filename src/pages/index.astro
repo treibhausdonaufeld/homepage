@@ -2,6 +2,33 @@
 import Base from '../layouts/Base.astro';
 import NewsletterForm from '../components/NewsletterForm.astro';
 
+const viertel = [
+  {
+    title: "Viertelküche zu mieten",
+    img: "/images/projekt/kochen-web.jpg",
+    text: "Unsere Gemeinschaftsküche kann für Feiern, Treffen und Veranstaltungen im Viertel gemietet werden.",
+  },
+  {
+    title: "Food Coop",
+    img: "/images/projekt/food-coop-web.jpg",
+    status: "In Planung",
+    text: "Eine Lebensmittel-Einkaufsgemeinschaft für die biologische und regionale Nahrungsmittelversorgung im Viertel.",
+  },
+  {
+    title: "Offener Radreparatur-Tag",
+    img: "/images/projekt/fahhradwerkstatt-web.jpg",
+    status: "In Planung",
+    text: "Gemeinsam Fahrräder reparieren – mit Hilfestellung bei der Radreparatur, in Kooperation mit lenkerbande.at.",
+    href: "https://lenkerbande.at",
+    hrefLabel: "lenkerbande.at",
+  },
+  {
+    title: "Workshops, Kurse & Vorträge",
+    img: "/images/projekt/co-working-web.jpg",
+    text: "Ein lebendiges Programm aus Workshops, Kursen, Vorträgen und vielem mehr – offen für die Nachbarschaft.",
+  },
+];
+
 const features = [
   { title: "Lebensqualität", text: "Wir verbinden die Vorteile von Stadt und Land, leben Gemeinschaft und Rückzug – von Aufregung bis Entspannung, da für Jung und Alt." },
   { title: "Vielseitig", text: "Ob Familien, Paare oder Singles, Seniorinnen oder Studierende – das Treibhaus bietet leistbares Wohnen für jede Lebenssituation." },
@@ -17,10 +44,10 @@ const features = [
     <div class="container hero__inner">
       <div>
         <span class="eyebrow">Baugruppe · Wien Donaufeld</span>
-        <h1>Ein Haus, das Stadt und Land zusammenwachsen lässt.</h1>
+        <h1>Ein Haus, das mit uns wächst</h1>
         <p class="lead">
           Das sind wir – die zukünftigen Bewohner*innen des Wohnprojekts <em>Treibhaus Donaufeld</em>.
-          Als Baugruppe errichten wir im wunderbaren Donaufeld ein neunstöckiges Haus, das die besten
+          Als Baugruppe haben wir im wunderbaren Donaufeld ein neunstöckiges Haus errichten lassen, das die besten
           Merkmale aus Stadt- und Landleben vereint.
         </p>
         <div class="btn-row">
@@ -111,6 +138,37 @@ const features = [
         <a class="btn btn--honey" href="https://www.iba-wien.at/projekte/projekt-detail/project/donaufeld" rel="noopener">Quartier „An der Schanze“</a>
         <a class="btn btn--ghost" style="color:#eaf2e6; border-color:rgba(255,255,255,0.35);" href="/projekt#standort">Mehr über den Standort</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ░░ Viertel ░░ -->
+  <section class="section section--mist" aria-labelledby="viertel">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Viertel</span>
+        <h2 id="viertel">Was wir im Viertel anbieten</h2>
+        <p>Das Treibhaus öffnet sich zur Nachbarschaft – mit Angeboten, die das Donaufeld lebendig machen.</p>
+      </div>
+
+      <div class="grid grid--2">
+        {viertel.map((v) => (
+          <article class="viertel-card">
+            <img src={v.img} alt={v.title} loading="lazy" />
+            <div class="viertel-card__body">
+              <h3>
+                {v.title}
+                {v.status && <span class="badge">{v.status}</span>}
+              </h3>
+              <p>{v.text}</p>
+              {v.href && (
+                <p><a href={v.href} rel="noopener">{v.hrefLabel} →</a></p>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p style="margin-top:1.5rem; color:var(--ink-soft);">…und vieles mehr.</p>
     </div>
   </section>
 
