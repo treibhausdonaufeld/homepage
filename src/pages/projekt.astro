@@ -1,5 +1,28 @@
 ---
 import Base from '../layouts/Base.astro';
+
+const angebot = [
+  { src: "/images/projekt/food-coop-web.jpg",        title: "Food Coop" },
+  { src: "/images/projekt/zusammen-essen-web.jpg",   title: "Gemeinsam essen" },
+  { src: "/images/projekt/kochen-web.jpg",           title: "Gemeinschaftsküche" },
+  { src: "/images/projekt/werkstatt-web.jpg",        title: "Gemeinschaftswerkstatt" },
+  { src: "/images/projekt/fahhradwerkstatt-web.jpg", title: "Fahrradwerkstatt" },
+  { src: "/images/projekt/co-working-web.jpg",       title: "Co-Working" },
+  { src: "/images/projekt/buecher-web.jpg",          title: "Bibliothek" },
+  { src: "/images/projekt/indoor-spielplatz-web.jpg",title: "Indoor-Spielplatz" },
+  { src: "/images/projekt/bewegung-web.jpg",         title: "Bewegung" },
+  { src: "/images/projekt/meditation-web.jpg",       title: "Rückzug & Meditation" },
+  { src: "/images/projekt/architecture-terrasse-web.jpg", title: "Begrünte Terrasse" },
+  { src: "/images/projekt/fassadenbegruenung-web.jpg",    title: "Fassadenbegrünung" },
+];
+
+const grundrisse = [
+  { src: "/images/projekt/2020-01-ug.jpg",        title: "Untergeschoss" },
+  { src: "/images/projekt/2020-01-eg-scaled.jpg", title: "Erdgeschoss" },
+  { src: "/images/projekt/2020-01-og1.jpg",       title: "1. Obergeschoss" },
+  { src: "/images/projekt/2020-01-og2.jpg",       title: "2. Obergeschoss" },
+  { src: "/images/projekt/2020-01-og9.jpg",       title: "9. Obergeschoss" },
+];
 ---
 <Base title="Projekt – Treibhaus Donaufeld" description="Standort, Angebot, Konzept, Architektur und Organisation der Baugruppe Treibhaus Donaufeld im Wiener Donaufeld.">
   <section class="section">
@@ -39,8 +62,17 @@ import Base from '../layouts/Base.astro';
     <div class="container" style="max-width:48rem;">
       <span class="eyebrow">Angebot</span>
       <h2 id="angebot-h">Wohnungen &amp; Gemeinschaftsräume</h2>
-      <!-- TODO: Inhalt aus /projekt#angebot übernehmen -->
       <p style="color:var(--ink-soft);">Überblick über Wohnungsgrößen, Gemeinschaftsflächen und Angebote im Haus.</p>
+    </div>
+    <div class="container">
+      <ul class="media-grid">
+        {angebot.map((item) => (
+          <li class="media-card">
+            <img src={item.src} alt={item.title} loading="lazy" />
+            <span>{item.title}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
@@ -65,6 +97,17 @@ import Base from '../layouts/Base.astro';
         <li>Hohe Lebensqualität für Menschen jeden Alters und in allen Lebenslagen</li>
         <li>Hell und freundlich, beiläufige Begegnungen und Gemeinschaft fördernd</li>
         <li>Bedürfnisse nach Gemeinschaft wie auch nach Rückzug werden berücksichtigt</li>
+      </ul>
+    </div>
+    <div class="container">
+      <h3 style="margin-bottom:1rem;">Grundrisse</h3>
+      <ul class="media-grid media-grid--plans">
+        {grundrisse.map((plan) => (
+          <li class="media-card">
+            <img src={plan.src} alt={`Grundriss ${plan.title}`} loading="lazy" />
+            <span>{plan.title}</span>
+          </li>
+        ))}
       </ul>
     </div>
   </section>

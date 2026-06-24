@@ -199,7 +199,7 @@ p { text-wrap: pretty; }
 .site-header { position: sticky; top: 0; z-index: 50; background: var(--paper); background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 4.5rem; }
 .brand { display: inline-flex; align-items: center; gap: 0.65rem; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--canopy); text-decoration: none; letter-spacing: -0.01em; }
-.brand .mark { width: 2rem; height: 2rem; flex: none; }
+.brand__logo { height: 2.4rem; width: auto; display: block; }
 .nav { display: flex; align-items: center; gap: 0.4rem; }
 .nav a { font-weight: 600; color: var(--ink); text-decoration: none; padding: 0.4rem 0.7rem; border-radius: var(--radius); font-size: 0.98rem; }
 .nav a:hover, .nav a[aria-current="page"] { background: var(--mist); color: var(--leaf-deep); }
@@ -227,3 +227,32 @@ p { text-wrap: pretty; }
 .hero .art { width: 100%; }
 .hero__inner .btn-row { margin-top: 1.6rem; }
 .hero em { font-style: normal; color: var(--leaf); font-weight: 600; }
+.hero__media { margin: 0; }
+.hero__media img { width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow); display: block; }
+.hero__media figcaption { margin-top: 0.6rem; font-size: 0.9rem; color: var(--ink-soft); text-align: center; }
+
+/* — Media grids / galleries ——————————————————————————————————— */
+.media-grid {
+  list-style: none; padding: 0; margin: 2rem 0 0;
+  display: grid; gap: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.media-grid--plans { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.media-grid--photos { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.media-card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+}
+.media-card img { width: 100%; height: 200px; object-fit: cover; display: block; background: var(--mist); }
+.media-grid--plans .media-card img { height: auto; object-fit: contain; padding: 0.5rem; }
+.media-card span { display: block; padding: 0.7rem 0.9rem; font-weight: 600; color: var(--canopy); font-size: 0.98rem; }
+.media-card--plain { border: none; box-shadow: var(--shadow); }
+.media-card--plain img { height: 260px; }
+
+/* — Partner logos —————————————————————————————————————————————— */
+.partner-row {
+  list-style: none; padding: 0; margin: 2rem 0 0;
+  display: flex; flex-wrap: wrap; gap: 2.5rem; align-items: center;
+}
+.partner-row img { max-height: 64px; width: auto; opacity: 0.85; transition: opacity 0.15s ease; }
+.partner-row a:hover img { opacity: 1; }

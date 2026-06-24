@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import GreenhouseArt from '../components/GreenhouseArt.astro';
 import NewsletterForm from '../components/NewsletterForm.astro';
 
 const features = [
@@ -29,7 +28,11 @@ const features = [
           <a class="btn btn--ghost" href="/projekt">Das Projekt entdecken</a>
         </div>
       </div>
-      <GreenhouseArt />
+      <figure class="hero__media">
+        <img src="/images/hero-gemeinschaftstag.jpg" width="2048" height="1066"
+             alt="Die Baugruppe Treibhaus Donaufeld bei einem Gemeinschaftstag" loading="eager" />
+        <figcaption>Gemeinschaftstag der Baugruppe</figcaption>
+      </figure>
     </div>
   </section>
 

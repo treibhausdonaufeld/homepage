@@ -1,5 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
+
+const fotos = [
+  "/images/projekt/DSCF6181.jpg",
+  "/images/projekt/DSCF6197.jpg",
+  "/images/projekt/IMG_4437.jpg",
+  "/images/projekt/IMG_4489-2.jpg",
+];
+
+const partner = [
+  { src: "/images/partner/schwarzatal-logo2-web.png", name: "Schwarzatal", href: "https://www.schwarzatal.at/" },
+  { src: "/images/partner/realitylab-logo-web.png",   name: "realitylab",  href: "https://www.realitylab.at/" },
+  { src: "/images/partner/sandbichler-logo-web.png",  name: "Architektur Sandbichler", href: "https://www.sandbichler.at/" },
+];
 ---
 <Base title="Wir – Treibhaus Donaufeld" description="Die Menschen hinter dem Treibhaus Donaufeld: eine Baugruppe aus Familien, Paaren, Singles und Senior*innen.">
   <section class="section">
@@ -10,9 +23,15 @@ import Base from '../layouts/Base.astro';
         Eine bunte Gruppe aus Familien, Paaren, Singles, Studierenden und Senior*innen –
         verbunden durch die Idee von gemeinschaftlichem, leistbarem und nachhaltigem Wohnen.
       </p>
-      <!-- TODO: Vorstellungstext und ggf. Fotos der Gruppe aus der alten Seite /wir übernehmen.
-           Bilder nach /public/images/ legen und hier einbinden, z.B.:
-           <img src="/images/gemeinschaftstag.jpg" alt="Gemeinschaftstag der Baugruppe" /> -->
+    </div>
+    <div class="container">
+      <ul class="media-grid media-grid--photos">
+        {fotos.map((src) => (
+          <li class="media-card media-card--plain">
+            <img src={src} alt="Die Baugruppe Treibhaus Donaufeld" loading="lazy" />
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
@@ -27,6 +46,27 @@ import Base from '../layouts/Base.astro';
         <a class="btn btn--primary" href="/info#mitgliedschaft">Mitmachen</a>
         <a class="btn btn--ghost" href="/info#kontakt">Kontakt aufnehmen</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Partner</span>
+      <h2>Mit wem wir zusammenarbeiten</h2>
+      <p style="color:var(--ink-soft);">
+        Das Treibhaus Donaufeld entsteht in Kooperation mit dem Bauträger und unseren Planungspartner*innen.
+      </p>
+    </div>
+    <div class="container">
+      <ul class="partner-row">
+        {partner.map((p) => (
+          <li>
+            <a href={p.href} rel="noopener" aria-label={p.name}>
+              <img src={p.src} alt={p.name} loading="lazy" />
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 </Base>
