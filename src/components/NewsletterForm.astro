@@ -1,0 +1,40 @@
+---
+// Listmonk subscription form.
+// Replace the two placeholders below with the values from your listmonk admin:
+//   Admin → Lists → (your list) → "Public subscription page" / form snippet.
+//   LISTMONK_URL  = base URL of your listmonk install, e.g. https://list.treibhausdonaufeld.at
+//   LIST_UUID     = the UUID of the list people should subscribe to
+// The form posts directly to listmonk; no JavaScript or backend needed, so it
+// works on GitHub Pages. listmonk shows its own confirmation page after submit.
+const LISTMONK_URL = "__LISTMONK_URL__";
+const LIST_UUID    = "__LIST_UUID__";
+
+interface Props { heading?: string; intro?: string; }
+const { heading = "Newsletter", intro = "Bleib auf dem Laufenden – Infos zum Projekt und zu freien Wohnungen direkt in dein Postfach." } = Astro.props;
+---
+<div class="newsletter" id="newsletter">
+  <h3>{heading}</h3>
+  <p style="color:var(--ink-soft); margin:0.5rem 0 1.25rem; max-width:42ch;">{intro}</p>
+
+  <form method="post" action={`${LISTMONK_URL}/subscription/form`}>
+    <!-- Subscribes to this list. For multiple lists, add more hidden inputs
+         with name="l" and the respective UUIDs. -->
+    <input type="hidden" name="l" value={LIST_UUID} />
+
+    <div>
+      <label for="nl-email">E-Mail-Adresse</label>
+      <input id="nl-email" type="email" name="email" required placeholder="du@beispiel.at" autocomplete="email" />
+    </div>
+    <div>
+      <label for="nl-name">Name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
+      <input id="nl-name" type="text" name="name" placeholder="Vorname" autocomplete="name" />
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--primary" type="submit">Anmelden</button>
+    </div>
+    <p style="font-size:0.85rem; color:var(--ink-soft); margin:0;">
+      Du erhältst eine E-Mail zur Bestätigung. Abmeldung jederzeit möglich.
+    </p>
+  </form>
+</div>

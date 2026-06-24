@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import GreenhouseArt from '../components/GreenhouseArt.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+
+const features = [
+  { title: "Lebensqualität", text: "Wir verbinden die Vorteile von Stadt und Land, leben Gemeinschaft und Rückzug – von Aufregung bis Entspannung, da für Jung und Alt." },
+  { title: "Vielseitig", text: "Ob Familien, Paare oder Singles, Seniorinnen oder Studierende – das Treibhaus bietet leistbares Wohnen für jede Lebenssituation." },
+  { title: "Standort", text: "Gute öffentliche Anbindung, Naherholung und Alte Donau – alles fußläufig erreichbar. Ein attraktives neues Stadtquartier." },
+  { title: "Für jede Situation", text: "Spielen auf der begrünten Terrasse, gemeinsam kochen, entspannen im ruhigen Dachgeschoß – oder Rückzug in den Privatbereich." },
+  { title: "Gemeinschaft", text: "Gemeinsam kochen und essen, viel Raum für Begegnungen, Inspiration bei Veranstaltungen und gegenseitige Kinderbetreuung." },
+  { title: "Nachhaltigkeit", text: "Food Coop, Gemeinschaftswerkstatt, Fassaden- und Terrassenbegrünung, Hochbeete, Nistplätze für Vögel und vieles mehr." },
+];
+---
+<Base>
+  <!-- ░░ Hero ░░ -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div>
+        <span class="eyebrow">Baugruppe · Wien Donaufeld</span>
+        <h1>Ein Haus, das Stadt und Land zusammenwachsen lässt.</h1>
+        <p class="lead">
+          Das sind wir – die zukünftigen Bewohner*innen des Wohnprojekts <em>Treibhaus Donaufeld</em>.
+          Als Baugruppe errichten wir im wunderbaren Donaufeld ein neunstöckiges Haus, das die besten
+          Merkmale aus Stadt- und Landleben vereint.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="#newsletter">Interesse anmelden</a>
+          <a class="btn btn--ghost" href="/projekt">Das Projekt entdecken</a>
+        </div>
+      </div>
+      <GreenhouseArt />
+    </div>
+  </section>
+
+  <!-- ░░ Aktuelles ░░ -->
+  <section class="section section--mist" aria-labelledby="aktuelles">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Aktuelles</span>
+        <h2 id="aktuelles">Was gerade passiert</h2>
+      </div>
+
+      <div class="grid grid--2">
+        <article class="panel stack">
+          <h3>Im Sommer ist es so weit: Wir können einziehen!</h3>
+          <p>
+            Nach langer Planungs- und Bauphase freuen wir uns auf den baldigen Einzug in unser Haus.
+            Derzeit sind alle Wohnungen reserviert – wir suchen aber noch Interessierte, die die Gruppe
+            auch ohne fixe Wohnungszusage kennenlernen möchten.
+          </p>
+          <div class="btn-row"><a class="btn btn--primary" href="#newsletter">Ich habe Interesse</a></div>
+        </article>
+
+        <article class="panel panel--soli stack">
+          <h3>Ermögliche die zweite Soli-Wohnung</h3>
+          <p>
+            Im Treibhaus Donaufeld schaffen wir ein Zuhause, das Solidarität lebt. Zwei Wohnungen
+            (61 m² und 77 m²) möchten wir langfristig und leistbar an Familien mit Fluchterfahrung vergeben.
+            Eine Soli-Wohnung ist über das Crowdfunding bereits finanziert – für die zweite fehlen noch rund 10.000 €.
+          </p>
+          <ol>
+            <li>Auf „Soli-Wohnung unterstützen“ klicken – das führt zur Diakonie-Spendenseite.</li>
+            <li>Als Zweck <strong>„Flüchtlingshilfe“</strong> auswählen.</li>
+            <li>Im Freifeld <strong>„Anmerkungen zur Spende“</strong> bitte eintragen: <em>Crowdfunding Finanzierungsbeitrag Soli-Wohnung THD</em>.</li>
+          </ol>
+          <div class="btn-row">
+            <a class="btn btn--honey" href="https://www.diakonie.at/spenden/" rel="noopener">Soli-Wohnung unterstützen</a>
+            <a class="btn btn--ghost" href="https://www.youtube.com/@treibhausdonaufeld" rel="noopener">Videos zur Kampagne</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Features ░░ -->
+  <section class="section" aria-labelledby="leben">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Warum Treibhaus</span>
+        <h2 id="leben">Leben, wie es sich gut anfühlt</h2>
+        <p>Sechs Dinge, die unser Haus ausmachen – vom Alltag auf der Terrasse bis zur Vogelnische an der Fassade.</p>
+      </div>
+      <div class="grid grid--3">
+        {features.map((f) => (
+          <article class="card feature">
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="btn-row" style="margin-top:2rem;">
+        <a class="btn btn--ghost" href="/projekt">Das Projekt im Detail</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Standort ░░ -->
+  <section class="section section--canopy" aria-labelledby="standort">
+    <div class="container">
+      <span class="eyebrow" style="color:var(--sprout);">Standort</span>
+      <h2 id="standort">Mitten im Donaufeld</h2>
+      <p style="max-width:52ch; font-size:1.15rem; margin-top:0.75rem; color:#d4ddcf;">
+        Das Treibhaus Donaufeld entsteht als Teil des neuen Stadtquartiers „An der Schanze“
+        im 21. Bezirk in Wien – mit guter öffentlicher Anbindung und der Alten Donau in Gehweite.
+      </p>
+      <div class="btn-row" style="margin-top:1.75rem;">
+        <a class="btn btn--honey" href="https://www.iba-wien.at/projekte/projekt-detail/project/donaufeld" rel="noopener">Quartier „An der Schanze“</a>
+        <a class="btn btn--ghost" style="color:#eaf2e6; border-color:rgba(255,255,255,0.35);" href="/projekt#standort">Mehr über den Standort</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Eckpunkte ░░ -->
+  <section class="section" aria-labelledby="eckpunkte">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Die wichtigsten Eckpunkte</span>
+        <h2 id="eckpunkte">Architektur, Konzept &amp; Meilensteine</h2>
+      </div>
+
+      <div class="grid grid--3">
+        <article class="card stack">
+          <h3>Architektur</h3>
+          <ul style="color:var(--ink-soft); padding-left:1.1rem;">
+            <li>Hohe Lebensqualität für Menschen jeden Alters und in allen Lebenslagen</li>
+            <li>Hell und freundlich, beiläufige Begegnungen fördernd</li>
+            <li>Raum für Gemeinschaft genauso wie für Rückzug</li>
+          </ul>
+          <a href="/projekt#architektur">Architektur im Detail →</a>
+        </article>
+
+        <article class="card stack">
+          <h3>Konzept</h3>
+          <ul style="color:var(--ink-soft); padding-left:1.1rem;">
+            <li>Fortschrittliches Mobilitätskonzept</li>
+            <li>Zusammenarbeit mit umliegenden Baugruppen</li>
+            <li>Kooperation mit zahlreichen Vereinen</li>
+            <li>Nachhaltigkeit: Fassadenbegrünung, geringe Bodenversiegelung, Lebensraum für Flora und Fauna</li>
+          </ul>
+          <a href="/projekt#konzept">Mehr zum Konzept →</a>
+        </article>
+
+        <article class="card">
+          <h3>Meilensteine</h3>
+          <ol class="timeline">
+            <li><span class="year">2018</span>Kerngruppe gebildet, Vision erarbeitet, Exkursionen und Infotermine</li>
+            <li><span class="year">2019</span>Bauträger fixiert, Wettbewerb um das Grundstück gewonnen</li>
+            <li><span class="year">2024</span>Baustart</li>
+            <li><span class="year">2026</span>Einzug</li>
+          </ol>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Interessiert + Newsletter ░░ -->
+  <section class="section section--mist" aria-labelledby="interessiert">
+    <div class="container">
+      <div class="grid grid--2" style="gap:2.5rem; align-items:start;">
+        <div class="stack">
+          <span class="eyebrow">Interessiert?</span>
+          <h2 id="interessiert">Lust, dabei zu sein?</h2>
+          <p style="color:var(--ink-soft); font-size:1.1rem;">
+            Du möchtest mehr über das Projekt erfahren oder selbst Baugruppenmitglied werden?
+            Auf unseren Infoseiten findest du Antworten auf die häufigsten Fragen – und wie du mitmachen kannst.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="/info#faq">Häufige Fragen</a>
+            <a class="btn btn--ghost" href="/info#mitgliedschaft">Mitmachen</a>
+          </div>
+        </div>
+
+        <NewsletterForm />
+      </div>
+    </div>
+  </section>
+</Base>

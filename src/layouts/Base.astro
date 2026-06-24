@@ -1,0 +1,49 @@
+---
+// Self-hosted variable fonts via Fontsource (bundled at build time — no Google
+// CDN call, which keeps things GDPR-friendly). Swap these in package.json +
+// here if you want different typefaces.
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/hanken-grotesk';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = "Treibhaus Donaufeld – Baugruppe · Wien 21. Bezirk",
+  description = "Baugruppe im Donaufeld: Wir errichten ein neunstöckiges Wohnhaus, das die besten Seiten von Stadt und Land vereint – gemeinschaftlich, leistbar und nachhaltig.",
+} = Astro.props;
+
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
+---
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="de_AT" />
+    {Astro.site && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content="/images/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a href="#main" style="position:absolute; left:-9999px; top:0; background:#fff; padding:0.6rem 1rem; z-index:100;" onfocus="this.style.left='1rem'" onblur="this.style.left='-9999px'">Zum Inhalt springen</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+
+const faqs = [
+  { q: "Was ist eine Baugruppe?", a: "Eine Gruppe von Menschen, die gemeinsam ein Wohnhaus plant und errichtet – mit mehr Mitbestimmung und Gemeinschaft als beim klassischen Wohnungskauf oder der Miete." },
+  { q: "Kann ich noch einsteigen?", a: "Derzeit sind alle Wohnungen reserviert. Wir freuen uns aber über Interessierte, die die Gruppe kennenlernen möchten – am besten über den Newsletter oder per Kontaktformular." },
+  { q: "Was kostet das Wohnen im Treibhaus?", a: "Wir setzen auf leistbares Wohnen für unterschiedliche Lebenssituationen." },
+];
+---
+<Base title="Info – Treibhaus Donaufeld" description="Häufige Fragen, Mitmachen, Newsletter, Kontakt und Impressum der Baugruppe Treibhaus Donaufeld.">
+  <section class="section">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Info</span>
+      <h1>Fragen, Mitmachen &amp; Kontakt</h1>
+      <p class="lead" style="margin-top:1rem;">Alles, was du brauchst, um mit uns in Kontakt zu kommen.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--mist" id="faq" aria-labelledby="faq-h">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Häufige Fragen</span>
+      <h2 id="faq-h">FAQ</h2>
+      <div class="stack" style="margin-top:1.5rem;">
+        {faqs.map((item) => (
+          <details class="card" style="padding:1.1rem 1.3rem;">
+            <summary style="font-family:var(--font-display); font-weight:600; cursor:pointer; color:var(--canopy);">{item.q}</summary>
+            <p style="color:var(--ink-soft); margin-top:0.6rem;">{item.a}</p>
+          </details>
+        ))}
+      </div>
+      <!-- TODO: weitere Fragen/Antworten aus der alten Seite /info#faq ergänzen -->
+    </div>
+  </section>
+
+  <!-- Mitgliedschaft -->
+  <section class="section" id="mitgliedschaft" aria-labelledby="mit-h">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Mitmachen</span>
+      <h2 id="mit-h">Teil der Gruppe werden</h2>
+      <p style="color:var(--ink-soft);">
+        Du möchtest die Gruppe kennenlernen? Trag dich in den Newsletter ein oder schreib uns –
+        wir melden uns mit den nächsten Schritten.
+      </p>
+      <!-- TODO: Details zur Mitgliedschaft aus /info#mitgliedschaft übernehmen -->
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section section--mist" id="newsletter" aria-labelledby="nl-h">
+    <div class="container" style="max-width:36rem;">
+      <span class="eyebrow">Newsletter</span>
+      <h2 id="nl-h" style="margin-bottom:1.25rem;">Auf dem Laufenden bleiben</h2>
+      <NewsletterForm heading="Newsletter abonnieren" />
+    </div>
+  </section>
+
+  <!-- Kontakt -->
+  <section class="section" id="kontakt" aria-labelledby="kontakt-h">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Kontakt</span>
+      <h2 id="kontakt-h">Schreib uns</h2>
+      <!-- TODO: Kontaktadresse / E-Mail aus /info#kontakt übernehmen, z.B.: -->
+      <p style="color:var(--ink-soft);">
+        E-Mail: <a href="mailto:__KONTAKT_EMAIL__">__KONTAKT_EMAIL__</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Impressum -->
+  <section class="section section--mist" id="impressum" aria-labelledby="impressum-h">
+    <div class="container" style="max-width:48rem;">
+      <span class="eyebrow">Rechtliches</span>
+      <h2 id="impressum-h">Impressum</h2>
+      <!-- TODO: Impressumstext (Medieninhaber, Vereinsdaten, Vertretung) aus /info#impressum übernehmen -->
+      <p style="color:var(--ink-soft);">Medieninhaber &amp; für den Inhalt verantwortlich: Treibhaus Donaufeld.</p>
+    </div>
+  </section>
+</Base>

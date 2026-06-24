@@ -1,0 +1,229 @@
+/* ==========================================================================
+   Treibhaus Donaufeld — global styles
+   Design language: "greenhouse". Fresh glasshouse greens, a friendly
+   architectural display face, garden-label eyebrows, lots of air.
+   All colours and type derive from the tokens below — change them here.
+   ========================================================================== */
+
+:root {
+  /* — Colour ————————————————————————————————————————————————— */
+  --canopy:    #1c3a28; /* darkest green: footer, deep panels            */
+  --leaf:      #2f6b43; /* primary green: brand, buttons, links          */
+  --leaf-deep: #245236; /* hover / pressed                               */
+  --sprout:    #8cc152; /* fresh accent — new growth, used sparingly     */
+  --honey:     #e2a64e; /* warm accent — solidarity, used very sparingly */
+  --paper:     #f5f6f0; /* page background, warm light                   */
+  --card:      #ffffff; /* raised surfaces                               */
+  --mist:      #eaeee2; /* quiet panels                                  */
+  --line:      #d8ddcc; /* hairlines                                     */
+  --ink:       #1f2a22; /* body text                                     */
+  --ink-soft:  #525f54; /* muted text                                    */
+
+  /* — Type ——————————————————————————————————————————————————— */
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque',
+                  system-ui, -apple-system, Segoe UI, sans-serif;
+  --font-body:    'Hanken Grotesk Variable', 'Hanken Grotesk',
+                  system-ui, -apple-system, Segoe UI, sans-serif;
+
+  /* — Layout —————————————————————————————————————————————————— */
+  --container: 1120px;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+  --section-y: clamp(3.5rem, 9vw, 7rem);
+  --radius: 0.7rem;
+  --radius-lg: 1.1rem;
+  --shadow: 0 1px 2px rgba(28, 58, 40, 0.05),
+            0 12px 30px -18px rgba(28, 58, 40, 0.28);
+}
+
+/* — Reset / base —————————————————————————————————————————————— */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg { display: block; max-width: 100%; height: auto; }
+
+a { color: var(--leaf); text-underline-offset: 0.18em; }
+a:hover { color: var(--leaf-deep); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--canopy);
+  font-weight: 600;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.75rem, 3.6vw, 2.6rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.45rem); letter-spacing: -0.01em; }
+p { text-wrap: pretty; }
+
+:focus-visible { outline: 3px solid var(--leaf); outline-offset: 3px; border-radius: 3px; }
+
+/* — Layout helpers ———————————————————————————————————————————— */
+.container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+.section { padding-block: var(--section-y); }
+.section--mist { background: var(--mist); }
+.section--canopy { background: var(--canopy); color: #e7ede2; }
+.section--canopy h1, .section--canopy h2, .section--canopy h3 { color: #fff; }
+.stack > * + * { margin-top: 1rem; }
+.lead { font-size: clamp(1.1rem, 1.6vw, 1.3rem); color: var(--ink-soft); max-width: 42ch; }
+
+/* — Garden-label eyebrow (signature structural device) ———————————— */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--leaf);
+  margin-bottom: 1rem;
+}
+.eyebrow::before {
+  content: "";
+  width: 1.4rem; height: 0.5rem;
+  background: var(--sprout);
+  /* little plant-stake tag shape: pointed on the right */
+  clip-path: polygon(0 0, 70% 0, 100% 50%, 70% 100%, 0 100%);
+}
+
+/* — Buttons ——————————————————————————————————————————————————— */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  text-decoration: none; cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--leaf); color: #fff; }
+.btn--primary:hover { background: var(--leaf-deep); color: #fff; }
+.btn--ghost { background: transparent; color: var(--leaf); border-color: var(--line); }
+.btn--ghost:hover { border-color: var(--leaf); color: var(--leaf-deep); }
+.btn--honey { background: var(--honey); color: #3a2a08; }
+.btn--honey:hover { background: #d4953b; color: #3a2a08; }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+/* — Cards ————————————————————————————————————————————————————— */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem;
+  box-shadow: var(--shadow);
+}
+.card h3 { margin-bottom: 0.4rem; }
+.card p { color: var(--ink-soft); }
+
+.grid { display: grid; gap: 1.25rem; }
+.grid--3 { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+
+/* feature card with a leaf node marker */
+.feature h3 { display: flex; align-items: baseline; gap: 0.6rem; }
+.feature h3::before {
+  content: ""; flex: none;
+  width: 0.7rem; height: 0.7rem; border-radius: 50% 50% 50% 0;
+  background: var(--sprout); transform: rotate(45deg);
+  translate: 0 -0.05em;
+}
+
+/* — Section heading block ————————————————————————————————————— */
+.section-head { max-width: 56ch; margin-bottom: clamp(2rem, 4vw, 3rem); }
+.section-head p { color: var(--ink-soft); font-size: 1.1rem; }
+
+/* — Highlight / news panel ———————————————————————————————————— */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--leaf);
+  border-radius: var(--radius);
+  padding: clamp(1.4rem, 3vw, 2rem);
+  box-shadow: var(--shadow);
+}
+.panel--soli { border-left-color: var(--honey); }
+.panel ol { padding-left: 1.2rem; color: var(--ink-soft); }
+.panel ol li + li { margin-top: 0.4rem; }
+
+/* — Timeline (the milestones are a real sequence) ————————————————— */
+.timeline { list-style: none; padding: 0; position: relative; margin-top: 1.5rem; }
+.timeline::before {
+  content: ""; position: absolute; left: 0.45rem; top: 0.4rem; bottom: 0.4rem;
+  width: 2px; background: var(--line);
+}
+.timeline li { position: relative; padding: 0 0 1.5rem 2rem; }
+.timeline li:last-child { padding-bottom: 0; }
+.timeline li::before {
+  content: ""; position: absolute; left: 0; top: 0.35rem;
+  width: 0.95rem; height: 0.95rem; border-radius: 50% 50% 50% 0;
+  background: var(--sprout); transform: rotate(45deg);
+  box-shadow: 0 0 0 4px var(--paper);
+}
+.timeline .year { font-family: var(--font-display); font-weight: 700; color: var(--leaf); margin-right: 0.5rem; }
+
+/* — Newsletter form (listmonk) ———————————————————————————————— */
+.newsletter { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: clamp(1.6rem, 4vw, 2.6rem); box-shadow: var(--shadow); }
+.newsletter form { display: grid; gap: 0.85rem; max-width: 30rem; }
+.newsletter label { font-weight: 600; font-size: 0.95rem; }
+.newsletter input[type="email"],
+.newsletter input[type="text"] {
+  font: inherit; width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--paper);
+}
+.newsletter input:focus { outline: none; border-color: var(--leaf); }
+
+/* — Header ————————————————————————————————————————————————————— */
+.site-header { position: sticky; top: 0; z-index: 50; background: var(--paper); background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 4.5rem; }
+.brand { display: inline-flex; align-items: center; gap: 0.65rem; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--canopy); text-decoration: none; letter-spacing: -0.01em; }
+.brand .mark { width: 2rem; height: 2rem; flex: none; }
+.nav { display: flex; align-items: center; gap: 0.4rem; }
+.nav a { font-weight: 600; color: var(--ink); text-decoration: none; padding: 0.4rem 0.7rem; border-radius: var(--radius); font-size: 0.98rem; }
+.nav a:hover, .nav a[aria-current="page"] { background: var(--mist); color: var(--leaf-deep); }
+.nav-toggle { display: none; }
+
+@media (max-width: 760px) {
+  .nav-toggle { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; font-weight: 600; cursor: pointer; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.5rem 0.85rem; color: var(--ink); }
+  .nav { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(100% + 0.5rem); flex-direction: column; align-items: stretch; gap: 0.25rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 0.6rem; box-shadow: var(--shadow); display: none; }
+  .nav[data-open="true"] { display: flex; }
+  .site-header__inner { position: relative; }
+}
+
+/* — Footer ————————————————————————————————————————————————————— */
+.site-footer { background: var(--canopy); color: #c8d4c5; padding-block: clamp(2.5rem, 6vw, 4rem); }
+.site-footer a { color: #eaf2e6; }
+.site-footer__grid { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between; }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
+.site-footer small { color: #9fb3a0; }
+
+/* — Hero ——————————————————————————————————————————————————————— */
+.hero { position: relative; overflow: hidden; }
+.hero__inner { display: grid; gap: clamp(2rem, 5vw, 3.5rem); align-items: center; padding-block: clamp(3rem, 7vw, 5.5rem); }
+@media (min-width: 880px) { .hero__inner { grid-template-columns: 1.05fr 0.95fr; } }
+.hero h1 { margin-bottom: 1.1rem; }
+.hero .art { width: 100%; }
+.hero__inner .btn-row { margin-top: 1.6rem; }
+.hero em { font-style: normal; color: var(--leaf); font-weight: 600; }

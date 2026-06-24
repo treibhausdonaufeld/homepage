@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f5f6f0"/>
+  <rect x="0" y="0" width="1200" height="16" fill="#2f6b43"/>
+  <g transform="translate(96,150)">
+    <path d="M0 60 L40 60 L40 22 L70 -8 L100 22 L100 60 L140 60" fill="none" stroke="#2f6b43" stroke-width="8" stroke-linejoin="round"/>
+  </g>
+  <text x="96" y="330" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#1c3a28">Treibhaus Donaufeld</text>
+  <text x="98" y="400" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#525f54">Baugruppe · Wien, 21. Bezirk</text>
+  <text x="98" y="452" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#2f6b43">Wohnen zwischen Stadt und Land — gemeinschaftlich &amp; nachhaltig</text>
+  <circle cx="1050" cy="150" r="70" fill="#e2a64e" fill-opacity="0.45"/>
+  <path d="M980 470 C980 410 940 395 940 345 C1000 370 1000 420 1000 470" fill="#8cc152"/>
+  <path d="M1040 470 C1040 400 1090 385 1090 335 C1030 365 1030 420 1030 470" fill="#2f6b43"/>
+</svg>
+<!-- TODO (optional): Für beste Darstellung in sozialen Netzwerken ein 1200x630 PNG/JPG
+     anlegen (z.B. mit einem echten Foto) und in Base.astro als og:image referenzieren. -->

@@ -1,0 +1,42 @@
+---
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const nav = [
+  { href: "/",        label: "Start" },
+  { href: "/projekt", label: "Projekt" },
+  { href: "/wir",     label: "Wir" },
+  { href: "/info",    label: "Info" },
+];
+const isCurrent = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+---
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label="Treibhaus Donaufeld – Startseite">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M20 4 L34 16 V36 H6 V16 Z" fill="#eef5ee" stroke="#2f6b43" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M20 4 L34 16 M20 4 L6 16" stroke="#2f6b43" stroke-width="3" stroke-linecap="round"/>
+        <path d="M20 34 C20 24 14 22 14 14 C24 18 24 28 24 34" fill="#8cc152"/>
+      </svg>
+      <span>Treibhaus&nbsp;Donaufeld</span>
+    </a>
+
+    <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">
+      <span aria-hidden="true">☰</span> Menü
+    </button>
+
+    <nav id="primary-nav" class="nav" aria-label="Hauptnavigation">
+      {nav.map((item) => (
+        <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector(".nav-toggle");
+  const nav = document.getElementById("primary-nav");
+  toggle?.addEventListener("click", () => {
+    const open = nav?.getAttribute("data-open") === "true";
+    nav?.setAttribute("data-open", String(!open));
+    toggle.setAttribute("aria-expanded", String(!open));
+  });
+</script>
