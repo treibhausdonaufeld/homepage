@@ -18,6 +18,9 @@
   --line:      #d8ddcc; /* hairlines                                     */
   --ink:       #1f2a22; /* body text                                     */
   --ink-soft:  #525f54; /* muted text                                    */
+  --heading:   #1c3a28; /* heading text (own token so dark mode can flip */
+                        /* it without disturbing --canopy backgrounds)   */
+  color-scheme: light;
 
   /* — Type ——————————————————————————————————————————————————— */
   --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque',
@@ -53,6 +56,7 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 img, svg { display: block; max-width: 100%; height: auto; }
@@ -64,7 +68,7 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   line-height: 1.08;
   letter-spacing: -0.015em;
-  color: var(--canopy);
+  color: var(--heading);
   font-weight: 600;
   text-wrap: balance;
 }
@@ -191,14 +195,14 @@ p { text-wrap: pretty; }
   font: inherit; width: 100%;
   padding: 0.7rem 0.9rem;
   border: 2px solid var(--line); border-radius: var(--radius);
-  background: var(--paper);
+  background: var(--paper); color: var(--ink);
 }
 .newsletter input:focus { outline: none; border-color: var(--leaf); }
 
 /* — Header ————————————————————————————————————————————————————— */
 .site-header { position: sticky; top: 0; z-index: 50; background: var(--paper); background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 4.5rem; }
-.brand { display: inline-flex; align-items: center; gap: 0.65rem; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--canopy); text-decoration: none; letter-spacing: -0.01em; }
+.brand { display: inline-flex; align-items: center; gap: 0.65rem; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--heading); text-decoration: none; letter-spacing: -0.01em; }
 .brand__logo { height: 2.4rem; width: auto; display: block; }
 .nav { display: flex; align-items: center; gap: 0.4rem; }
 .nav a { font-weight: 600; color: var(--ink); text-decoration: none; padding: 0.4rem 0.7rem; border-radius: var(--radius); font-size: 0.98rem; }
@@ -245,7 +249,7 @@ p { text-wrap: pretty; }
 }
 .media-card img { width: 100%; height: 200px; object-fit: cover; display: block; background: var(--mist); }
 .media-grid--plans .media-card img { height: auto; object-fit: contain; padding: 0.5rem; }
-.media-card span { display: block; padding: 0.7rem 0.9rem; font-weight: 600; color: var(--canopy); font-size: 0.98rem; }
+.media-card span { display: block; padding: 0.7rem 0.9rem; font-weight: 600; color: var(--heading); font-size: 0.98rem; }
 .media-card--plain { border: none; box-shadow: var(--shadow); }
 .media-card--plain img { height: 260px; }
 
@@ -256,3 +260,53 @@ p { text-wrap: pretty; }
 }
 .partner-row img { max-height: 64px; width: auto; opacity: 0.85; transition: opacity 0.15s ease; }
 .partner-row a:hover img { opacity: 1; }
+
+/* — Header controls + theme toggle ———————————————————————————— */
+.header-controls { display: flex; align-items: center; gap: 0.5rem; }
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.5rem; height: 2.5rem; flex: none;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); color: var(--ink); cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.theme-toggle:hover { border-color: var(--leaf); color: var(--leaf-deep); }
+.theme-toggle svg { width: 1.25rem; height: 1.25rem; }
+/* show the moon in light mode (tap → go dark), the sun in dark mode */
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+/* ==========================================================================
+   Dark mode — "greenhouse at night". Same tokens, dusk palette. Activated by
+   data-theme="dark" on <html> (set before paint by the inline script in
+   Base.astro, toggled by the header button). --canopy stays a dark green so
+   footer / .section--canopy backgrounds keep working; --heading flips light.
+   ========================================================================== */
+[data-theme="dark"] {
+  --canopy:    #18301f; /* dark section + footer background              */
+  --leaf:      #6cc185; /* brightened so links/brand read on dark        */
+  --leaf-deep: #8ad6a0; /* hover                                         */
+  --sprout:    #8cc152; /* accent — still pops on dark                   */
+  --honey:     #e8b667; /* warm accent                                   */
+  --paper:     #0e1611; /* page background                               */
+  --card:      #16211a; /* raised surfaces                               */
+  --mist:      #18241c; /* quiet panels                                  */
+  --line:      #2b3a2f; /* hairlines                                     */
+  --ink:       #e6ece1; /* body text                                     */
+  --ink-soft:  #a3b3a5; /* muted text                                    */
+  --heading:   #eef5ee; /* headings + brand text                         */
+  color-scheme: dark;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+            0 12px 30px -18px rgba(0, 0, 0, 0.7);
+}
+
+/* Partner logos are colour artwork on white; on dark surfaces give them a
+   light chip so they stay legible. Photos in media cards need no change. */
+[data-theme="dark"] .partner-row img {
+  background: #f5f6f0;
+  border-radius: var(--radius);
+  padding: 0.35rem 0.5rem;
+  opacity: 1;
+}
