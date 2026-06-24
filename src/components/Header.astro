@@ -1,4 +1,6 @@
 ---
+// BASE_URL is "/homepage/" on GitHub Pages, "/" on a custom domain.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const nav = [
   { href: "/",        label: "Start" },
@@ -6,18 +8,19 @@ const nav = [
   { href: "/wir",     label: "Wir" },
   { href: "/info",    label: "Info" },
 ];
-const isCurrent = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+const isCurrent = (href: string) =>
+  href === "/" ? path === (base || "/") : path.startsWith(base + href);
 ---
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="brand" href="/" aria-label="Treibhaus Donaufeld – Startseite">
-      <img class="brand__logo" src="/images/logo.png" width="1648" height="649" alt="Treibhaus Donaufeld" />
+    <a class="brand" href={base + "/"} aria-label="Treibhaus Donaufeld – Startseite">
+      <img class="brand__logo" src={base + "/images/logo.png"} width="1648" height="649" alt="Treibhaus Donaufeld" />
     </a>
 
     <div class="header-controls">
       <nav id="primary-nav" class="nav" aria-label="Hauptnavigation">
         {nav.map((item) => (
-          <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>
+          <a href={base + item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>
         ))}
       </nav>
 

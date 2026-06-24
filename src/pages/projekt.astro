@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 const angebot = [
   { src: "/images/projekt/food-coop-web.jpg",        title: "Food Coop" },
   { src: "/images/projekt/zusammen-essen-web.jpg",   title: "Gemeinsam essen" },
@@ -68,7 +70,7 @@ const grundrisse = [
       <ul class="media-grid">
         {angebot.map((item) => (
           <li class="media-card">
-            <img src={item.src} alt={item.title} loading="lazy" />
+            <img src={base + item.src} alt={item.title} loading="lazy" />
             <span>{item.title}</span>
           </li>
         ))}
@@ -104,7 +106,7 @@ const grundrisse = [
       <ul class="media-grid media-grid--plans">
         {grundrisse.map((plan) => (
           <li class="media-card">
-            <img src={plan.src} alt={`Grundriss ${plan.title}`} loading="lazy" />
+            <img src={base + plan.src} alt={`Grundriss ${plan.title}`} loading="lazy" />
             <span>{plan.title}</span>
           </li>
         ))}

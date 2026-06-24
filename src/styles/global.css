@@ -108,6 +108,9 @@ p { text-wrap: pretty; }
   /* little plant-stake tag shape: pointed on the right */
   clip-path: polygon(0 0, 70% 0, 100% 50%, 70% 100%, 0 100%);
 }
+/* warm variant — draws extra attention (used for the Viertel band) */
+.eyebrow--honey { color: var(--honey); }
+.eyebrow--honey::before { background: var(--honey); }
 
 /* — Buttons ——————————————————————————————————————————————————— */
 .btn {
@@ -261,11 +264,23 @@ p { text-wrap: pretty; }
 .partner-row img { max-height: 64px; width: auto; opacity: 0.85; transition: opacity 0.15s ease; }
 .partner-row a:hover img { opacity: 1; }
 
-/* — Viertel cards (neighbourhood offers) ——————————————————————— */
+/* — Viertel section (neighbourhood offers — a highlighted band) ——— */
+.section--viertel {
+  background: color-mix(in srgb, var(--sprout) 14%, var(--paper));
+  border-block: 1px solid var(--line);
+}
+
+/* — Viertel cards ————————————————————————————————————————————— */
 .viertel-card {
   display: flex; flex-direction: column;
   background: var(--card); border: 1px solid var(--line);
+  border-top: 4px solid var(--sprout);
   border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.viertel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 4px rgba(28, 58, 40, 0.08), 0 18px 36px -16px rgba(28, 58, 40, 0.4);
 }
 .viertel-card > img { width: 100%; height: 200px; object-fit: cover; background: var(--mist); }
 .viertel-card__body { padding: 1.4rem; }

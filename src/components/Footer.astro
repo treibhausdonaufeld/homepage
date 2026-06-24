@@ -1,5 +1,6 @@
 ---
 const year = new Date().getFullYear();
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <footer class="site-footer">
   <div class="container site-footer__grid">
@@ -8,9 +9,9 @@ const year = new Date().getFullYear();
       <small>Baugruppe · Wien, 21. Bezirk</small>
     </div>
     <nav class="site-footer__links" aria-label="Rechtliches">
-      <a href="/info#kontakt">Kontakt</a>
-      <a href="/info#impressum">Impressum</a>
-      <a href="/datenschutz">Datenschutz</a>
+      <a href={base + "/info#kontakt"}>Kontakt</a>
+      <a href={base + "/info#impressum"}>Impressum</a>
+      <a href={base + "/datenschutz"}>Datenschutz</a>
     </nav>
     <small>© {year} Treibhaus Donaufeld</small>
   </div>

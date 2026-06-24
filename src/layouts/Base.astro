@@ -18,6 +18,10 @@ const {
 } = Astro.props;
 
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const ogImage = Astro.site
+  ? new URL(`${base}/images/hero-gemeinschaftstag.jpg`, Astro.site).href
+  : `${base}/images/hero-gemeinschaftstag.jpg`;
 ---
 <!doctype html>
 <html lang="de">
@@ -44,10 +48,10 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/images/favicon-192x192.png" type="image/png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+    <link rel="icon" href={base + "/favicon.ico"} sizes="32x32" />
+    <link rel="icon" href={base + "/images/favicon-32x32.png"} type="image/png" sizes="32x32" />
+    <link rel="icon" href={base + "/images/favicon-192x192.png"} type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href={base + "/images/apple-touch-icon.png"} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -55,7 +59,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
     <meta property="og:description" content={description} />
     <meta property="og:locale" content="de_AT" />
     {Astro.site && <meta property="og:url" content={canonical} />}
-    <meta property="og:image" content="/images/hero-gemeinschaftstag.jpg" />
+    <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
