@@ -1,0 +1,92 @@
+---
+import Email from '../../components/Email.astro';
+export const prerender = false;
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import T from '../../components/T.astro';
+import WeekGrid from '../../components/WeekGrid.astro';
+import { getDb } from '../../lib/db';
+import { getRoom } from '../../lib/booking/service';
+import { config } from '../../lib/config';
+import { isValidDate, mondayOf, today } from '../../lib/time';
+
+const entry = await getEntry('rooms', Astro.params.slug ?? '');
+if (!entry) return new Response(null, { status: 404, statusText: 'Nicht gefunden' });
+const db = getDb();
+const room = getRoom(db, entry.data.bookingId);
+const { Content } = await render(entry);
+const d = entry.data;
+const w = Astro.url.searchParams.get('woche');
+const monday = mondayOf(isValidDate(w) ? w : today());
+const combo = d.kombinierbarMit ? await getEntry('rooms', d.kombinierbarMit) : null;
+const bf = { ja: 'ja', nein: 'nein', teilweise: 'teilweise', offen: '' }[d.barrierefrei];
+const bookBase = `/buchen/zeit?raum=${d.bookingId}`;
+---
+<Base title={d.name} description={d.kurz}>
+  <div class="wrap"><p class="crumbs"><a href="/raeume">Räume</a> › {d.name}</p></div>
+  <section class="wrap grid-2 top">
+    <div class="gallery">
+      <Photo src={d.bilder[0]?.src} alt={d.bilder[0]?.alt ?? d.name} ratio="16/10" class="main" />
+      <div class="thumbs">
+        {d.bilder.slice(1, 4).map((b) => <Photo src={b.src} alt={b.alt} ratio="4/3" />)}
+      </div>
+    </div>
+    <div>
+      <h1>{d.name}</h1>
+      <p class="lead"><T text={d.kurz} /></p>
+      <dl class="facts">
+        <dt>Platz für</dt><dd>ca. {d.kapazitaet} Personen</dd>
+        <dt>Ausstattung</dt><dd>{d.ausstattung.map((a, i) => <>{i > 0 && ', '}<T text={a} /></>)}</dd>
+        <dt>Barrierefrei</dt><dd>{bf} {d.barrierefreiText && <T text={d.barrierefreiText} />}</dd>
+        {combo && <><dt>Kombinierbar</dt><dd>mit der <a href={`/raeume/${combo.id}`}>{combo.data.name}</a> (ca. {combo.data.kapazitaet} Personen)</dd></>}
+      </dl>
+      {room?.bookable !== false && <p><a class="btn" href={bookBase}>{d.name} anfragen</a></p>}
+      <p class="small muted">Kein Konto nötig. Du bestätigst per E-Mail oder Matrix. Die Raum-AG antwortet in <mark class="todo">{config.booking.responseTimeText}</mark>.</p>
+    </div>
+  </section>
+
+  {room && (
+    <section class="wrap section" id="belegung" aria-labelledby="frei-h">
+      <h2 id="frei-h">Wann ist {d.name.startsWith('Saal') ? 'der Raum' : d.name.endsWith('saal') ? 'der Saal' : 'die Küche'} frei?</h2>
+      <WeekGrid db={db} room={room} monday={monday} baseHref={`/raeume/${entry.id}?`} bookHref={bookBase} />
+      <p class="small muted">Nach jeder Buchung halten wir {room.bufferMinutes} Minuten für Aufräumen und Reinigung frei <mark class="todo">Pufferzeit festlegen</mark>. Ab <mark class="todo">22 Uhr</mark> ist Nachtruhe. <a href={`/raeume/${entry.id}.ics`}>Belegung abonnieren (iCal)</a></p>
+    </section>
+  )}
+
+  <section class="wrap section grid-2">
+    <div>
+      <h2>Was kostet {d.name.endsWith('saal') ? 'der Saal' : d.name.startsWith('Saal') ? 'es' : 'die Küche'}?</h2>
+      <dl class="prices">
+        <div><dt>Privat <span>Geburtstag, Familienfest</span></dt><dd><T text={d.preise.privat} /></dd></div>
+        <div><dt>Gemeinnützig <span>Initiative, Verein, Nachbarschaft</span></dt><dd><T text={d.preise.gemeinnuetzig} /></dd></div>
+        <div><dt>Kommerziell <span>bezahlter Kurs, Firma</span></dt><dd><T text={d.preise.kommerziell} /></dd></div>
+      </dl>
+      <p class="hint">Du willst etwas Offenes fürs Viertel anbieten? Dann gibt es Sonderkonditionen. <a href="/anbieten">Mehr dazu</a></p>
+      <div class="prose"><Content /></div>
+    </div>
+    <div>
+      <h2>Das Wichtigste aus den Hausregeln</h2>
+      <ul>
+        <li>Lautstärke und Uhrzeiten: <mark class="todo">TODO</mark></li>
+        <li>Alkohol: <mark class="todo">TODO</mark></li>
+        <li>Aufräumen und Reinigung: <mark class="todo">TODO</mark></li>
+        <li>Kaution: <mark class="todo">TODO</mark></li>
+        <li>Schlüssel abholen und zurückgeben: <mark class="todo">TODO</mark></li>
+      </ul>
+      <p><a class="go" href="/hausregeln">Alle Hausregeln lesen →</a></p>
+      <p class="muted">Fragen zum Raum? Schreib im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder an <Email />.</p>
+    </div>
+  </section>
+</Base>
+<style>
+  .top { padding-top: 16px; align-items: start; }
+  .gallery :global(.photo) { border-width: 0; box-shadow: none; border-radius: 8px; }
+  .gallery { min-width: 0; }
+  .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .prices { margin: 0 0 20px; border-top: 2px solid var(--ink); }
+  .prices > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .prices dt { font-weight: 700; }
+  .prices dt span { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
+  .prices dd { margin: 0; }
+</style>

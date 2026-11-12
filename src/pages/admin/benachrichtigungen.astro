@@ -1,0 +1,169 @@
+---
+export const prerender = false;
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { NOTIFY_KINDS, type NotifyKind } from '../../lib/db/schema';
+import { audit } from '../../lib/booking/service';
+import { ADMIN_EVENTS, ADMIN_EVENT_KEYS } from '../../lib/booking/types';
+import { adminSenders, refreshMatrixRooms } from '../../lib/notify';
+import {
+  KIND_LABEL, TARGET_HINT, addTarget, deleteTarget, getTarget, kindStatus, listTargets, sendToTarget, updateTarget, validateTarget,
+} from '../../lib/notify/targets';
+import { config } from '../../lib/config';
+import { fmt } from '../../lib/time';
+import { log } from '../../lib/log';
+
+const db = getDb();
+const actor = Astro.locals.admin!.name;
+let msg: string | null = null;
+let error: string | null = null;
+let form: { kind: string; target: string; label: string; events: string[] } = {
+  kind: 'email',
+  target: '',
+  label: '',
+  events: ADMIN_EVENT_KEYS.filter((e) => ADMIN_EVENTS[e].default),
+};
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const action = String(f.get('aktion'));
+  const id = Number(f.get('id'));
+  const t = id ? getTarget(db, id) : undefined;
+  const describe = (x: { kind: NotifyKind; target: string }) => `${KIND_LABEL[x.kind]} ${x.target}`;
+  if (action === 'anlegen') {
+    form = {
+      kind: String(f.get('kind')),
+      target: String(f.get('target') ?? ''),
+      label: String(f.get('label') ?? ''),
+      events: f.getAll('events').map(String),
+    };
+    const v = validateTarget({ kind: form.kind as NotifyKind, target: form.target, label: form.label, events: form.events });
+    if ('error' in v) error = v.error;
+    else {
+      const created = addTarget(db, actor, v.value);
+      audit(db, actor, 'benachrichtigung-angelegt', null, describe(created));
+      msg = `${KIND_LABEL[created.kind]}-Ziel angelegt. Mit „Test senden“ kannst du prüfen, ob es ankommt.`;
+      form = { kind: form.kind, target: '', label: '', events: ADMIN_EVENT_KEYS.filter((e) => ADMIN_EVENTS[e].default) };
+    }
+  } else if (t && action === 'ereignisse') {
+    const events = f.getAll('events').map(String);
+    const v = validateTarget({ kind: t.kind, target: t.target, label: String(f.get('label') ?? ''), events });
+    if ('error' in v) error = v.error;
+    else {
+      updateTarget(db, t.id, { events: v.value.events, label: v.value.label });
+      audit(db, actor, 'benachrichtigung-geaendert', null, describe(t));
+      msg = 'Gespeichert.';
+    }
+  } else if (t && action === 'umschalten') {
+    updateTarget(db, t.id, { enabled: !t.enabled });
+    audit(db, actor, t.enabled ? 'benachrichtigung-pausiert' : 'benachrichtigung-aktiviert', null, describe(t));
+    msg = t.enabled ? 'Pausiert.' : 'Aktiviert.';
+  } else if (t && action === 'loeschen') {
+    deleteTarget(db, t.id);
+    audit(db, actor, 'benachrichtigung-geloescht', null, describe(t));
+    msg = 'Gelöscht.';
+  } else if (t && action === 'test') {
+    try {
+      await sendToTarget(t, {
+        title: 'Test der Raum-AG-Benachrichtigung',
+        text: `${actor} hat diese Testnachricht im Admin-Bereich verschickt. Wenn du sie liest, funktioniert der Kanal.`,
+        url: `${config.publicUrl}/admin/benachrichtigungen`,
+      }, adminSenders);
+      updateTarget(db, t.id, { lastSentAt: new Date(), lastError: null });
+      msg = t.kind === 'email' && !kindStatus('email').ok
+        ? 'Test „gesendet“ – SMTP ist aber nicht eingerichtet, die Mail steht nur im Server-Log.'
+        : 'Testnachricht verschickt.';
+    } catch (err) {
+      const m = (err as Error).message.slice(0, 300);
+      updateTarget(db, t.id, { lastError: m });
+      error = `Test fehlgeschlagen: ${m}`;
+    }
+  }
+  await refreshMatrixRooms().catch((err) => log.warn('Matrix-Räume konnten nicht aktualisiert werden', { err }));
+}
+
+const targets = listTargets(db);
+const status = Object.fromEntries(NOTIFY_KINDS.map((k) => [k, kindStatus(k)])) as Record<NotifyKind, ReturnType<typeof kindStatus>>;
+---
+<Admin title="Benachrichtigungen">
+  <h1>Benachrichtigungen</h1>
+  <p class="muted">Wohin die Raum-AG Meldungen bekommt, z. B. wenn eine Anfrage abgeschickt wurde. Hier stellst du nur das Ziel ein. Die Zugangsdaten (Mailserver, Bot-Konten) kommen aus der Server-Konfiguration.</p>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  {error && <p class="error-box" role="alert">{error}</p>}
+
+  <ul class="status">
+    {NOTIFY_KINDS.map((k) => (
+      <li><span class={`badge ${status[k].ok ? 'bestaetigt' : 'vorlaeufig'}`}>{status[k].ok ? 'eingerichtet' : 'nicht eingerichtet'}</span> <strong>{KIND_LABEL[k]}</strong>{!status[k].ok && <span class="small muted"> – fehlt: {status[k].missing}</span>}</li>
+    ))}
+  </ul>
+
+  <h2>Ziele</h2>
+  {targets.length === 0 ? <p class="muted">Noch keine Ziele. Ohne Ziel bekommt niemand Bescheid über neue Anfragen.</p> : (
+    <div class="targets">
+      {targets.map((t) => (
+        <article class={`card target ${t.enabled ? '' : 'off'}`}>
+          <div class="row head">
+            <span class="badge">{KIND_LABEL[t.kind]}</span>
+            <strong>{t.target}</strong>
+            {t.label && <span class="muted">{t.label}</span>}
+            {!t.enabled && <span class="badge abgelaufen">pausiert</span>}
+          </div>
+          <p class="small muted">
+            {t.lastError ? <span class="err">Letzter Fehler: {t.lastError}</span> : t.lastSentAt ? <>Zuletzt gesendet: {fmt.dateTime(t.lastSentAt)}</> : 'Noch nichts gesendet.'}
+            {!status[t.kind].ok && <> · <span class="err">Kanal nicht eingerichtet</span></>}
+          </p>
+          <form method="post">
+            <input type="hidden" name="aktion" value="ereignisse" />
+            <input type="hidden" name="id" value={t.id} />
+            <fieldset>
+              <legend class="small">Benachrichtigen bei</legend>
+              {ADMIN_EVENT_KEYS.map((e) => (
+                <label class="check small"><input type="checkbox" name="events" value={e} checked={t.events.includes(e)} /> <span>{ADMIN_EVENTS[e].label}{ADMIN_EVENTS[e].hint && <span class="muted"> ({ADMIN_EVENTS[e].hint})</span>}</span></label>
+              ))}
+            </fieldset>
+            <div class="field"><label for={`l-${t.id}`} class="small">Bezeichnung (optional)</label><input id={`l-${t.id}`} type="text" name="label" value={t.label ?? ''} /></div>
+            <button class="btn small ghost" type="submit">Speichern</button>
+          </form>
+          <div class="row actions">
+            <form method="post"><input type="hidden" name="aktion" value="test" /><input type="hidden" name="id" value={t.id} /><button class="btn small" type="submit">Test senden</button></form>
+            <form method="post"><input type="hidden" name="aktion" value="umschalten" /><input type="hidden" name="id" value={t.id} /><button class="btn small ghost" type="submit">{t.enabled ? 'Pausieren' : 'Aktivieren'}</button></form>
+            <form method="post"><input type="hidden" name="aktion" value="loeschen" /><input type="hidden" name="id" value={t.id} /><button class="linkbtn small" type="submit">Löschen</button></form>
+          </div>
+        </article>
+      ))}
+    </div>
+  )}
+
+  <h2 style="margin-top:40px">Neues Ziel</h2>
+  <form method="post" class="card narrow">
+    <input type="hidden" name="aktion" value="anlegen" />
+    <fieldset>
+      <legend>Kanal</legend>
+      {NOTIFY_KINDS.map((k) => (
+        <label class="check"><input type="radio" name="kind" value={k} checked={form.kind === k} /> <span>{KIND_LABEL[k]} <span class="small muted">– {TARGET_HINT[k]}</span></span></label>
+      ))}
+    </fieldset>
+    <div class="field">
+      <label for="target">Ziel</label>
+      <input id="target" type="text" name="target" value={form.target} required placeholder="raum-ag@… · #raum-ag · !abc:treibhausdonaufeld.at" autocomplete="off" />
+    </div>
+    <div class="field"><label for="label">Bezeichnung (optional)</label><input id="label" type="text" name="label" value={form.label} placeholder="z. B. Raum-AG-Chat" /></div>
+    <fieldset>
+      <legend>Benachrichtigen bei</legend>
+      {ADMIN_EVENT_KEYS.map((e) => (
+        <label class="check"><input type="checkbox" name="events" value={e} checked={form.events.includes(e)} /> <span>{ADMIN_EVENTS[e].label}{ADMIN_EVENTS[e].hint && <span class="muted small"> ({ADMIN_EVENTS[e].hint})</span>}</span></label>
+      ))}
+    </fieldset>
+    <p class="small muted">Matrix: Der Bot tritt dem Raum bei. Ist der Raum nicht öffentlich, lade den Bot ein – er nimmt Einladungen in eingestellte Räume an. Rocket.Chat: Der Bot-Benutzer muss Mitglied im Channel sein.</p>
+    <button class="btn" type="submit">Ziel anlegen</button>
+  </form>
+</Admin>
+<style>
+  .status { list-style: none; padding: 0; margin: 16px 0 32px; display: flex; flex-direction: column; gap: 6px; }
+  .targets { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  .target.off { opacity: 0.7; }
+  .head { gap: 8px 12px; margin-bottom: 4px; }
+  .err { color: var(--err-text); }
+  .actions { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+  fieldset { margin-bottom: 12px; }
+</style>

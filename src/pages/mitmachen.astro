@@ -1,0 +1,42 @@
+---
+import Email from '../components/Email.astro';
+import Base from '../layouts/Base.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { MATRIX_URL } from '../lib/i18n';
+---
+<Base title="Mitmachen" description="Selbst etwas anbieten, bei der Foodcoop mitmachen oder im Haus mithelfen.">
+  <section class="wrap section">
+    <h1>Mitmachen</h1>
+    <p class="lead">Das Erdgeschoß lebt von den Menschen, die etwas daraus machen. Es gibt viele Wege, dabei zu sein – auch ohne im Haus zu wohnen.</p>
+    <div class="grid-2" style="margin-top:40px">
+      <article class="card">
+        <h2>Selbst etwas anbieten</h2>
+        <p>Du hast eine Idee für einen Kurs, ein Treffen, ein Reparaturcafé oder einen Spieleabend? Wir helfen dir mit Raum und Werbung. Für offene Angebote fürs Viertel gibt es Sonderkonditionen <mark class="todo">Konditionen</mark>.</p>
+        <p><strong>Idee schicken → kurz reden → Raum bekommen</strong></p>
+        <a class="btn" href="/anbieten">Idee einreichen</a>
+      </article>
+      <article class="card">
+        <h2>Foodcoop</h2>
+        <p>Gemeinsam regionale Lebensmittel direkt bei Bäuer:innen einkaufen. Auch Leute aus dem Viertel können Mitglied werden.</p>
+        <a class="go" href="/foodcoop">Zur Foodcoop →</a>
+      </article>
+      <article class="card">
+        <h2>Mithelfen</h2>
+        <p>Wir suchen Menschen, die mit anpacken:</p>
+        <ul>
+          <li>Werkstattbetreuung (Fahrrad, Nähen, Werken)</li>
+          <li>Schichten beim Samstagstreff</li>
+          <li>Feste und Aktionen fürs Viertel</li>
+        </ul>
+        <p>Schreib uns, was dich interessiert – im Matrix-Raum <a href={MATRIX_URL}>#hallo</a> oder an <Email subject="Mithelfen" />. <mark class="todo">Ansprechpersonen</mark></p>
+      </article>
+      <article class="card">
+        <h2>Im Gespräch bleiben</h2>
+        <p>Der offene Matrix-Raum <strong>#hallo</strong> ist der Treffpunkt fürs Viertel: Fragen, Ideen, Flohmarkt-Tipps, Verabredungen.</p>
+        <p><a class="btn ghost" href={MATRIX_URL}>Im Matrix-Raum hallo sagen</a></p>
+        <p class="small muted">Lieber per Mail? Dann abonnier den Newsletter.</p>
+      </article>
+    </div>
+  </section>
+  <section class="wrap section narrow"><Newsletter /></section>
+</Base>

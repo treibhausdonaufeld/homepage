@@ -1,0 +1,161 @@
+---
+export const prerender = false;
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OfferCard from '../../components/OfferCard.astro';
+import { getDb } from '../../lib/db';
+import { publicEvents } from '../../lib/booking/service';
+import { CATEGORIES, CATEGORY_LABEL, type Category, type PublicEvent } from '../../lib/booking/types';
+import { addDays, dayStart, fmt, localDate, localParts, mondayOf, today, DAY } from '../../lib/time';
+
+const q = Astro.url.searchParams;
+const kat = (CATEGORIES as readonly string[]).includes(q.get('kategorie') ?? '') ? (q.get('kategorie') as Category) : null;
+const view = q.get('ansicht') === 'kalender' ? 'kalender' : 'liste';
+const monthParam = /^\d{4}-\d{2}$/.test(q.get('monat') ?? '') ? q.get('monat')! : today().slice(0, 7);
+
+const offers = (await getCollection('offers'))
+  .filter((o) => o.data.status !== 'pausiert' && (!kat || o.data.kategorie === kat))
+  .sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+
+const db = getDb();
+let events: PublicEvent[];
+let monthDays: string[] = [];
+const monthStart = `${monthParam}-01`;
+if (view === 'kalender') {
+  const gridStart = mondayOf(monthStart);
+  const [y, m] = monthParam.split('-').map(Number);
+  const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`;
+  let d = gridStart;
+  while (d < nextMonth || monthDays.length % 7 !== 0) { monthDays.push(d); d = addDays(d, 1); }
+  events = publicEvents(db, dayStart(gridStart), dayStart(d));
+} else {
+  const now = new Date();
+  events = publicEvents(db, now, new Date(now.getTime() + 90 * DAY));
+}
+events = events.filter((e) => !kat || e.category === kat);
+
+const byDay = new Map<string, PublicEvent[]>();
+for (const e of events) {
+  const k = localDate(e.start);
+  byDay.set(k, [...(byDay.get(k) ?? []), e]);
+}
+const qs = (over: Record<string, string | null>) => {
+  const p = new URLSearchParams(q);
+  for (const [k, v] of Object.entries(over)) v === null ? p.delete(k) : p.set(k, v);
+  const s = p.toString();
+  return s ? `?${s}` : '';
+};
+const [yy, mm] = monthParam.split('-').map(Number);
+const prevMonth = mm === 1 ? `${yy - 1}-12` : `${yy}-${String(mm - 1).padStart(2, '0')}`;
+const nextMonthP = mm === 12 ? `${yy + 1}-01` : `${yy}-${String(mm + 1).padStart(2, '0')}`;
+Astro.response.headers.set('Cache-Control', 'public, max-age=60');
+---
+<Base title="Was ist los" description="Offene Angebote und Termine im Treibhaus Donaufeld – für alle aus dem Viertel.">
+  <section class="wrap section">
+    <h1>Was ist los im Treibhaus?</h1>
+    <p class="lead">Diese Angebote sind offen für alle aus dem Viertel. Die meisten kosten nichts oder eine Spende. Du musst niemanden kennen – komm einfach vorbei.</p>
+
+    <nav aria-label="Nach Kategorie filtern" class="filters">
+      <a href={`/termine${qs({ kategorie: null })}`} aria-current={!kat ? 'true' : undefined}>Alle</a>
+      {CATEGORIES.map((c) => <a href={`/termine${qs({ kategorie: c })}`} aria-current={kat === c ? 'true' : undefined}>{CATEGORY_LABEL[c]}</a>)}
+      <a class="ical" href="/termine.ics">Kalender abonnieren (iCal)</a>
+    </nav>
+
+    <h2>Regelmäßig im Haus</h2>
+    <div class="grid-3">
+      {offers.map((o) => <OfferCard offer={o} />)}
+      <article class="card idea">
+        <span class="cat">Deine Idee</span>
+        <h3>Hier fehlt etwas?</h3>
+        <p>Kindercafé, Kochkurs, Spieleabend, Ausstellung? Biete es selbst an. Wir helfen dir mit Raum und Werbung.</p>
+        <a class="btn" href="/anbieten">Idee einreichen</a>
+      </article>
+    </div>
+    <p class="muted small">Weitere Bewegungsangebote: <mark class="todo">TODO: Liste (Yoga, Tanz, Kinderturnen …)</mark></p>
+  </section>
+
+  <section class="wrap section" aria-labelledby="alle-h" id="termine">
+    <div class="row spread">
+      <h2 id="alle-h">Alle Termine</h2>
+      <div class="toggle" role="group" aria-label="Ansicht">
+        <a href={`/termine${qs({ ansicht: null, monat: null })}#termine`} aria-current={view === 'liste' ? 'true' : undefined}>Liste</a>
+        <a href={`/termine${qs({ ansicht: 'kalender' })}#termine`} aria-current={view === 'kalender' ? 'true' : undefined}>Kalender</a>
+      </div>
+    </div>
+
+    {view === 'liste' ? (
+      byDay.size ? (
+        <div class="days">
+          {[...byDay.entries()].map(([day, list]) => (
+            <section>
+              <h3>{fmt.long(dayStart(day))}</h3>
+              <ul>
+                {list.map((e) => (
+                  <li>
+                    <span class="time">{fmt.range(e.start, e.end)}</span>
+                    <span class="title">{e.offer ? <a href={`/angebote/${e.offer}`}>{e.title}</a> : e.title} · <span class="muted">{e.roomName}</span></span>
+                    <a class="small" href={`/termine/${e.key}.ics`}>In meinen Kalender</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      ) : <p class="muted">In den nächsten drei Monaten stehen {kat ? 'in dieser Kategorie ' : ''}keine Termine im Kalender.</p>
+    ) : (
+      <div>
+        <div class="row monthnav">
+          <a href={`/termine${qs({ ansicht: 'kalender', monat: prevMonth })}#termine`} aria-label="Voriger Monat">‹</a>
+          <strong>{fmt.monthYear(dayStart(monthStart))}</strong>
+          <a href={`/termine${qs({ ansicht: 'kalender', monat: nextMonthP })}#termine`} aria-label="Nächster Monat">›</a>
+        </div>
+        <div class="table-scroll">
+          <table class="month">
+            <caption class="sr-only">Termine im {fmt.monthYear(dayStart(monthStart))}</caption>
+            <thead><tr>{['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((d) => <th scope="col">{d}</th>)}</tr></thead>
+            <tbody>
+              {Array.from({ length: monthDays.length / 7 }).map((_, w) => (
+                <tr>
+                  {monthDays.slice(w * 7, w * 7 + 7).map((d) => (
+                    <td class={d.slice(0, 7) !== monthParam ? 'out' : d === today() ? 'today' : ''}>
+                      <span class="dn">{localParts(dayStart(d)).day}</span>
+                      {(byDay.get(d) ?? []).map((e) => (
+                        <a class="ev" href={e.offer ? `/angebote/${e.offer}` : `/termine/${e.key}.ics`}>{fmt.time(e.start)} {e.title}</a>
+                      ))}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </section>
+</Base>
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 32px 0 48px; }
+  .filters a { border: 2px solid var(--line-strong); border-radius: 999px; padding: 6px 16px; text-decoration: none; color: var(--ink); font-weight: 600; }
+  .filters a[aria-current] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .filters .ical { border: 0; text-decoration: underline; color: var(--link); margin-left: auto; font-weight: 400; }
+  .idea { background: var(--surface-2); border-color: var(--surface-2); }
+  .idea .btn { align-self: flex-start; }
+  .spread { justify-content: space-between; }
+  .toggle { display: flex; border: 2px solid var(--primary); border-radius: 8px; overflow: hidden; }
+  .toggle a { padding: 6px 16px; text-decoration: none; color: var(--primary); font-weight: 700; }
+  .toggle a[aria-current] { background: var(--primary); color: var(--on-primary); }
+  .days section { border-top: 2px solid var(--ink); margin-top: 24px; }
+  .days h3 { font-size: 18px; margin: 12px 0; }
+  .days ul { list-style: none; padding: 0; margin: 0; }
+  .days li { display: flex; flex-wrap: wrap; gap: 4px 20px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .time { font-weight: 700; width: 110px; }
+  .title { flex: 1; min-width: 200px; }
+  .monthnav { justify-content: center; gap: 24px; margin-bottom: 12px; font-size: 18px; }
+  .monthnav a { text-decoration: none; font-size: 24px; padding: 0 8px; }
+  .month { table-layout: fixed; min-width: 640px; }
+  .month td { height: 96px; border: 1px solid var(--line); vertical-align: top; padding: 4px; font-size: 13px; }
+  .month td.out { background: var(--tint); color: var(--muted); }
+  .month td.today .dn { background: var(--primary); color: var(--on-primary); border-radius: 999px; padding: 0 6px; }
+  .dn { font-weight: 700; display: inline-block; margin-bottom: 4px; }
+  .ev { display: block; background: var(--surface-2); color: var(--ink); text-decoration: none; border-radius: 4px; padding: 2px 4px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>

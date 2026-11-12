@@ -1,0 +1,95 @@
+---
+import Email from '../../components/Email.astro';
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import Summary from '../../components/booking/Summary.astro';
+import { getDb } from '../../lib/db';
+import { bookingView, cancelByGuest, getBookingByManageToken } from '../../lib/booking/service';
+import { BookingError } from '../../lib/booking/types';
+import { getNotifier } from '../../lib/notify';
+import { fmt } from '../../lib/time';
+
+const db = getDb();
+const token = Astro.params.token ?? '';
+let booking = getBookingByManageToken(db, token);
+let cancelled = false;
+let error: string | null = null;
+if (booking && Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (form.get('aktion') === 'storno') {
+    try {
+      booking = await cancelByGuest(db, getNotifier(), booking, String(form.get('grund') ?? ''));
+      cancelled = true;
+    } catch (err) {
+      if (err instanceof BookingError) error = err.message;
+      else throw err;
+    }
+  }
+}
+const confirmCancel = Astro.url.searchParams.get('storno') === '1';
+const view = booking ? bookingView(db, booking) : null;
+const active = booking && ['vorlaeufig', 'bestaetigt'].includes(booking.status);
+const first = view?.occurrences[0];
+---
+<Base title="Buchung verwalten" noindex>
+  <Shell>
+    {!view ? (
+      <>
+        <h1>Buchung nicht gefunden</h1>
+        <p>Der Link stimmt nicht oder die Daten wurden nach Ablauf der Löschfrist entfernt.</p>
+        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
+      </>
+    ) : cancelled ? (
+      <>
+        <h1>Storniert</h1>
+        <p>Der Termin ist wieder frei. Du bekommst eine kurze Bestätigung.</p>
+        <p><a class="btn" href="/buchen">Neuen Termin finden</a></p>
+      </>
+    ) : confirmCancel && active ? (
+      <>
+        <h1>Buchung wirklich stornieren?</h1>
+        <p class="muted">{view.room.name} · {first && `${fmt.short(first.start)} · ${fmt.range(first.start, first.end)}`}{view.occurrences.length > 1 && ` (alle ${view.occurrences.length} Termine)`}</p>
+        <form method="post" action={`/b/${token}`}>
+          <input type="hidden" name="aktion" value="storno" />
+          <div class="field">
+            <label for="grund">Magst du uns sagen, warum? (freiwillig)</label>
+            <textarea id="grund" name="grund" maxlength="500"></textarea>
+          </div>
+          <p class="small">Storno-Bedingungen: <mark class="todo">TODO</mark></p>
+          <div class="stack">
+            <button class="btn big danger" type="submit">Ja, stornieren</button>
+            <a class="btn big ghost" href={`/b/${token}`}>Nein, Buchung behalten</a>
+          </div>
+        </form>
+      </>
+    ) : (
+      <>
+        {booking!.status === 'bestaetigt' && <h1>Alles klar – {view.room.name.endsWith('saal') ? 'der Saal gehört' : 'der Raum gehört'} dir!</h1>}
+        {booking!.status === 'vorlaeufig' && <h1>Deine Anfrage wartet auf die Raum-AG</h1>}
+        {!active && <h1>Diese Buchung ist {booking!.status === 'storniert' ? 'storniert' : booking!.status === 'abgelehnt' ? 'abgelehnt' : 'nicht mehr aktiv'}</h1>}
+        {error && <p class="error-box" role="alert">{error}</p>}
+        <Summary view={view} showPurpose />
+        {booking!.decisionNote && <p class="hint">Die Raum-AG schreibt: „{booking!.decisionNote}“</p>}
+        {booking!.status === 'vorlaeufig' && booking!.holdUntil && <p>Wir halten den Termin bis {fmt.dateTime(booking!.holdUntil)} für dich frei.</p>}
+        {booking!.status === 'bestaetigt' && (
+          <>
+            <p><a class="btn ghost" href={`/b/${token}.ics`}>In meinen Kalender (iCal)</a></p>
+            <div class="info"><h2 class="h3">Schlüssel und Zugang</h2><p><mark class="todo">TODO: Schlüsselübergabe, wo und wann</mark></p></div>
+            <div class="info"><h2 class="h3">Kosten</h2><p><mark class="todo">TODO: Betrag, Kaution, wie zahlen</mark></p></div>
+            {booking!.isPublic && <p class="small muted">Dein Termin steht auch im öffentlichen Kalender, weil du „Offen für alle“ gewählt hast.</p>}
+          </>
+        )}
+        {view.occurrences.length > 1 && (
+          <details><summary>Alle {view.occurrences.length} Termine</summary><ul>{view.occurrences.map((o) => <li>{fmt.short(o.start)} · {fmt.range(o.start, o.end)}</li>)}</ul></details>
+        )}
+        {active && booking!.contactChannel !== 'intern' && <p style="margin-top:24px"><a class="btn big ghost" href={`/b/${token}?storno=1`}>{booking!.status === 'vorlaeufig' ? 'Anfrage zurückziehen' : 'Buchung stornieren'}</a></p>}
+        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
+      </>
+    )}
+  </Shell>
+</Base>
+<style>
+  .h3 { font-size: 18px; letter-spacing: 0; margin-bottom: 4px; }
+  .info { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+</style>

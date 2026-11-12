@@ -1,0 +1,30 @@
+---
+/** Fall A: Die Zeit wurde gerade vergeben. Angaben bleiben erhalten. */
+import Shell from './Shell.astro';
+import Hidden from './Hidden.astro';
+import type { AllFields } from '../../lib/booking/form';
+import { timeQuery } from '../../lib/booking/form';
+import type { Segment } from '../../lib/booking/types';
+import { fmt, localTime } from '../../lib/time';
+interface Props { fields: AllFields; free: Segment[]; title?: string; text?: string }
+const { fields, free, title = 'Diese Zeit ist gerade vergeben worden', text = 'Jemand war ein paar Minuten schneller. Deine Angaben haben wir behalten.' } = Astro.props;
+---
+<Shell>
+  <h1>{title}</h1>
+  <p>{text}</p>
+  {free.length > 0 && (
+    <>
+      <p><strong>Freie Zeiten am selben Tag:</strong></p>
+      <div class="row">
+        {free.map((s) => (
+          <form method="post" action="/buchen/angaben">
+            <Hidden fields={{ ...fields, von: localTime(s.start), bis: localTime(s.end) }} except={['regeln']} />
+            <input type="hidden" name="prefill" value="1" />
+            <button class="btn ghost" type="submit">{fmt.range(s.start, s.end)}</button>
+          </form>
+        ))}
+      </div>
+    </>
+  )}
+  <p style="margin-top:24px"><a class="btn" href={`/buchen/zeit?${timeQuery({ raum: fields.raum, datum: fields.datum })}`}>Anderen Tag wählen</a></p>
+</Shell>

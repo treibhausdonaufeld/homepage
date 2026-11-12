@@ -1,0 +1,23 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import ResultView from '../../components/booking/ResultView.astro';
+import { getDb } from '../../lib/db';
+import { bookingView, getBookingByPublicId } from '../../lib/booking/service';
+
+const db = getDb();
+const b = getBookingByPublicId(db, Astro.url.searchParams.get('b') ?? '');
+if (b?.status === 'unbestaetigt') return Astro.redirect(`/buchen/code?b=${b.publicId}`);
+---
+<Base title="Danke · Raum buchen" noindex>
+  <Shell>
+    {b ? <ResultView view={bookingView(db, b)} /> : (
+      <>
+        <h1>Danke!</h1>
+        <p>Deine Anfrage ist bei uns angekommen.</p>
+        <p><a class="btn" href="/">Zur Startseite</a></p>
+      </>
+    )}
+  </Shell>
+</Base>

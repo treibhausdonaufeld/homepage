@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Book a room" lang="en" alternate="/buchen">
+  <section class="wrap section narrow">
+    <h1>How booking works</h1>
+    <ol class="steps">
+      <li><strong>Choose a room and a time.</strong> The calendar shows when it is free.</li>
+      <li><strong>Tell us what you are planning:</strong> your name, what for, roughly how many people.</li>
+      <li><strong>Confirm with a code</strong> we send you by email or as a Matrix message.</li>
+      <li><strong>Your request is reserved provisionally.</strong> The house’s room group (Raum-AG) looks at it and answers you the same way.</li>
+    </ol>
+    <p>The form is in German. If you get stuck, write to us – we are happy to help in English.</p>
+    <p class="row"><a class="btn" href="/buchen">Open the booking form</a> <a href="/en/contact">Ask us</a></p>
+  </section>
+</Base>
+<style>.steps { padding-left: 1.2em; } .steps li { margin: 10px 0; }</style>

@@ -1,0 +1,143 @@
+---
+export const prerender = false;
+import { getCollection } from 'astro:content';
+import Admin from '../../../layouts/Admin.astro';
+import { getDb } from '../../../lib/db';
+import {
+  approve, auditFor, bookingView, cancelByHouse, extendHold, findConflicts, getBooking, isTrusted, manageUrl, reject, setTrusted, updatePublicInfo,
+} from '../../../lib/booking/service';
+import { BookingError, CATEGORIES, CATEGORY_LABEL, KIND_LABEL, STATUS_LABEL } from '../../../lib/booking/types';
+import { describeRule } from '../../../lib/booking/recurrence';
+import { getNotifier } from '../../../lib/notify';
+import { fmt } from '../../../lib/time';
+
+const db = getDb();
+const id = Number(Astro.params.id);
+const actor = Astro.locals.admin!.name;
+let msg: string | null = null;
+let error: string | null = null;
+if (!getBooking(db, id)) return new Response('Nicht gefunden', { status: 404 });
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const note = String(f.get('notiz') ?? '').trim() || null;
+  const n = getNotifier();
+  try {
+    switch (f.get('aktion')) {
+      case 'annehmen': await approve(db, n, id, actor, note); msg = 'Angenommen – die Person wird benachrichtigt.'; break;
+      case 'ablehnen': await reject(db, n, id, actor, note); msg = 'Abgelehnt – die Person wird benachrichtigt.'; break;
+      case 'stornieren':
+        if (!note) throw new BookingError('invalid', 'Bitte schreib eine Notiz für die Betroffenen.');
+        await cancelByHouse(db, n, id, actor, note); msg = 'Storniert.'; break;
+      case 'verlaengern': extendHold(db, id, actor, Number(f.get('stunden') ?? 24)); msg = 'Haltefrist verlängert.'; break;
+      case 'vertrauen': setTrusted(db, getBooking(db, id)!, f.get('wert') === '1', actor); msg = 'Gespeichert.'; break;
+      case 'termin':
+        updatePublicInfo(db, id, actor, {
+          isPublic: f.get('oeffentlich') === 'ja',
+          category: String(f.get('kategorie') ?? '') || null,
+          offer: String(f.get('angebot') ?? '') || null,
+          purpose: String(f.get('titel') ?? '').trim() || null,
+        });
+        msg = 'Termin-Infos gespeichert.'; break;
+    }
+  } catch (e) {
+    if (e instanceof BookingError) error = e.message; else throw e;
+  }
+}
+const b = getBooking(db, id)!;
+const view = bookingView(db, b);
+const offers = (await getCollection('offers')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const log = auditFor(db, id);
+const trusted = isTrusted(db, b);
+const active = view.slots.filter((s) => !s.skipped);
+const occStarts = [...new Set(active.map((s) => s.start.getTime()))];
+const conflicts = ['vorlaeufig', 'bestaetigt'].includes(b.status)
+  ? findConflicts(db, active.map((s) => ({ roomSlug: s.roomSlug, start: s.start, end: s.end, endWithBuffer: s.endWithBuffer, occurrence: occStarts.indexOf(s.start.getTime()) })), { excludeBookingId: b.id })
+  : [];
+---
+<Admin title={`Buchung #${b.id}`}>
+  <p class="crumbs"><a href="/admin">Anfragen</a> › #{b.id}</p>
+  <h1>{view.room.name}: {b.purpose ?? '–'} <span class={`badge ${b.status}`}>{STATUS_LABEL[b.status]}</span></h1>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  {error && <p class="error-box" role="alert">{error}</p>}
+  <div class="grid-2">
+    <div>
+      <dl class="facts">
+        <dt>Name</dt><dd>{b.name ?? <em>gelöscht</em>}</dd>
+        <dt>Kontakt</dt><dd>{b.contactChannel === 'intern' ? 'intern' : <>{b.contactChannel === 'email' ? 'E-Mail' : 'Matrix'}: {b.contactAddress ?? <em>gelöscht</em>}</>} {trusted && <span class="badge">vertraut</span>}</dd>
+        <dt>Art</dt><dd>{KIND_LABEL[b.kind]}</dd>
+        <dt>Personen</dt><dd>ca. {b.persons} (Raum: {view.room.capacity})</dd>
+        <dt>Öffentlich</dt><dd>{b.isPublic ? 'ja – erscheint im Terminkalender' : 'nein'}</dd>
+        <dt>Angefragt</dt><dd>{fmt.dateTime(b.createdAt)}</dd>
+        {b.verifiedAt && <><dt>Bestätigt</dt><dd>{fmt.dateTime(b.verifiedAt)}</dd></>}
+        {b.holdUntil && <><dt>Hält bis</dt><dd>{fmt.dateTime(b.holdUntil)}</dd></>}
+        {b.decidedBy && <><dt>Entschieden</dt><dd>{b.decidedBy}{b.decidedAt && `, ${fmt.dateTime(b.decidedAt)}`}</dd></>}
+        {b.decisionNote && <><dt>Notiz</dt><dd>{b.decisionNote}</dd></>}
+        {b.cancelReason && <><dt>Storno-Grund</dt><dd>{b.cancelReason}</dd></>}
+        {b.deleteAfter && <><dt>Löschung</dt><dd>{b.anonymizedAt ? `anonymisiert ${fmt.numeric(b.anonymizedAt)}` : `ab ${fmt.numeric(b.deleteAfter)}`}</dd></>}
+      </dl>
+      <h2>Termine {view.seriesRule && <span class="small muted">({describeRule(view.seriesRule)})</span>}</h2>
+      <ul>
+        {view.occurrences.map((o) => <li>{fmt.short(o.start)} {fmt.range(o.start, o.end)}</li>)}
+        {view.skipped.map((o) => <li><s>{fmt.short(o.start)} {fmt.range(o.start, o.end)}</s> <span class="badge abgelehnt">schon belegt</span></li>)}
+      </ul>
+      {conflicts.length > 0 && <p class="error-box">Achtung: {conflicts.length} Überschneidung(en) mit Sperrzeiten oder anderen Buchungen.</p>}
+    </div>
+    <div class="stack">
+      {b.status === 'vorlaeufig' && (
+        <form method="post" class="card">
+          <h2 class="h3">Entscheiden</h2>
+          <div class="field"><label for="notiz">Notiz an die Person (optional)</label><textarea id="notiz" name="notiz" placeholder="z. B. Schlüssel bei …"></textarea></div>
+          <div class="row">
+            <button class="btn" name="aktion" value="annehmen">Annehmen</button>
+            <button class="btn ghost" name="aktion" value="ablehnen">Ablehnen</button>
+          </div>
+        </form>
+      )}
+      {b.status === 'vorlaeufig' && (
+        <form method="post" class="row">
+          <input type="hidden" name="aktion" value="verlaengern" />
+          <label for="stunden" class="small">Haltefrist verlängern um</label>
+          <select id="stunden" name="stunden" style="width:auto"><option value="24">24 h</option><option value="72">3 Tage</option><option value="168">1 Woche</option></select>
+          <button class="btn small ghost">Verlängern</button>
+        </form>
+      )}
+      {['vorlaeufig', 'bestaetigt'].includes(b.status) && (
+        <form method="post" class="card">
+          <h2 class="h3">Vom Haus stornieren</h2>
+          <div class="field"><label for="snotiz">Notiz an die Betroffenen (Pflicht)</label><textarea id="snotiz" name="notiz" required></textarea></div>
+          <button class="btn danger small" name="aktion" value="stornieren">Stornieren</button>
+        </form>
+      )}
+      <form method="post" class="card">
+        <h2 class="h3">Im Terminkalender</h2>
+        <input type="hidden" name="aktion" value="termin" />
+        <label class="check"><input type="checkbox" name="oeffentlich" value="ja" checked={b.isPublic} /> Öffentlich zeigen</label>
+        <div class="field"><label for="titel">Titel</label><input type="text" id="titel" name="titel" value={b.purpose ?? ''} /></div>
+        <div class="row two">
+          <div class="field"><label for="kategorie">Kategorie</label><select id="kategorie" name="kategorie"><option value="">–</option>{CATEGORIES.map((c) => <option value={c} selected={b.category === c}>{CATEGORY_LABEL[c]}</option>)}</select></div>
+          <div class="field"><label for="angebot">Angebot</label><select id="angebot" name="angebot"><option value="">–</option>{offers.map((o) => <option value={o.id} selected={b.offer === o.id}>{o.data.title}</option>)}</select></div>
+        </div>
+        <button class="btn small ghost">Speichern</button>
+      </form>
+      {b.contactHash && (
+        <form method="post">
+          <input type="hidden" name="aktion" value="vertrauen" />
+          <input type="hidden" name="wert" value={trusted ? '0' : '1'} />
+          <button class="btn small ghost">{trusted ? 'Kontakt nicht mehr automatisch freigeben' : 'Diesem Kontakt vertrauen (künftig Auto-Freigabe)'}</button>
+        </form>
+      )}
+      {b.manageTokenHash && <p class="small"><a href={manageUrl(b)}>Ansicht der buchenden Person</a></p>}
+    </div>
+  </div>
+  <h2 style="margin-top:40px">Protokoll</h2>
+  <table>
+    <thead><tr><th>Wann</th><th>Wer</th><th>Was</th><th>Details</th></tr></thead>
+    <tbody>{log.map((l) => <tr><td>{fmt.dateTime(l.at)}</td><td>{l.actor}</td><td>{l.action}</td><td>{l.details}</td></tr>)}</tbody>
+  </table>
+</Admin>
+<style>
+  .h3 { font-size: 18px; letter-spacing: 0; }
+  .two { flex-wrap: nowrap; }
+  .two .field { flex: 1; }
+</style>

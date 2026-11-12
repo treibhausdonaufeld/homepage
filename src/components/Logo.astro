@@ -1,0 +1,19 @@
+---
+interface Props { height?: number; href?: string; label?: string }
+const { height = 54, href = '/', label = 'treibhaus donaufeld – zur Startseite' } = Astro.props;
+const w = Math.round((height * 1562) / 569);
+---
+<a href={href} class="logo">
+  <img class="lg-l" src="/logo/logo-gruen.png" alt={label} width={w} height={height} style={`height:${height}px;width:auto`} />
+  <img class="lg-d" src="/logo/logo-hell-dunkelmodus.png" alt={label} width={w} height={height} style={`height:${height}px;width:auto`} />
+</a>
+<style>
+  .logo { display: block; line-height: 0; }
+  .lg-d { display: none; }
+  :global(:root[data-theme='dark']) .lg-l { display: none; }
+  :global(:root[data-theme='dark']) .lg-d { display: block; }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .lg-l { display: none; }
+    :global(:root:not([data-theme='light'])) .lg-d { display: block; }
+  }
+</style>

@@ -1,0 +1,103 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import Hidden from '../../components/booking/Hidden.astro';
+import ErrorSummary from '../../components/booking/ErrorSummary.astro';
+import ContactStep from '../../components/booking/ContactStep.astro';
+import { getDb } from '../../lib/db';
+import { getRoom } from '../../lib/booking/service';
+import { parseDetails, parseTime, readFields, timeQuery, type AllFields } from '../../lib/booking/form';
+import { describeRule } from '../../lib/booking/recurrence';
+import { config } from '../../lib/config';
+import { checkFormStamp, formStamp } from '../../lib/verify/tokens';
+import { fmt } from '../../lib/time';
+import { withArticle } from '../../lib/notify';
+
+const db = getDb();
+let fields: AllFields;
+let errors: Record<string, string> = {};
+let showContact = false;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  fields = readFields(form);
+  if (!form.get('prefill')) {
+    if (String(form.get('website') ?? '')) {
+      // Honeypot: so tun, als wäre alles gut, aber nichts tun
+      return Astro.redirect('/buchen/danke');
+    }
+    const stamp = checkFormStamp(String(form.get('stamp') ?? ''), config.booking.minFormSeconds);
+    if (stamp === 'too-fast') errors._form = 'Bitte versuch es gleich noch einmal.';
+    else if (stamp === 'invalid') errors._form = 'Das Formular ist abgelaufen. Bitte schick es noch einmal ab.';
+    const d = parseDetails(fields);
+    errors = { ...d.errors, ...errors };
+    const room = getRoom(db, fields.raum);
+    if (room && !errors.personen && Number(fields.personen) > room.capacity) {
+      const subject = withArticle(room.name);
+      const more = room.combines?.length ? 'Für mehr schreib uns bitte.' : 'Für mehr: nimm Saal + Küche zusammen oder schreib uns.';
+      errors.personen = `${subject.charAt(0).toUpperCase()}${subject.slice(1)} ${room.combines?.length ? 'haben' : 'hat'} Platz für ca. ${room.capacity} Personen. ${more}`;
+    }
+    if (!Object.keys(errors).length) showContact = true;
+  }
+} else {
+  fields = readFields(Astro.url.searchParams);
+  fields.oeffentlich = '';
+}
+
+const room = getRoom(db, fields.raum);
+const t = parseTime(fields);
+if (!room || Object.keys(t.errors).length || !t.start || !t.end) {
+  return Astro.redirect(`/buchen/zeit?${timeQuery(fields)}`);
+}
+const ctx = `${room.name} · ${fmt.short(t.start)} · ${fmt.range(t.start, t.end)}${t.seriesRule ? ` · ${describeRule(t.seriesRule)}` : ''}`;
+const serienkonflikt = Astro.url.searchParams.get('serienkonflikt');
+const stamp = formStamp();
+const err = (k: string) => (errors[k] ? 'true' : undefined);
+---
+<Base title="Angaben · Raum buchen" noindex>
+  {showContact ? (
+    <ContactStep fields={fields} />
+  ) : (
+    <Shell step={3} back={{ href: `/buchen/zeit?${timeQuery(fields)}`, label: 'Zeit' }}>
+      <p class="muted">{ctx}</p>
+      {serienkonflikt && <p class="hint small">Einzelne Termine der Serie sind schon belegt. Die Raum-AG sieht das und meldet sich.</p>}
+      <ErrorSummary errors={errors} />
+      <form method="post" action="/buchen/angaben" novalidate>
+        <Hidden fields={fields} only={['raum', 'datum', 'von', 'bis', 'serie', 'serie_bis', 'kanal', 'email', 'matrix']} />
+        <input type="hidden" name="stamp" value={stamp} />
+        <div class="field" id="f-name">
+          <label for="name">Dein Name</label>
+          <input type="text" id="name" name="name" value={fields.name} autocomplete="name" required aria-invalid={err('name')} aria-describedby={errors.name ? 'name-err' : undefined} />
+          {errors.name && <span class="field-error" id="name-err">{errors.name}</span>}
+        </div>
+        <div class="field" id="f-zweck">
+          <label for="zweck">Was hast du vor?</label>
+          <input type="text" id="zweck" name="zweck" value={fields.zweck} required maxlength="300" placeholder="z. B. Kleidertausch fürs Viertel" aria-invalid={err('zweck')} aria-describedby={errors.zweck ? 'zweck-err' : undefined} />
+          {errors.zweck && <span class="field-error" id="zweck-err">{errors.zweck}</span>}
+        </div>
+        <div class="field" id="f-personen">
+          <label for="personen">Wie viele Personen ungefähr?</label>
+          <input type="number" id="personen" name="personen" value={fields.personen} min="1" max="500" inputmode="numeric" required style="max-width:130px" aria-invalid={err('personen')} aria-describedby={errors.personen ? 'personen-err' : undefined} />
+          {errors.personen && <span class="field-error" id="personen-err">{errors.personen}</span>}
+        </div>
+        <fieldset id="f-art" aria-invalid={err('art')}>
+          <legend>Wofür?</legend>
+          <label class="check"><input type="radio" name="art" value="privat" checked={fields.art === 'privat'} /> privat</label>
+          <label class="check"><input type="radio" name="art" value="gemeinnuetzig" checked={fields.art === 'gemeinnuetzig'} /> gemeinnützig / Initiative</label>
+          <label class="check"><input type="radio" name="art" value="kommerziell" checked={fields.art === 'kommerziell'} /> kommerziell</label>
+          {errors.art && <span class="field-error">{errors.art}</span>}
+        </fieldset>
+        <label class="check"><input type="checkbox" name="oeffentlich" value="ja" checked={fields.oeffentlich === 'ja'} /> <span><strong>Offen für alle?</strong> Dann zeigen wir es im Terminkalender.</span></label>
+        <div id="f-regeln" class={`check boxed ${errors.regeln ? 'invalid' : ''}`} style="margin-top:16px">
+          <input type="checkbox" id="regeln" name="regeln" value="ja" checked={fields.regeln === 'ja'} aria-invalid={err('regeln')} aria-describedby={errors.regeln ? 'regeln-err' : undefined} />
+          <label for="regeln">Ich habe die <a href="/hausregeln" target="_blank">Hausregeln</a> gelesen und halte mich daran.
+            {errors.regeln && <span class="field-error" id="regeln-err" style="display:block">{errors.regeln}</span>}
+          </label>
+        </div>
+        <div class="hp" aria-hidden="true"><label>Bitte leer lassen <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+        <button class="btn big" type="submit" style="margin-top:28px">Weiter: Bestätigen</button>
+      </form>
+    </Shell>
+  )}
+</Base>

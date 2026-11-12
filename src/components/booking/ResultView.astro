@@ -1,0 +1,52 @@
+---
+import Email from '../Email.astro';
+/** Ergebnis nach der Bestätigung des Kontakts: vorläufig, automatisch bestätigt oder Konflikt. */
+import Summary from './Summary.astro';
+import type { BookingView } from '../../lib/booking/types';
+import { maskEmail } from '../../lib/booking/form';
+import { config } from '../../lib/config';
+import { fmt } from '../../lib/time';
+interface Props { view: BookingView }
+const { view } = Astro.props;
+const b = view.booking;
+const contact = b.contactChannel === 'email' ? `per E-Mail an ${maskEmail(b.contactAddress)}` : `per Matrix an ${b.contactAddress}`;
+---
+{b.status === 'vorlaeufig' && (
+  <>
+    <h1>Danke! Deine Anfrage ist da.</h1>
+    <Summary view={view} />
+    <h2 class="h3">Wie geht es weiter?</h2>
+    <ol class="next">
+      <li>Wir halten den Termin {b.holdUntil ? <>bis <strong>{fmt.dateTime(b.holdUntil)}</strong></> : <mark class="todo">X Stunden</mark>} für dich frei.</li>
+      <li>Die Raum-AG schaut sich die Anfrage an. Das dauert meist <mark class="todo">{config.booking.responseTimeText}</mark>.</li>
+      <li>Du bekommst die Antwort {contact}.</li>
+    </ol>
+  </>
+)}
+{b.status === 'bestaetigt' && (
+  <>
+    <h1>Alles klar – der Raum gehört dir!</h1>
+    <Summary view={view} showPurpose />
+    <p>Wir haben dir die Bestätigung mit allen Infos {contact} geschickt – mit Kalenderdatei und Link zum Verwalten.</p>
+  </>
+)}
+{b.status === 'abgelaufen' && (
+  <>
+    <h1>Diese Zeit ist gerade vergeben worden</h1>
+    <p>Jemand war ein paar Minuten schneller und hat die Zeit vor dir bestätigt. Das tut uns leid.</p>
+    <p><a class="btn" href={`/buchen/zeit?raum=${view.room.slug}`}>Andere Zeit wählen</a></p>
+  </>
+)}
+{['abgelehnt', 'storniert'].includes(b.status) && (
+  <>
+    <h1>Diese Anfrage ist nicht mehr aktiv</h1>
+    <p><a class="btn" href="/buchen">Neue Anfrage stellen</a></p>
+  </>
+)}
+<p class="small muted" style="margin-top:24px">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
+<p><a class="btn big" href="/">Zur Startseite</a></p>
+<style>
+  .h3 { font-size: 19px; letter-spacing: 0; }
+  .next { padding-left: 1.2em; }
+  .next li { margin: 6px 0; }
+</style>

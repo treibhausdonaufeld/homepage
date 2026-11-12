@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import HouseSection from '../../components/HouseSection.astro';
+import SagHallo from '../../components/SagHallo.astro';
+---
+<Base title="Treibhaus Donaufeld – a house with an open door" lang="en" alternate="/" description="Two rooms for the whole neighbourhood in Donaufeld, Vienna: open offers and room booking without an account.">
+  <section class="wrap section hero">
+    <div>
+      <span class="eyebrow">Simone-Veil-Gasse 7 · Donaufeld, Vienna</span>
+      <h1>A house with an open door.</h1>
+      <p class="lead">On the ground floor of the Treibhaus there are two rooms for the whole neighbourhood: the Viertelsaal (hall) and the Viertelküche (kitchen). Neighbours meet here, cook, celebrate and plan new things.</p>
+      <p class="row"><a class="go" href="/termine">What’s on (German) →</a> <a class="go" href="/en/booking">Book a room →</a> <a class="go" href="/en/contact">Say hello →</a></p>
+    </div>
+    <HouseSection />
+  </section>
+  <div class="wrap"><p class="notice"><strong>Every Saturday, 1:30–4:30 pm:</strong> open neighbourhood café in the Viertelküche. No registration – just come by.</p></div>
+  <section class="wrap section grid-2">
+    <div>
+      <h2>Who we are</h2>
+      <p>The Treibhaus is a co-housing project with about 65 adults and 30 children <mark class="todo">check</mark>. We share a kitchen, a library and a sauna – and the ground floor with the whole neighbourhood.</p>
+      <p>Two flats are solidarity flats for families with a refugee background, financed by crowdfunding.</p>
+    </div>
+    <div>
+      <h2>Want to offer something?</h2>
+      <p>A repair café, a games night, a dance class? If you have an idea, we will find a room for it. Write to us – in English is fine.</p>
+      <p><a class="btn" href="/en/contact">Get in touch</a></p>
+    </div>
+  </section>
+  <SagHallo lang="en" />
+</Base>
+<style>.hero { display: grid; gap: 48px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); align-items: end; }</style>

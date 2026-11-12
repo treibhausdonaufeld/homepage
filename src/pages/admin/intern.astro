@@ -1,0 +1,90 @@
+---
+export const prerender = false;
+import { getCollection } from 'astro:content';
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { createInternal, listRooms } from '../../lib/booking/service';
+import { BookingError, CATEGORIES, CATEGORY_LABEL, ConflictError } from '../../lib/booking/types';
+import { SERIES_RULES } from '../../lib/booking/recurrence';
+import { getNotifier } from '../../lib/notify';
+import { fmt, isValidDate, parseLocal, today } from '../../lib/time';
+
+const db = getDb();
+const rooms = listRooms(db);
+const offers = (await getCollection('offers')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const actor = Astro.locals.admin!.name;
+let error: string | null = null;
+let conflicts: string[] = [];
+let v: Record<string, string> = { raum: rooms[0]?.slug ?? '', datum: today(), von: '18:00', bis: '20:00', personen: '10' };
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  v = Object.fromEntries([...f.entries()].map(([k, x]) => [k, String(x)]));
+  try {
+    const start = isValidDate(v.datum) ? parseLocal(v.datum, v.von) : null;
+    const end = isValidDate(v.datum) ? parseLocal(v.datum, v.bis) : null;
+    if (!start || !end) throw new BookingError('invalid', 'Bitte Datum und Uhrzeiten prüfen.');
+    if (!v.zweck?.trim()) throw new BookingError('invalid', 'Bitte einen Titel/Zweck angeben.');
+    const rule = v.serie ? SERIES_RULES[v.serie]?.rule : null;
+    const until = rule && isValidDate(v.serie_bis) ? parseLocal(v.serie_bis, '23:59') : null;
+    if (rule && !until) throw new BookingError('invalid', 'Bitte angeben, bis wann die Serie läuft.');
+    const b = await createInternal(db, getNotifier(), actor, {
+      roomSlug: v.raum,
+      start,
+      end,
+      seriesRule: rule,
+      seriesUntil: until,
+      purpose: v.zweck.trim(),
+      persons: Number(v.personen) || 1,
+      isPublic: v.oeffentlich === 'ja',
+      category: v.kategorie || null,
+      offer: v.angebot || null,
+      name: v.name?.trim() || actor,
+      override: v.vorrang === 'ja',
+      note: v.notiz?.trim() || null,
+    });
+    return Astro.redirect(`/admin/buchung/${b.id}`, 303);
+  } catch (e) {
+    if (e instanceof ConflictError) {
+      error = 'Die Zeit überschneidet sich. Mit „Vorrang“ werden überschneidende Anfragen storniert (die Personen werden benachrichtigt).';
+      conflicts = e.conflicts.map((c) => `${c.type === 'block' ? `Sperrzeit: ${c.reason}` : `Buchung #${c.bookingId} (${c.status})`} · ${fmt.short(c.start)} ${fmt.range(c.start, c.end)}`);
+    } else if (e instanceof BookingError) error = e.message;
+    else throw e;
+  }
+}
+---
+<Admin title="Intern buchen">
+  <h1>Intern buchen</h1>
+  <p class="muted">Buchungen des Hauses (Hausversammlung, Samstagstreff, Kurse) sind sofort bestätigt. Öffentliche Termine erscheinen auf der Startseite, unter „Was ist los“ und im iCal-Feed.</p>
+  {error && <div class="error-box" role="alert"><p>{error}</p>{conflicts.length > 0 && <ul>{conflicts.map((c) => <li>{c}</li>)}</ul>}</div>}
+  <form method="post" class="card narrow" style="margin-top:24px">
+    <div class="field"><label for="raum">Raum</label><select id="raum" name="raum">{rooms.map((r) => <option value={r.slug} selected={v.raum === r.slug}>{r.name}</option>)}</select></div>
+    <div class="row three">
+      <div class="field"><label for="datum">Datum</label><input type="date" id="datum" name="datum" value={v.datum} required /></div>
+      <div class="field"><label for="von">Von</label><input type="time" id="von" name="von" value={v.von} step="900" required /></div>
+      <div class="field"><label for="bis">Bis</label><input type="time" id="bis" name="bis" value={v.bis} step="900" required /></div>
+    </div>
+    <div class="row three">
+      <div class="field"><label for="serie">Wiederholung</label><select id="serie" name="serie"><option value="">keine</option>{Object.entries(SERIES_RULES).map(([k, r]) => <option value={k} selected={v.serie === k}>{r.label}</option>)}</select></div>
+      <div class="field"><label for="serie_bis">bis</label><input type="date" id="serie_bis" name="serie_bis" value={v.serie_bis ?? ''} /></div>
+      <div class="field"><label for="personen">Personen</label><input type="number" id="personen" name="personen" value={v.personen} min="1" /></div>
+    </div>
+    <div class="field"><label for="zweck">Titel / Zweck</label><input type="text" id="zweck" name="zweck" value={v.zweck ?? ''} required placeholder="z. B. Hausversammlung" /></div>
+    <div class="field"><label for="name">Verantwortlich</label><input type="text" id="name" name="name" value={v.name ?? actor} /></div>
+    <label class="check"><input type="checkbox" name="oeffentlich" value="ja" checked={v.oeffentlich === 'ja'} /> Öffentlich im Terminkalender zeigen</label>
+    <div class="row three">
+      <div class="field"><label for="kategorie">Kategorie</label><select id="kategorie" name="kategorie"><option value="">–</option>{CATEGORIES.map((c) => <option value={c} selected={v.kategorie === c}>{CATEGORY_LABEL[c]}</option>)}</select></div>
+      <div class="field"><label for="angebot">Angebot</label><select id="angebot" name="angebot"><option value="">–</option>{offers.map((o) => <option value={o.id} selected={v.angebot === o.id}>{o.data.title}</option>)}</select></div>
+    </div>
+    <fieldset class="card" style="background:var(--tint)">
+      <legend>Vorrang für Bewohner:innen</legend>
+      <p class="small muted">Die genaue Regel legt die Hausgemeinschaft fest <mark class="todo">TODO</mark>. Vorrang storniert überschneidende Anfragen und Buchungen und ignoriert Sperrzeiten.</p>
+      <label class="check"><input type="checkbox" name="vorrang" value="ja" checked={v.vorrang === 'ja'} /> Vorrang: überschneidende Buchungen stornieren</label>
+      <div class="field"><label for="notiz">Notiz an die Betroffenen (Pflicht bei Vorrang)</label><textarea id="notiz" name="notiz">{v.notiz ?? ''}</textarea></div>
+    </fieldset>
+    <button class="btn" type="submit">Buchen</button>
+  </form>
+</Admin>
+<style>
+  .three { flex-wrap: wrap; align-items: flex-start; }
+  .three .field { flex: 1 1 140px; }
+</style>

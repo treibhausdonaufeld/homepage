@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import EventList from '../../components/EventList.astro';
+import Photo from '../../components/Photo.astro';
+import T from '../../components/T.astro';
+import { getDb } from '../../lib/db';
+import { publicEvents } from '../../lib/booking/service';
+import { CATEGORY_LABEL } from '../../lib/booking/types';
+import { DAY } from '../../lib/time';
+
+const offer = await getEntry('offers', Astro.params.slug ?? '');
+if (!offer) return new Response(null, { status: 404, statusText: 'Nicht gefunden' });
+const { Content } = await render(offer);
+const d = offer.data;
+const now = new Date();
+const next = publicEvents(getDb(), now, new Date(now.getTime() + 120 * DAY)).filter((e) => e.offer === offer.id).slice(0, 6);
+const matrixUrl = `https://matrix.to/#/${encodeURIComponent(d.matrixRaum)}`;
+Astro.response.headers.set('Cache-Control', 'public, max-age=60');
+---
+<Base title={d.title} description={d.kurz}>
+  <div class="wrap">
+    <p class="crumbs"><a href="/termine">Was ist los</a> › {d.title}</p>
+  </div>
+  <section class="wrap section grid-2" style="padding-top:16px">
+    <div>
+      <span class="cat">{CATEGORY_LABEL[d.kategorie]}</span>
+      <h1>{d.title}</h1>
+      <p class="lead"><T text={d.kurz} /></p>
+      <dl class="facts">
+        <dt>Wann</dt><dd><T text={d.rhythmus} /></dd>
+        <dt>Wo</dt><dd><T text={d.raum} /></dd>
+        <dt>Kosten</dt><dd><T text={d.kosten} /></dd>
+        {d.ansprechperson && <><dt>Ansprechperson</dt><dd><T text={d.ansprechperson} /></dd></>}
+        <dt>Kontakt</dt><dd><a href={matrixUrl}>{d.matrixRaum}</a></dd>
+      </dl>
+      {d.neuHier && <p class="notice"><strong>Neu hier? Einfach kommen.</strong> Du musst dich nicht anmelden.</p>}
+      <div class="prose"><Content /></div>
+    </div>
+    <div class="stack">
+      <Photo src={d.bild} alt={d.bildAlt ?? d.title} />
+      <h2>Nächste Termine</h2>
+      {next.length ? <EventList events={next} /> : <p class="muted">Gerade stehen keine Termine im Kalender. Frag am besten im Matrix-Raum nach.</p>}
+      <p class="small"><a href="/termine.ics">Alle Termine abonnieren (iCal)</a></p>
+    </div>
+  </section>
+</Base>

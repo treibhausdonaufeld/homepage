@@ -1,0 +1,18 @@
+---
+import { FIELD_LABEL } from '../../lib/booking/form';
+interface Props { errors: Record<string, string> }
+const { errors } = Astro.props;
+const keys = Object.keys(errors).filter((k) => k !== '_form');
+---
+{(keys.length > 0 || errors._form) && (
+  <div class="error-box summary" role="alert" tabindex="-1" id="fehler">
+    {keys.length > 0 && <strong>Bitte prüf {keys.length === 1 ? 'eine Angabe' : `${keys.length} Angaben`}:</strong>}
+    {keys.length > 0 && <ul>{keys.map((k) => <li><a href={`#f-${k}`}>{FIELD_LABEL[k] ?? k}</a></li>)}</ul>}
+    {errors._form && <p>{errors._form}</p>}
+  </div>
+)}
+<style>
+  .summary { margin-bottom: 24px; }
+  .summary ul { margin: 6px 0 0; padding-left: 1.2em; }
+  .summary p { margin: 0; }
+</style>

@@ -1,0 +1,123 @@
+---
+import Email from '../components/Email.astro';
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import HouseSection from '../components/HouseSection.astro';
+import T from '../components/T.astro';
+
+const partners = (await getCollection('partners')).filter((p) => p.data.aktiv);
+const coops = partners.filter((p) => p.data.rolle === 'kooperation');
+const project = partners.filter((p) => p.data.rolle === 'projekt');
+const values = [
+  ['Individuell gemeinsam', 'Ein wertschätzendes, offenes Miteinander – mit Raum für individuelle Bedürfnisse.'],
+  ['Solidarisches Miteinander', 'Wir teilen, sparen Ressourcen und übernehmen Verantwortung für Haus und Gemeinschaft.'],
+  ['Leistbares Wohnen', 'Gemeinschaftsräume erweitern den Wohnraum. So können die Wohnungen kleiner sein.'],
+  ['Ökologisch lebenswert', 'Lebensqualität für Menschen und andere Lebewesen – jetzt und für kommende Generationen.'],
+];
+const timeline = [
+  ['2018', 'Gründung und Visionsworkshop'],
+  ['2019', 'Bauplatz-Wettbewerb gewonnen'],
+  ['2020', 'Einreichung'],
+  ['2024', 'Baustart'],
+  ['2026', 'Einzug'],
+];
+---
+<Base title="Über uns" description="Vision, Hauskonzept, Organisation und Geschichte des Wohnprojekts Treibhaus Donaufeld.">
+  <section class="wrap section">
+    <h1>Über uns</h1>
+    <p class="lead">Das Treibhaus ist ein gemeinschaftliches Wohnprojekt im neuen Stadtquartier „An der Schanze“ im Donaufeld. Seit 2026 wohnen wir hier – und teilen das Erdgeschoß mit dem ganzen Viertel.</p>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <h2>Unsere Vision</h2>
+      <div class="grid-2 values">
+        {values.map(([t, d]) => <div><h3>{t}</h3><p>{d}</p></div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section grid-2" style="align-items:center">
+    <div>
+      <h2>Sozialökologische Dreifelderwirtschaft</h2>
+      <p>So nennen wir unser Hauskonzept. Die Gemeinschaftsräume liegen auf drei „Feldern“ im Haus:</p>
+      <dl class="fields">
+        <dt>Sommerfeld · Erdgeschoß</dt><dd>Zum Quartier geöffnet. Viertelsaal und Viertelküche sind „Urban Commons“ – Räume für alle aus dem Viertel.</dd>
+        <dt>Winterfeld · 2. Stock</dt><dd>Hausinterne Gemeinschaftsküche, Terrasse und Kinderspielraum.</dd>
+        <dt>Ruhefeld · 9. Stock</dt><dd>Bibliothek, Ruheraum, Sauna, Teeküche und Balkon.</dd>
+      </dl>
+    </div>
+    <HouseSection />
+  </section>
+
+  <section class="wrap section">
+    <h2>Das Haus in Zahlen <mark class="todo">prüfen</mark></h2>
+    <ul class="numbers">
+      <li><b>9</b> Geschoße</li>
+      <li><b>50</b> Wohnungen (30–120 m²)</li>
+      <li><b>~65</b> Erwachsene</li>
+      <li><b>~30</b> Kinder</li>
+      <li><b>~530 m²</b> Gemeinschaftsräume</li>
+    </ul>
+    <p class="muted">Niedrigenergiehaus mit Fassadenbegrünung.</p>
+  </section>
+
+  <section class="wrap section grid-2">
+    <div>
+      <h2>Wie wir uns organisieren</h2>
+      <p>Hinter dem Haus steht der Verein „Treibhaus – Verein für gemeinschaftliches Bauen und Wohnen“. Der Verein ist Generalmieter des Hauses vom gemeinnützigen Bauträger Schwarzatal.</p>
+      <p>Wir organisieren uns <strong>soziokratisch</strong>: Entscheidungen treffen wir in Kreisen im Konsent – also dann, wenn niemand einen schwerwiegenden Einwand hat. Die Räume im Erdgeschoß betreut die Raum-AG.</p>
+    </div>
+    <div>
+      <h2>Geschichte</h2>
+      <ol class="timeline-list">
+        {timeline.map(([y, t]) => <li><b>{y}</b> {t}</li>)}
+      </ol>
+      <p class="small"><mark class="todo">Zwischenschritte ergänzen</mark></p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap grid-2">
+      <div>
+        <h2>Solidarität</h2>
+        <p>Zwei Wohnungen im Haus sind Soli-Wohnungen für Familien mit Fluchterfahrung – finanziert von vielen Menschen per Crowdfunding.</p>
+        <a class="go" href="/soli">Zu den Soli-Wohnungen →</a>
+      </div>
+      <div>
+        <h2>Presse</h2>
+        <p>Für Anfragen von Presse oder anderen Baugruppen schreib an <Email subject="Presse" />. <mark class="todo">Pressematerial, Fotos</mark></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <h2>Partner & Kooperationen</h2>
+    <ul class="partners">
+      {coops.map((p) => <li><strong>{p.data.url ? <a href={p.data.url}>{p.data.name}</a> : p.data.name}</strong> – <T text={p.data.beschreibung} /></li>)}
+    </ul>
+    <h3 style="margin-top:32px">Am Bau beteiligt</h3>
+    <div class="logos">
+      {project.map((p) => (
+        <a href={p.data.url} class="logo-card">
+          {p.data.logo && <img src={p.data.logo} alt={p.data.logoAlt ?? p.data.name} loading="lazy" />}
+          <span class="small">{p.data.name} · {p.data.beschreibung}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+<style>
+  .values h3 { color: var(--primary); }
+  .fields dt { font-weight: 800; margin-top: 12px; }
+  .fields dd { margin: 0; }
+  .numbers { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 24px 48px; margin: 0 0 16px; }
+  .numbers b { display: block; font-size: 40px; font-weight: 800; letter-spacing: -0.02em; }
+  .timeline-list { list-style: none; padding: 0; border-left: 3px solid var(--leaf); margin: 0; }
+  .timeline-list li { padding: 6px 0 6px 16px; }
+  .timeline-list b { display: inline-block; width: 56px; }
+  .partners { padding-left: 1.2em; }
+  .logos { display: flex; flex-wrap: wrap; gap: 24px; }
+  .logo-card { display: flex; flex-direction: column; gap: 8px; width: 220px; text-decoration: none; color: var(--muted); }
+  .logo-card img { background: #fff; padding: 12px; border-radius: 8px; height: 90px; object-fit: contain; }
+</style>

@@ -1,0 +1,84 @@
+---
+import Email from '../components/Email.astro';
+export const prerender = false;
+import { z } from 'zod';
+import Base from '../layouts/Base.astro';
+import { getDb } from '../lib/db';
+import { config } from '../lib/config';
+import { getNotifier } from '../lib/notify';
+import { sendMail } from '../lib/notify/mail';
+import { hit } from '../lib/verify/ratelimit';
+import { checkFormStamp, formStamp } from '../lib/verify/tokens';
+import { log } from '../lib/log';
+
+const schema = z.object({
+  name: z.string().trim().min(2, 'Bitte gib deinen Namen an.').max(100),
+  kontakt: z.string().trim().min(5, 'Bitte gib an, wie wir dich erreichen (E-Mail oder Matrix-ID).').max(200),
+  idee: z.string().trim().min(10, 'Bitte beschreib deine Idee in ein, zwei Sätzen.').max(3000),
+  wann: z.string().trim().max(300).optional(),
+});
+let errors: Record<string, string> = {};
+let sent = false;
+let values: Record<string, string> = {};
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  values = Object.fromEntries(['name', 'kontakt', 'idee', 'wann'].map((k) => [k, String(f.get(k) ?? '')]));
+  if (String(f.get('website') ?? '')) {
+    sent = true; // Honeypot
+  } else {
+    const st = checkFormStamp(String(f.get('stamp') ?? ''), config.booking.minFormSeconds);
+    if (st === 'too-fast') errors._form = 'Bitte versuch es gleich noch einmal.';
+    const r = schema.safeParse(values);
+    if (!r.success) for (const i of r.error.issues) errors[String(i.path[0])] ??= i.message;
+    if (!Object.keys(errors).length && !hit(getDb(), `idee:${Astro.locals.ip}`, 5, 3600)) errors._form = 'Zu viele Nachrichten. Bitte versuch es später noch einmal.';
+    if (!Object.keys(errors).length && r.success) {
+      const d = r.data;
+      const text = `Neue Idee fürs Erdgeschoß von ${d.name} (${d.kontakt}):\n\n${d.idee}\n\nWann/wie oft: ${d.wann || '–'}`;
+      try {
+        await sendMail({ to: config.contactEmail, subject: `Idee fürs Viertel: ${d.name}`, text });
+        await getNotifier().admin('idee', {
+          title: `Neue Idee fürs Erdgeschoß von ${d.name}`,
+          text: `${d.idee.slice(0, 300)}${d.idee.length > 300 ? ' …' : ''}\nWann: ${d.wann || '–'} · Kontakt und volle Nachricht per Mail an ${config.contactEmail}`,
+        });
+        sent = true;
+      } catch (err) {
+        log.error('Idee konnte nicht gesendet werden', { err });
+        errors._form = 'mail';
+      }
+    }
+  }
+}
+const stamp = formStamp();
+---
+<Base title="Selbst etwas anbieten" description="Du hast eine Idee fürs Viertel? Wir helfen dir mit Raum und Werbung.">
+  <section class="wrap section grid-2">
+    <div>
+      <h1>Dir fehlt was im Viertel? Mach’s hier.</h1>
+      <p class="lead">Reparaturcafé, Spieleabend, Tanzkurs, Kindercafé – wenn du eine Idee hast, finden wir einen Raum dafür.</p>
+      <ol class="how">
+        <li><strong>Idee schicken.</strong> Ein paar Sätze reichen.</li>
+        <li><strong>Kurz reden.</strong> Jemand aus dem Haus meldet sich bei dir.</li>
+        <li><strong>Raum bekommen.</strong> Für offene Angebote fürs Viertel gibt es Sonderkonditionen <mark class="todo">Konditionen</mark>. Wir machen Werbung im Terminkalender und im Newsletter.</li>
+      </ol>
+      <p class="muted">Lieber gleich reden? Schreib im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a>.</p>
+    </div>
+    <div>
+      {sent ? (
+        <div class="ok-box" role="status"><h2>Danke für deine Idee!</h2><p>Wir melden uns bald bei dir.</p></div>
+      ) : (
+        <form method="post" class="card" novalidate>
+          {errors._form === 'mail' ? <p class="error-box" role="alert">Das hat leider nicht geklappt. Schreib uns bitte direkt an <Email />.</p> : errors._form && <p class="error-box" role="alert">{errors._form}</p>}
+          <input type="hidden" name="stamp" value={stamp} />
+          <div class="field"><label for="name">Dein Name</label><input id="name" name="name" type="text" value={values.name} autocomplete="name" required aria-invalid={errors.name ? 'true' : undefined} />{errors.name && <span class="field-error">{errors.name}</span>}</div>
+          <div class="field"><label for="kontakt">E-Mail oder Matrix-ID</label><input id="kontakt" name="kontakt" type="text" value={values.kontakt} required aria-invalid={errors.kontakt ? 'true' : undefined} />{errors.kontakt && <span class="field-error">{errors.kontakt}</span>}</div>
+          <div class="field"><label for="idee">Deine Idee</label><textarea id="idee" name="idee" rows="5" required aria-invalid={errors.idee ? 'true' : undefined}>{values.idee}</textarea>{errors.idee && <span class="field-error">{errors.idee}</span>}</div>
+          <div class="field"><label for="wann">Wann und wie oft? (optional)</label><input id="wann" name="wann" type="text" value={values.wann} placeholder="z. B. jeden 2. Dienstag abends" /></div>
+          <div class="hp" aria-hidden="true"><label>Bitte leer lassen <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <p class="small muted">Wir verwenden deine Angaben nur, um mit dir über die Idee zu reden. <a href="/datenschutz">Datenschutz</a></p>
+          <button class="btn" type="submit">Idee schicken</button>
+        </form>
+      )}
+    </div>
+  </section>
+</Base>
+<style>.how { padding-left: 1.2em; } .how li { margin: 10px 0; }</style>

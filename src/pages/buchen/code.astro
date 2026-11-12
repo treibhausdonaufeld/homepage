@@ -1,0 +1,147 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import { getDb } from '../../lib/db';
+import { bookingView, changeContact, getBookingByPublicId, sendVerification, verifyCode } from '../../lib/booking/service';
+import { BookingError } from '../../lib/booking/types';
+import { maskEmail, parseContact } from '../../lib/booking/form';
+import { getNotifier } from '../../lib/notify';
+import { config } from '../../lib/config';
+import { fmt } from '../../lib/time';
+
+const db = getDb();
+const pid = Astro.url.searchParams.get('b') ?? '';
+let booking = getBookingByPublicId(db, pid);
+if (!booking) return Astro.redirect('/buchen');
+if (booking.status !== 'unbestaetigt') return Astro.redirect(`/buchen/danke?b=${pid}`);
+
+const notifier = getNotifier();
+let state: 'idle' | 'wrong' | 'expired' | 'locked' | 'sent' | 'none' | 'matrix' | 'error' = 'idle';
+let remaining = 0;
+let message: string | null = null;
+let switchErrors: Record<string, string> = {};
+const fehler = Astro.url.searchParams.get('fehler');
+if (fehler === 'matrix') state = 'matrix';
+if (fehler === 'senden') { state = 'error'; message = 'Die Nachricht konnte gerade nicht verschickt werden. Fordere einen neuen Code an.'; }
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('aktion') ?? 'pruefen');
+  try {
+    if (action === 'pruefen') {
+      const r = await verifyCode(db, notifier, booking, String(form.get('code') ?? ''));
+      if (r.result === 'ok' || r.result === 'already' || r.result === 'conflict') return Astro.redirect(`/buchen/danke?b=${pid}`, 303);
+      state = r.result;
+      if (r.result === 'wrong') remaining = r.remaining;
+    } else if (action === 'neu') {
+      await sendVerification(db, notifier, booking);
+      state = 'sent';
+    } else if (action === 'email') {
+      const c = parseContact({ kanal: 'email', email: String(form.get('email') ?? ''), matrix: '' });
+      if (c.errors.email) { switchErrors = c.errors; state = 'matrix'; }
+      else {
+        booking = changeContact(db, booking, 'email', c.address!);
+        await sendVerification(db, notifier, booking);
+        state = 'sent';
+      }
+    }
+  } catch (err) {
+    if (err instanceof BookingError && err.code === 'matrix-unreachable') state = 'matrix';
+    else if (err instanceof BookingError) { state = 'error'; message = err.message; }
+    else throw err;
+  }
+}
+const view = bookingView(db, booking);
+const first = view.occurrences[0] ?? view.skipped[0];
+const isMatrix = booking.contactChannel === 'matrix';
+---
+<Base title="Code eingeben · Raum buchen" noindex>
+  <Shell>
+    <a slot="back" href="#anderer-weg">‹ Anderen Weg wählen</a>
+    {state === 'matrix' ? (
+      <>
+        <h1>Matrix-ID nicht gefunden</h1>
+        <p class="error-box" role="alert">Wir konnten <strong>{booking.contactAddress}</strong> keine Nachricht schicken. Prüf die Schreibweise (@name:server) oder bestätige per E-Mail. Deine Angaben bleiben gespeichert.</p>
+      </>
+    ) : isMatrix ? (
+      <>
+        <h1>Schau in deine Matrix-App</h1>
+        <ol class="steps">
+          <li>Du bekommst eine Einladung von <strong>@raeume:treibhaus&shy;donaufeld.at</strong>. Nimm sie an.</li>
+          <li>Tippe in der Nachricht auf <strong>Bestätigen</strong> – oder schick den Code einfach als Antwort.</li>
+        </ol>
+        <div class="preview" aria-label="So sieht die Nachricht aus">
+          <span class="small muted">So sieht die Nachricht aus:</span>
+          <div class="bubble"><strong>Treibhaus Räume</strong><br />Hallo! Hast du {view.room.name} für {first && `${fmt.short(first.start)}, ${fmt.range(first.start, first.end)}`} angefragt? Dein Code: ··· ···<br /><u>Bestätigen</u></div>
+        </div>
+        <p class="waiting" data-status-poll={pid} role="status"><span class="dot" aria-hidden="true"></span> Wir warten auf deine Bestätigung …</p>
+      </>
+    ) : (
+      <>
+        <h1>Schau in dein Postfach</h1>
+        <p>Wir haben dir einen Code an <strong>{maskEmail(booking.contactAddress)}</strong> geschickt. Gib ihn hier ein – oder klick einfach auf den Link in der Mail.</p>
+      </>
+    )}
+
+    {state === 'sent' && <p class="ok-box" role="status">Wir haben dir einen neuen Code geschickt.</p>}
+    {state === 'error' && <p class="error-box" role="alert">{message}</p>}
+
+    {state === 'expired' ? (
+      <div class="error-box" role="alert">
+        <strong>Code abgelaufen.</strong> Kein Problem. Wir schicken dir einen neuen. Deine Angaben bleiben gespeichert.
+        <form method="post" style="margin-top:12px"><input type="hidden" name="aktion" value="neu" /><button class="btn" type="submit">Neuen Code schicken</button></form>
+      </div>
+    ) : state === 'locked' ? (
+      <div class="error-box" role="alert">
+        <strong>Zu viele Versuche.</strong> Fordere einen neuen Code an oder schreib uns im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a>.
+        <form method="post" style="margin-top:12px"><input type="hidden" name="aktion" value="neu" /><button class="btn" type="submit">Neuen Code schicken</button></form>
+      </div>
+    ) : state !== 'matrix' && (
+      <form method="post" class="codeform">
+        <input type="hidden" name="aktion" value="pruefen" />
+        <div class="field">
+          <label for="code">{isMatrix ? 'Knopf geht nicht? Code hier eingeben' : '6-stelliger Code'}</label>
+          <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required class="code" aria-invalid={state === 'wrong' ? 'true' : undefined} aria-describedby="code-hint" autofocus />
+          {state === 'wrong' && <span class="field-error" role="alert">Der Code stimmt nicht. Du hast noch {remaining} {remaining === 1 ? 'Versuch' : 'Versuche'}.</span>}
+          <span id="code-hint" class="small muted">Der Code gilt {config.booking.codeTtlMinutes} Minuten.{!isMatrix && ' Nichts bekommen? Schau auch im Spam-Ordner.'}</span>
+        </div>
+        <button class="btn big" type="submit">{state === 'wrong' ? 'Noch einmal versuchen' : 'Anfrage abschicken'}</button>
+      </form>
+    )}
+
+    <div id="anderer-weg" class="other">
+      {state !== 'expired' && state !== 'locked' && (
+        <form method="post" class="inline"><input type="hidden" name="aktion" value="neu" /><button class="linkbtn" type="submit">{isMatrix ? 'Keine Einladung da? Noch einmal schicken' : 'Code noch einmal schicken'}</button></form>
+      )}
+      <details open={state === 'matrix' || Object.keys(switchErrors).length > 0}>
+        <summary>{isMatrix ? 'Lieber per E-Mail bestätigen' : 'Andere E-Mail-Adresse verwenden'}</summary>
+        <form method="post">
+          <input type="hidden" name="aktion" value="email" />
+          <div class="field">
+            <label for="email">E-Mail-Adresse</label>
+            <input id="email" type="email" name="email" required autocomplete="email" aria-invalid={switchErrors.email ? 'true' : undefined} />
+            {switchErrors.email && <span class="field-error">{switchErrors.email}</span>}
+          </div>
+          <button class="btn ghost" type="submit">Code per E-Mail schicken</button>
+        </form>
+      </details>
+    </div>
+  </Shell>
+  <script slot="scripts" is:inline src="/js/booking-status.js" defer></script>
+</Base>
+<style>
+  .inline { display: inline; }
+  .code { font-size: 28px; letter-spacing: 0.3em; text-align: center; max-width: 260px; font-weight: 700; }
+  .codeform { margin: 20px 0; }
+  .steps { padding-left: 1.2em; }
+  .preview { margin: 16px 0; }
+  .bubble { background: var(--tint); border-radius: 12px; padding: 12px 16px; margin-top: 6px; font-size: 15px; }
+  .waiting { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+  .other { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .other summary { cursor: pointer; color: var(--link); text-decoration: underline; }
+  .other details form { margin-top: 12px; }
+</style>

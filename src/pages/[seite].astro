@@ -1,0 +1,20 @@
+---
+/** Textseiten aus der Content Collection „pages“ (Impressum, Datenschutz, Hausregeln, Wohnen, Soli, Foodcoop). */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages', (p) => p.data.lang === 'de');
+  return pages.map((p) => ({ params: { seite: p.id }, props: { page: p } }));
+}
+interface Props { page: CollectionEntry<'pages'> }
+const { page } = Astro.props;
+const { Content } = await render(page);
+---
+<Base title={page.data.title} description={page.data.description}>
+  <article class="wrap section">
+    <h1>{page.data.title}</h1>
+    {page.data.description && <p class="lead">{page.data.description}</p>}
+    <div class="prose"><Content /></div>
+  </article>
+</Base>

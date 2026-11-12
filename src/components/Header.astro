@@ -1,0 +1,35 @@
+---
+import Logo from './Logo.astro';
+import { nav, t, type Lang } from '../lib/i18n';
+interface Props { lang?: Lang }
+const { lang = 'de' } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const L = t[lang];
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <Logo href={lang === 'en' ? '/en/' : '/'} />
+    <nav aria-label={L.menu}>
+      <ul>
+        {nav[lang].map((n) => (
+          <li><a href={n.href} aria-current={path === n.href.replace(/\/$/, '') || (n.href !== '/en/' && path.startsWith(n.href + '/')) ? 'page' : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="btn" href={L.bookHref}>{L.book}</a>
+  </div>
+</header>
+<style>
+  .site-header { border-bottom: 1px solid var(--line); background: var(--bg); }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 40px; padding-top: 18px; padding-bottom: 18px; }
+  .bar > :global(:first-child) { margin-right: auto; }
+  nav ul { display: flex; flex-wrap: wrap; gap: 0 28px; list-style: none; margin: 0; padding: 0; font-weight: 600; font-size: 16px; }
+  nav a { color: var(--ink); text-decoration: none; padding: 10px 0; display: inline-block; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--primary); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 8px; }
+  @media (max-width: 860px) {
+    .bar { gap: 8px 16px; }
+    nav { order: 3; width: 100%; overflow-x: auto; }
+    nav ul { flex-wrap: nowrap; gap: 0 20px; white-space: nowrap; }
+    .bar :global(.logo img) { height: 44px !important; }
+  }
+</style>

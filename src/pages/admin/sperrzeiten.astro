@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+import { asc } from 'drizzle-orm';
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { blocks } from '../../lib/db/schema';
+import { addBlock, deleteBlock, listRooms } from '../../lib/booking/service';
+import { BookingError } from '../../lib/booking/types';
+import { fmt, isValidDate, parseLocal, today, addDays } from '../../lib/time';
+
+const db = getDb();
+const actor = Astro.locals.admin!.name;
+const rooms = listRooms(db).filter((r) => !r.combines?.length);
+let error: string | null = null;
+let msg: string | null = null;
+const RULES: Record<string, string> = { '': 'einmalig', 'FREQ=DAILY': 'täglich', 'FREQ=WEEKLY': 'wöchentlich', 'FREQ=WEEKLY;INTERVAL=2': 'alle 2 Wochen', 'FREQ=MONTHLY': 'monatlich' };
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  try {
+    if (f.get('aktion') === 'loeschen') {
+      deleteBlock(db, actor, Number(f.get('id')));
+      msg = 'Sperrzeit gelöscht.';
+    } else {
+      const d1 = String(f.get('datum') ?? '');
+      const d2 = String(f.get('datum_bis') ?? '') || d1;
+      const start = isValidDate(d1) ? parseLocal(d1, String(f.get('von') ?? '')) : null;
+      let end = isValidDate(d2) ? parseLocal(d2, String(f.get('bis') ?? '')) : null;
+      if (!start || !end) throw new BookingError('invalid', 'Bitte Datum und Uhrzeiten prüfen.');
+      // über Mitternacht (z. B. Nachtruhe 22–8)
+      if (end <= start && d1 === d2) end = parseLocal(addDays(d1, 1), String(f.get('bis')))!;
+      const rule = String(f.get('regel') ?? '');
+      const until = String(f.get('regel_bis') ?? '');
+      const reason = String(f.get('grund') ?? '').trim();
+      if (!reason) throw new BookingError('invalid', 'Bitte einen Grund angeben.');
+      addBlock(db, actor, {
+        roomSlug: String(f.get('raum') ?? '') || null,
+        start,
+        end,
+        rule: rule in RULES ? rule || null : null,
+        until: isValidDate(until) ? parseLocal(until, '23:59') : null,
+        reason,
+      });
+      msg = 'Sperrzeit angelegt.';
+    }
+  } catch (e) {
+    if (e instanceof BookingError) error = e.message; else throw e;
+  }
+}
+const list = db.select().from(blocks).orderBy(asc(blocks.start)).all();
+const roomName = (s: string | null) => (s ? rooms.find((r) => r.slug === s)?.name ?? s : 'alle Räume');
+---
+<Admin title="Sperrzeiten">
+  <h1>Sperrzeiten</h1>
+  <p class="muted">Nachtruhe, Hausversammlungen, Reinigung … In dieser Zeit kann niemand anfragen. Kombinierte Räume (Saal + Küche) sind gesperrt, sobald einer der Räume gesperrt ist.</p>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  {error && <p class="error-box" role="alert">{error}</p>}
+  <table>
+    <thead><tr><th>Grund</th><th>Raum</th><th>Zeit</th><th>Wiederholung</th><th></th></tr></thead>
+    <tbody>
+      {list.map((b) => (
+        <tr>
+          <td>{b.reason}<br /><span class="small muted">von {b.createdBy}</span></td>
+          <td>{roomName(b.roomSlug)}</td>
+          <td>{b.rule ? fmt.range(b.start, b.end) : `${fmt.dateTime(b.start)} – ${fmt.dateTime(b.end)}`}{b.rule && <><br /><span class="small muted">ab {fmt.numeric(b.start)}</span></>}</td>
+          <td>{b.rule ? RULES[b.rule] ?? b.rule : 'einmalig'}{b.until && ` bis ${fmt.numeric(b.until)}`}</td>
+          <td><form method="post"><input type="hidden" name="aktion" value="loeschen" /><input type="hidden" name="id" value={b.id} /><button class="btn small ghost">Löschen</button></form></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2 style="margin-top:40px">Neue Sperrzeit</h2>
+  <form method="post" class="card narrow">
+    <div class="field"><label for="grund">Grund</label><input type="text" id="grund" name="grund" required placeholder="z. B. Hausversammlung" /></div>
+    <div class="field"><label for="raum">Raum</label><select id="raum" name="raum"><option value="">alle Räume</option>{rooms.map((r) => <option value={r.slug}>{r.name}</option>)}</select></div>
+    <div class="row wrap3">
+      <div class="field"><label for="datum">Ab Datum</label><input type="date" id="datum" name="datum" value={today()} required /></div>
+      <div class="field"><label for="von">Von</label><input type="time" id="von" name="von" value="18:00" required /></div>
+      <div class="field"><label for="datum_bis">Bis Datum (optional)</label><input type="date" id="datum_bis" name="datum_bis" /></div>
+      <div class="field"><label for="bis">Bis</label><input type="time" id="bis" name="bis" value="22:00" required /></div>
+    </div>
+    <div class="row wrap3">
+      <div class="field"><label for="regel">Wiederholung</label><select id="regel" name="regel">{Object.entries(RULES).map(([k, l]) => <option value={k}>{l}</option>)}</select></div>
+      <div class="field"><label for="regel_bis">Wiederholen bis (optional)</label><input type="date" id="regel_bis" name="regel_bis" /></div>
+    </div>
+    <button class="btn" type="submit">Anlegen</button>
+  </form>
+</Admin>
+<style>.wrap3 .field { flex: 1 1 140px; } .wrap3 { align-items: flex-start; }</style>

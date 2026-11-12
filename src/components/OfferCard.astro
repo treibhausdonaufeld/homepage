@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import T from './T.astro';
+import { CATEGORY_LABEL } from '../lib/booking/types';
+interface Props { offer: CollectionEntry<'offers'> }
+const { offer } = Astro.props;
+const d = offer.data;
+const matrixUrl = `https://matrix.to/#/${encodeURIComponent(d.matrixRaum)}`;
+---
+<article class="card offer">
+  <span class="cat">{CATEGORY_LABEL[d.kategorie]}{d.status === 'geplant' && ' · in Planung'}{d.status === 'pausiert' && ' · pausiert'}</span>
+  <h3><a href={`/angebote/${offer.id}`}>{d.title}</a></h3>
+  <p><T text={d.kurz} /></p>
+  <dl class="facts">
+    <dt>Wann</dt><dd><T text={d.rhythmus} /></dd>
+    <dt>Wo</dt><dd><T text={d.raum} /></dd>
+    <dt>Kosten</dt><dd><T text={d.kosten} /></dd>
+    <dt>Kontakt</dt><dd><a href={matrixUrl}>{d.matrixRaum.split(':')[0]}</a></dd>
+  </dl>
+  {d.neuHier && <p class="new">Neu hier? Einfach kommen.</p>}
+</article>
+<style>
+  .offer { display: flex; flex-direction: column; }
+  .offer h3 { margin: 6px 0 8px; }
+  .offer h3 a { color: var(--ink); text-decoration: none; }
+  .offer h3 a:hover { color: var(--primary); text-decoration: underline; }
+  .facts { font-size: 15px; }
+  .new { margin: auto 0 0; padding-top: 8px; font-weight: 700; color: var(--primary); }
+</style>

@@ -1,0 +1,45 @@
+---
+/** Schnitt durchs Haus: 9 Geschoße, Erdgeschoß offen fürs Viertel. */
+const floors = [
+  { n: '9', label: 'Ruhefeld', text: 'Bibliothek, Sauna, Balkon', hl: true },
+  { n: '8' }, { n: '7' }, { n: '6' },
+  { n: '5', note: '50 Wohnungen' },
+  { n: '4' }, { n: '3' },
+  { n: '2', label: 'Winterfeld', text: 'Küche, Terrasse, Spielraum', hl: true },
+  { n: '1' },
+];
+---
+<figure class="house">
+  <div class="building" role="img" aria-label="Schnitt durchs Treibhaus: 9 Geschoße. Im 9. Stock das Ruhefeld mit Bibliothek, Sauna und Balkon, im 2. Stock das Winterfeld mit Küche, Terrasse und Spielraum, dazwischen 50 Wohnungen. Das Erdgeschoß ist das Sommerfeld – offen fürs Viertel, mit Viertelsaal und Viertelküche.">
+    {floors.map((f) => (
+      <div class={`floor ${f.hl ? 'hl' : ''}`}>
+        <span class="n">{f.n}</span>
+        {f.label ? <span><b>{f.label}</b> · {f.text}</span> : <span class="wins">{Array.from({ length: 5 }).map(() => <i />)}{f.note && <em>{f.note}</em>}</span>}
+      </div>
+    ))}
+    <div class="floor eg">
+      <span class="n">EG</span>
+      <span>
+        <b>Sommerfeld</b> – offen für dich
+        <span class="rooms"><a href="/raeume/viertelsaal">Viertelsaal</a><a href="/raeume/viertelkueche">Viertelküche</a></span>
+      </span>
+    </div>
+  </div>
+  <figcaption><span>Schnitt durchs Treibhaus</span><span>Simone-Veil-Gasse →</span></figcaption>
+</figure>
+<style>
+  .house { margin: 0; width: 100%; max-width: 520px; }
+  .building { border: 2px solid var(--ink); border-left: 10px solid var(--leaf); background: var(--surface); font-size: 13px; }
+  .floor { display: flex; gap: 16px; align-items: center; min-height: 28px; padding: 3px 12px; border-bottom: 1px solid var(--line); }
+  .floor.hl { background: var(--tint); min-height: 36px; }
+  .n { width: 18px; font-weight: 700; flex: none; }
+  .wins { display: flex; gap: 6px; align-items: center; }
+  .wins i { display: inline-block; width: 14px; height: 10px; border: 1px solid var(--line-strong); }
+  .wins em { font-style: normal; color: var(--muted); margin-left: 12px; }
+  .eg { background: var(--brand); color: var(--on-brand); padding: 14px 12px; border-bottom: 0; align-items: flex-start; }
+  .eg b { font-size: 15px; }
+  .rooms { display: flex; gap: 8px; margin-top: 10px; }
+  .rooms a { background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 3px; }
+  .eg > span { display: flex; flex-direction: column; }
+  figcaption { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 8px; }
+</style>

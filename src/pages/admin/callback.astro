@@ -1,0 +1,23 @@
+---
+export const prerender = false;
+import { finishLogin } from '../../lib/auth/oidc';
+import { setSession, takeFlowCookie } from '../../lib/auth/session';
+import { config } from '../../lib/config';
+import { log } from '../../lib/log';
+
+const flow = takeFlowCookie<{ verifier: string; state: string; next: string }>(Astro.cookies);
+if (!flow) return Astro.redirect('/admin/login?fehler=sitzung');
+try {
+  const user = await finishLogin(Astro.url, flow.verifier, flow.state);
+  if (!user.groups.includes(config.oidc.adminGroup)) {
+    log.warn('Admin-Login ohne Gruppe', { sub: user.sub });
+    return Astro.redirect('/admin/login?fehler=gruppe');
+  }
+  setSession(Astro.cookies, { sub: user.sub, name: user.name, email: user.email });
+  log.info('Admin angemeldet', { name: user.name });
+  return Astro.redirect(flow.next || '/admin');
+} catch (err) {
+  log.error('OIDC-Callback fehlgeschlagen', { err });
+  return Astro.redirect('/admin/login?fehler=oidc');
+}
+---

@@ -1,0 +1,79 @@
+---
+/** Wochenansicht der Belegung eines Raums (anonym: frei, angefragt, belegt, gesperrt). */
+import type { Room } from '../lib/db/schema';
+import type { DB } from '../lib/db';
+import { occupancy, timeline } from '../lib/booking/service';
+import { addDays, fmt, localParts, parseLocal, dayStart } from '../lib/time';
+import { config } from '../lib/config';
+
+interface Props { db: DB; room: Room; monday: string; baseHref: string; bookHref?: string }
+const { db, room, monday, baseHref, bookHref } = Astro.props;
+const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+const step = 2;
+const hours: number[] = [];
+for (let h = config.booking.dayStartHour; h < config.booking.dayEndHour; h += step) hours.push(h);
+const from = dayStart(monday);
+const to = dayStart(addDays(monday, 7));
+const segs = occupancy(db, room, from, to);
+const pad = (n: number) => String(n).padStart(2, '0');
+const LABEL = { frei: 'frei', angefragt: 'angefragt', belegt: 'belegt', gesperrt: 'gesperrt' } as const;
+function cell(day: string, h: number) {
+  const s = parseLocal(day, `${pad(h)}:00`)!;
+  const e = parseLocal(day, `${pad(Math.min(h + step, 23))}:${h + step >= 24 ? '59' : '00'}`)!;
+  const tl = timeline(segs, s, e);
+  const states = new Set(tl.map((t) => t.state));
+  if (states.has('gesperrt') && states.size === 1) return 'gesperrt';
+  if (states.has('belegt')) return states.has('frei') ? 'belegt' : 'belegt';
+  if (states.has('angefragt')) return 'angefragt';
+  if (states.has('gesperrt')) return 'gesperrt';
+  return 'frei';
+}
+const isPast = (day: string, h: number) => parseLocal(day, `${pad(h + step > 23 ? 23 : h + step)}:00`)!.getTime() < Date.now();
+const p0 = localParts(dayStart(days[0]));
+const p6 = localParts(dayStart(days[6]));
+const rangeLabel = p0.month === p6.month ? `${p0.day}.–${p6.day}. ${fmt.monthYear(dayStart(days[6]))}` : `${fmt.dayMonth(dayStart(days[0]))} – ${fmt.dayMonth(dayStart(days[6]))} ${p6.year}`;
+---
+<div class="week">
+  <div class="row nav">
+    <a href={`${baseHref}woche=${addDays(monday, -7)}#belegung`} aria-label="Vorige Woche">‹</a>
+    <strong>{rangeLabel}</strong>
+    <a href={`${baseHref}woche=${addDays(monday, 7)}#belegung`} aria-label="Nächste Woche">›</a>
+  </div>
+  <ul class="legend">
+    <li><span class="sw st-frei"></span>frei</li>
+    <li><span class="sw st-belegt"></span>belegt</li>
+    <li><span class="sw st-angefragt"></span>angefragt (vorläufig)</li>
+    <li><span class="sw st-gesperrt"></span>gesperrt (z. B. Nachtruhe)</li>
+  </ul>
+  <div class="table-scroll">
+    <table>
+      <caption class="sr-only">Belegung {room.name}, {rangeLabel}</caption>
+      <thead>
+        <tr><th scope="col">Zeit</th>{days.map((d) => <th scope="col">{bookHref ? <a href={`${bookHref}&datum=${d}`}>{fmt.wdShort(dayStart(d))} {localParts(dayStart(d)).day}.</a> : <>{fmt.wdShort(dayStart(d))} {localParts(dayStart(d)).day}.</>}</th>)}</tr>
+      </thead>
+      <tbody>
+        {hours.map((h) => (
+          <tr>
+            <th scope="row">{pad(h)}–{pad(h + step)}</th>
+            {days.map((d) => {
+              const st = cell(d, h);
+              const past = isPast(d, h);
+              return <td class={`st-${st} ${past ? 'past' : ''}`}><span class={st === 'frei' ? 'sr-only' : ''}>{LABEL[st]}</span></td>;
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+  .nav { justify-content: center; gap: 24px; margin-bottom: 12px; }
+  .nav a { text-decoration: none; font-size: 24px; padding: 0 8px; }
+  table { min-width: 560px; table-layout: fixed; }
+  th, td { text-align: center; border: 1px solid var(--line); padding: 6px 2px; font-size: 13px; }
+  thead th a { color: var(--ink); }
+  td.st-belegt { color: var(--on-primary); }
+  td.st-angefragt { color: var(--todo-ink); }
+  td.st-gesperrt span { background: var(--surface); padding: 0 4px; border-radius: 3px; color: var(--muted); }
+  td.past { opacity: 0.45; }
+</style>
