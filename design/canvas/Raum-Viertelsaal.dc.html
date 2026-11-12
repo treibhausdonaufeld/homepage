@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Raum: Viertelsaal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.th{--bg:#FAF8F3;--surface:#FFFFFF;--surface-2:#ECE6F4;--tint:#F0ECE2;--line:#E2DDD1;--line-soft:#EDE9E0;--line-strong:#C9C0AE;--field:#7A7262;--ink:#1E1C19;--muted:#5F5A50;--primary:#4A2C7A;--primary-hover:#3A2262;--on-primary:#FFFFFF;--primary-text:#2F4410;--link:#5D7A10;--brand:#4A2C7A;--on-brand:#FFFFFF;--icon:#5D7A10;--band:#34460A;--band-2:#2A3908;--on-band:#FFFFFF;--on-band-2:#DCE3CC;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#1E1C19;--on-footer:#CFC9BC;--on-footer-strong:#FFFFFF;--footer-link:#ECE6F4;--hint:#ECE6F4;--todo-bg:#FFF0B3;--todo-ink:#5E4300;--err:#A3261B;--on-err:#FFFFFF;--err-text:#8A2E1F;--err-bg:#FCEDEA;--ph1:#ECE7DC;--ph2:#F4F1EA;--ph-line:#B0A795;--ph-ink:#4A4539;--busy1:#D8D2C4;--busy2:#E6E1D6;--busy-ink:#2E2B25;--block:#4A453B;--on-block:#FFFFFF;--canvas:#EFEBE2;color-scheme:light}
+.th.dark{--bg:#151410;--surface:#1F1D19;--surface-2:#2A2238;--tint:#26231E;--line:#36322B;--line-soft:#2C2924;--line-strong:#504A40;--field:#9A9282;--ink:#F1EEE6;--muted:#BDB6A8;--primary:#B7A2DC;--primary-hover:#CDBFE6;--on-primary:#1A1320;--primary-text:#DDE7C0;--link:#B9D27A;--brand:#B7A2DC;--on-brand:#1A1320;--icon:#A9C46A;--band:#1E2A0E;--band-2:#18220A;--on-band:#F1EEE6;--on-band-2:#C9D0B6;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#0E0D0B;--on-footer:#BDB6A8;--on-footer-strong:#F1EEE6;--footer-link:#CDBFE6;--hint:#2A2238;--todo-bg:#4A3C0A;--todo-ink:#FFE38A;--err:#F07A6A;--on-err:#15140F;--err-text:#FF9E90;--err-bg:#3A1A15;--ph1:#23211C;--ph2:#2A2721;--ph-line:#5A5446;--ph-ink:#BDB6A8;--busy1:#3D3830;--busy2:#312D27;--busy-ink:#E0DBD0;--block:#6A6458;--on-block:#FFFFFF;--canvas:#100F0C;color-scheme:dark}
+.th a{color:var(--link)}.th a:hover{color:var(--primary-text)}
+.lg-l{display:block}.lg-d{display:none}.th.dark .lg-l{display:none}.th.dark .lg-d{display:block}
+.ph{background:repeating-linear-gradient(135deg,var(--ph1) 0 14px,var(--ph2) 14px 28px);border:1px dashed var(--ph-line);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ph-ink);font-size:14px;line-height:1.4;padding:16px;box-sizing:border-box}
+.todo{background:var(--todo-bg);color:var(--todo-ink);border-radius:4px;padding:1px 6px;font-size:.88em}
+.wk td,.wk th{border:1px solid var(--line);padding:0;height:44px;font-size:14px;text-align:center}
+.wk th{background:var(--bg);font-weight:700;padding:8px}
+.f{background:var(--surface);color:var(--primary-text)}
+.b{background:repeating-linear-gradient(135deg,var(--busy1) 0 6px,var(--busy2) 6px 12px);color:var(--busy-ink)}
+.v{background:var(--todo-bg);color:var(--todo-ink)}
+.s{background:var(--block);color:var(--on-block)}
+</style>
+</helmet>
+<div class="th {{themeClass}}" style="font-family: 'Kumbh Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); font-size: 18px; line-height: 1.55">
+
+<header style="background: var(--surface); border-bottom: 1px solid var(--line)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none">
+<img class="lg-l" src="/_blob/9c862de336f75ebbdcf0bf662cef7bf0" alt="treibhaus donaufeld – zur Startseite" style="height: 56px; width: auto"><img class="lg-d" src="/_blob/6214bc0246f1fd3f4e571e51857bbb22" alt="treibhaus donaufeld – zur Startseite" style="height: 56px; width: auto">
+</a>
+<nav aria-label="Hauptmenü" style="flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 17px">
+<a href="Angebote.dc.html" style="text-decoration: none; padding: 10px 0; color: var(--ink)">Was ist los</a>
+<a href="Raum-Viertelsaal.dc.html" aria-current="page" style="padding: 10px 0; color: var(--primary-text); font-weight: 700; text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 8px">Räume</a>
+<a href="#" style="text-decoration: none; padding: 10px 0; color: var(--ink)">Mitmachen</a>
+<a href="#" style="text-decoration: none; padding: 10px 0; color: var(--ink)">Über uns</a>
+<a href="#" style="text-decoration: none; padding: 10px 0; color: var(--ink)">Kontakt</a>
+</nav>
+<a href="Buchen-1.dc.html" style="background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 999px">Raum buchen</a>
+</div>
+</header>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 28px 32px 0; font-size: 16px"><a href="#">Räume</a> <span aria-hidden="true">›</span> Viertelsaal</div>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 20px 32px 40px; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div class="ph" style="height: 400px; border-radius: 20px">FOTO: Viertelsaal hell und leer, Blick zur Fensterfront</div>
+<div style="display: flex; gap: 12px">
+<div class="ph" style="flex: 1; height: 110px; border-radius: 12px">FOTO: bestuhlt für Vortrag</div>
+<div class="ph" style="flex: 1; height: 110px; border-radius: 12px">FOTO: Fest mit Tischen</div>
+<div class="ph" style="flex: 1; height: 110px; border-radius: 12px">FOTO: Durchgang zur Viertelküche</div>
+</div>
+</div>
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: var(--primary-text)">Viertelsaal</h1>
+<p style="margin: 0; font-size: 20px">Der große Raum im Erdgeschoß. Für Vorträge, Workshops, Versammlungen und Feste.</p>
+<dl style="margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 10px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; font-size: 17px">
+<dt style="color: var(--muted)">Platz für</dt><dd style="margin: 0; font-weight: 700">ca. 60 Personen</dd>
+<dt style="color: var(--muted)">Ausstattung</dt><dd style="margin: 0"><span class="todo">TODO: Tische, Stühle, Beamer, Musikanlage …</span></dd>
+<dt style="color: var(--muted)">Barrierefrei</dt><dd style="margin: 0"><span class="todo">TODO: ja/nein, WC</span></dd>
+<dt style="color: var(--muted)">Kombinierbar</dt><dd style="margin: 0">mit der <a href="#">Viertelküche</a> (ca. 15 Personen)</dd>
+</dl>
+<a href="Buchen-1.dc.html" style="background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; font-size: 20px; padding: 18px 24px; border-radius: 999px; text-align: center">Viertelsaal anfragen</a>
+<p style="margin: 0; font-size: 16px; color: var(--muted)">Kein Konto nötig. Du bestätigst per E-Mail oder Matrix. Die Raum-AG antwortet in <span class="todo">TODO: Antwortzeit</span>.</p>
+</div>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 16px 32px 40px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 32px; color: var(--primary-text)">Wann ist der Saal frei?</h2>
+<div style="display: flex; align-items: center; gap: 8px">
+<button type="button" aria-label="Vorige Woche" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-size: 20px">‹</button>
+<b style="min-width: 190px; text-align: center">16.–22. November 2026</b>
+<button type="button" aria-label="Nächste Woche" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-size: 20px">›</button>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px">
+<span style="display: flex; align-items: center; gap: 6px"><span class="f" style="width: 18px; height: 18px; border: 1px solid var(--line-strong); border-radius: 4px"></span>frei</span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="b" style="width: 18px; height: 18px; border-radius: 4px"></span>belegt</span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="v" style="width: 18px; height: 18px; border: 1px solid var(--line-strong); border-radius: 4px"></span>angefragt (vorläufig)</span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="s" style="width: 18px; height: 18px; border-radius: 4px"></span>gesperrt (z. B. Hausversammlung)</span>
+</div>
+<div style="overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 16px">
+<table class="wk" style="border-collapse: collapse; width: 100%; min-width: 760px">
+<caption style="position: absolute; left: -9999px">Belegung Viertelsaal, 16. bis 22. November</caption>
+<thead><tr><th scope="col" style="width: 90px">Zeit</th><th scope="col">Mo 16.</th><th scope="col">Di 17.</th><th scope="col">Mi 18.</th><th scope="col">Do 19.</th><th scope="col">Fr 20.</th><th scope="col">Sa 21.</th><th scope="col">So 22.</th></tr></thead>
+<tbody>
+<tr><th scope="row">08–10</th><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td></tr>
+<tr><th scope="row">10–12</th><td class="f">frei</td><td class="f">frei</td><td class="b">belegt</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td></tr>
+<tr><th scope="row">12–14</th><td class="f">frei</td><td class="f">frei</td><td class="b">belegt</td><td class="f">frei</td><td class="f">frei</td><td class="b">belegt</td><td class="f">frei</td></tr>
+<tr><th scope="row">14–16</th><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="b">belegt</td><td class="f">frei</td></tr>
+<tr><th scope="row">16–18</th><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td><td class="v">angefragt</td><td class="f">frei</td><td class="f">frei</td><td class="f">frei</td></tr>
+<tr><th scope="row">18–20</th><td class="b">belegt</td><td class="s">gesperrt</td><td class="f">frei</td><td class="v">angefragt</td><td class="b">belegt</td><td class="f">frei</td><td class="f">frei</td></tr>
+<tr><th scope="row">20–22</th><td class="b">belegt</td><td class="s">gesperrt</td><td class="f">frei</td><td class="f">frei</td><td class="b">belegt</td><td class="f">frei</td><td class="f">frei</td></tr>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; font-size: 16px; color: var(--muted)">Beispieldaten. Nach jeder Buchung blocken wir <span class="todo">TODO: Pufferzeit</span> für Aufräumen und Reinigung. Ab <span class="todo">TODO: Uhrzeit</span> ist Nachtruhe.</p>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 16px 32px 40px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 32px; color: var(--primary-text)">Was kostet der Saal?</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 260px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<b style="font-size: 20px">Privat</b><span style="color: var(--muted); font-size: 16px">Geburtstag, Familienfest</span><span style="font-size: 22px"><span class="todo">TODO: Preis / Spende</span></span>
+</div>
+<div style="flex: 1 1 260px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<b style="font-size: 20px">Gemeinnützig</b><span style="color: var(--muted); font-size: 16px">Initiative, Verein, Nachbarschaft</span><span style="font-size: 22px"><span class="todo">TODO: Preis / Spende</span></span>
+</div>
+<div style="flex: 1 1 260px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<b style="font-size: 20px">Kommerziell</b><span style="color: var(--muted); font-size: 16px">bezahlter Kurs, Firma</span><span style="font-size: 22px"><span class="todo">TODO: Preis</span></span>
+</div>
+</div>
+<p style="margin: 0; font-size: 16px">Du willst etwas Offenes fürs Viertel anbieten? Dann gibt es Sonderkonditionen. <a href="#">Mehr dazu</a></p>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 16px 32px 72px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 32px; color: var(--primary-text)">Das Wichtigste aus den Hausregeln</h2>
+<ul style="margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 6px">
+<li>Lautstärke und Uhrzeiten: <span class="todo">TODO</span></li>
+<li>Alkohol: <span class="todo">TODO</span></li>
+<li>Aufräumen und Reinigung: <span class="todo">TODO</span></li>
+<li>Kaution: <span class="todo">TODO</span></li>
+<li>Schlüssel abholen und zurückgeben: <span class="todo">TODO</span></li>
+</ul>
+<a href="#" style="font-weight: 700">Alle Hausregeln lesen →</a>
+<p style="margin: 8px 0 0">Fragen zum Raum? <a href="https://matrix.to/#/#hallo:treibhausdonaufeld.at">Schreib im Matrix-Raum #hallo</a> oder an <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a>.</p>
+</section>
+
+<footer style="background: var(--footer); color: var(--on-footer); font-size: 16px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: flex; flex-wrap: wrap; gap: 24px 48px">
+<span><b style="color: var(--on-footer-strong)">Treibhaus Donaufeld</b><br>Simone-Veil-Gasse 7, 1210 Wien</span>
+<span><a href="https://matrix.to/#/#hallo:treibhausdonaufeld.at" style="color: var(--footer-link)">Matrix #hallo</a><br><a href="mailto:hallo@treibhausdonaufeld.at" style="color: var(--footer-link)">hallo@treibhausdonaufeld.at</a></span>
+<span><a href="#" style="color: var(--on-footer)">Impressum</a> · <a href="#" style="color: var(--on-footer)">Datenschutz</a> · <a href="#" style="color: var(--on-footer)">Hausregeln</a></span>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modus":{"editor":"enum","options":["hell","dunkel"],"default":"hell"},"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: (this.props.modus ?? 'hell') === 'dunkel' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

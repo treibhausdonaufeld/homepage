@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Start – Treibhaus Donaufeld</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.th{--bg:#FAF8F3;--surface:#FFFFFF;--surface-2:#ECE6F4;--tint:#F0ECE2;--line:#E2DDD1;--line-soft:#EDE9E0;--line-strong:#C9C0AE;--field:#7A7262;--ink:#1E1C19;--muted:#5F5A50;--primary:#4A2C7A;--primary-hover:#3A2262;--on-primary:#FFFFFF;--primary-text:#2F4410;--link:#5D7A10;--brand:#4A2C7A;--on-brand:#FFFFFF;--icon:#5D7A10;--band:#34460A;--band-2:#2A3908;--on-band:#FFFFFF;--on-band-2:#DCE3CC;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#1E1C19;--on-footer:#CFC9BC;--on-footer-strong:#FFFFFF;--footer-link:#ECE6F4;--hint:#ECE6F4;--todo-bg:#FFF0B3;--todo-ink:#5E4300;--err:#A3261B;--on-err:#FFFFFF;--err-text:#8A2E1F;--err-bg:#FCEDEA;--ph1:#ECE7DC;--ph2:#F4F1EA;--ph-line:#B0A795;--ph-ink:#4A4539;--canvas:#EFEBE2;--leaf:#5D7A10;color-scheme:light}
+.th.dark{--bg:#151410;--surface:#1F1D19;--surface-2:#2A2238;--tint:#26231E;--line:#36322B;--line-soft:#2C2924;--line-strong:#504A40;--field:#9A9282;--ink:#F1EEE6;--muted:#BDB6A8;--primary:#B7A2DC;--primary-hover:#CDBFE6;--on-primary:#1A1320;--primary-text:#DDE7C0;--link:#B9D27A;--brand:#B7A2DC;--on-brand:#1A1320;--icon:#A9C46A;--band:#1E2A0E;--band-2:#18220A;--on-band:#F1EEE6;--on-band-2:#C9D0B6;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#0E0D0B;--on-footer:#BDB6A8;--on-footer-strong:#F1EEE6;--footer-link:#CDBFE6;--hint:#2A2238;--todo-bg:#4A3C0A;--todo-ink:#FFE38A;--err:#F07A6A;--on-err:#15140F;--err-text:#FF9E90;--err-bg:#3A1A15;--ph1:#23211C;--ph2:#2A2721;--ph-line:#5A5446;--ph-ink:#BDB6A8;--canvas:#100F0C;--leaf:#A9C46A;color-scheme:dark}
+.th a{color:var(--link);text-underline-offset:3px}.th a:hover{color:var(--primary)}
+.lg-l{display:block}.lg-d{display:none}.th.dark .lg-l{display:none}.th.dark .lg-d{display:block}
+.ph{background:repeating-linear-gradient(135deg,var(--ph1) 0 14px,var(--ph2) 14px 28px);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ph-ink);font-size:13px;line-height:1.4;padding:16px;box-sizing:border-box}
+.todo{background:var(--todo-bg);color:var(--todo-ink);padding:0 4px;border-radius:3px;font-size:.9em}
+.go{color:var(--primary)!important;font-weight:700;text-decoration:none;border-bottom:3px solid var(--brand);padding-bottom:2px}
+.go:hover{border-bottom-color:var(--primary)}
+.win{display:inline-block;width:14px;height:10px;border:1px solid var(--line-strong);margin-right:5px}
+</style>
+</helmet>
+<div class="th {{themeClass}}" style="font-family: 'Kumbh Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); font-size: 17px; line-height: 1.6">
+
+<header style="border-bottom: 1px solid var(--line)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 18px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px">
+<a href="Main.dc.html" style="display: block; margin-right: auto"><img class="lg-l" src="/_blob/9c862de336f75ebbdcf0bf662cef7bf0" alt="treibhaus donaufeld – zur Startseite" style="height: 54px; width: auto"><img class="lg-d" src="/_blob/6214bc0246f1fd3f4e571e51857bbb22" alt="treibhaus donaufeld – zur Startseite" style="height: 54px; width: auto"></a>
+<nav aria-label="Hauptmenü" style="display: flex; flex-wrap: wrap; gap: 4px 28px; font-weight: 600; font-size: 16px">
+<a href="Angebote.dc.html" style="color: var(--ink); text-decoration: none; padding: 10px 0">Was ist los</a>
+<a href="Raum-Viertelsaal.dc.html" style="color: var(--ink); text-decoration: none; padding: 10px 0">Räume</a>
+<a href="#mitmachen" style="color: var(--ink); text-decoration: none; padding: 10px 0">Mitmachen</a>
+<a href="#haus" style="color: var(--ink); text-decoration: none; padding: 10px 0">Über uns</a>
+<a href="#hallo" style="color: var(--ink); text-decoration: none; padding: 10px 0">Kontakt</a>
+</nav>
+<a href="Buchen-1.dc.html" style="background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 6px">Raum buchen</a>
+</div>
+</header>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 64px 32px 72px; display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-end">
+<div style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<span style="font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--leaf)">Simone-Veil-Gasse 7 · Donaufeld</span>
+<h1 style="margin: 0; font-size: clamp(52px, 7vw, 92px); line-height: 0.95; font-weight: 800; letter-spacing: -0.035em">Ein Haus mit<br>offener Tür.</h1>
+<p style="margin: 0; font-size: 21px; max-width: 30em">Im Erdgeschoß vom Treibhaus gibt es zwei Räume für das ganze Viertel: den Viertelsaal und die Viertelküche. Hier treffen sich Nachbar:innen, kochen, feiern und planen Neues.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 14px 32px; font-size: 19px; margin-top: 8px">
+<a href="Angebote.dc.html" class="go">Was ist los →</a>
+<a href="Buchen-1.dc.html" class="go">Raum buchen →</a>
+<a href="#mitmachen" class="go">Selbst was anbieten →</a>
+</div>
+</div>
+
+<figure role="img" aria-label="Schnitt durchs Haus: neun Stockwerke, im Erdgeschoß Viertelsaal und Viertelküche" style="flex: 1 1 400px; min-width: 0; margin: 0; display: flex; flex-direction: column">
+<div style="display: flex; border: 2px solid var(--ink); border-bottom: 0; border-radius: 4px 4px 0 0; overflow: hidden">
+<div aria-hidden="true" style="width: 10px; background: repeating-linear-gradient(180deg, var(--leaf) 0 6px, transparent 6px 14px)"></div>
+<div style="flex: 1; display: flex; flex-direction: column; font-size: 13px">
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line-strong); background: var(--tint)"><b style="width: 28px">9</b><span><b>Ruhefeld</b> · Bibliothek, Sauna, Balkon</span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">8</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">7</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">6</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">5</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i> 50 Wohnungen</span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">4</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--muted)"><b style="width: 28px">3</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line-strong); background: var(--tint)"><b style="width: 28px">2</b><span><b>Winterfeld</b> · Küche, Terrasse, Spielraum</span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 26px; padding: 0 14px; border-bottom: 2px solid var(--ink); color: var(--muted)"><b style="width: 28px">1</b><span><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i></span></div>
+<div style="background: var(--brand); color: var(--on-brand); padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 12px"><b style="width: 28px">EG</b><span style="font-size: 16px"><b>Sommerfeld</b> – offen für dich</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; padding-left: 40px">
+<a href="Raum-Viertelsaal.dc.html" style="background: var(--surface); color: var(--ink); text-decoration: none; padding: 3px 10px; border-radius: 4px; font-weight: 600">Viertelsaal</a>
+<a href="#raeume" style="background: var(--surface); color: var(--ink); text-decoration: none; padding: 3px 10px; border-radius: 4px; font-weight: 600">Viertelküche</a>
+</div>
+</div>
+</div>
+</div>
+<div style="height: 6px; background: var(--ink)"></div>
+<figcaption style="font-size: 13px; color: var(--muted); margin-top: 8px; display: flex; justify-content: space-between"><span>Schnitt durchs Treibhaus</span><span>Simone-Veil-Gasse →</span></figcaption>
+</figure>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 0 32px">
+<p style="margin: 0; padding: 14px 20px; background: var(--hint); border-left: 4px solid var(--brand); border-radius: 4px; font-size: 16px"><b>Jeden Samstag, 13:30–16:30:</b> offener Nachbarschaftstreff in der Viertelküche. Ohne Anmeldung – einfach kommen.</p>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 80px 32px 40px; display: flex; flex-wrap: wrap; gap: 32px 64px">
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em">Demnächst im Erdgeschoß</h2>
+<p style="margin: 0; color: var(--muted)">Im Moment gibt es ein offenes Angebot: den Nachbarschaftstreff am Samstag. Mehr soll dazukommen – vielleicht von dir?</p>
+<a href="Angebote.dc.html" class="go" style="align-self: flex-start">Alle Termine →</a>
+<a href="#" style="font-size: 15px">Kalender abonnieren (iCal)</a>
+</div>
+<ol style="flex: 2 1 560px; min-width: 0; list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink)">
+<li style="display: flex; gap: 24px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line)">
+<span style="flex: 0 0 72px; text-align: center; line-height: 1"><b style="display: block; font-size: 40px; font-weight: 800">14</b><span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted)">Sa · Nov</span></span>
+<span style="flex: 1; min-width: 0"><b style="font-size: 20px">Offener Nachbarschaftstreff</b><br><span style="color: var(--muted); font-size: 15px">13:30–16:30 · Viertelküche</span></span>
+<span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--leaf)">Treffen</span>
+</li>
+<li style="display: flex; gap: 24px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line)">
+<span style="flex: 0 0 72px; text-align: center; line-height: 1"><b style="display: block; font-size: 40px; font-weight: 800">21</b><span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted)">Sa · Nov</span></span>
+<span style="flex: 1; min-width: 0"><b style="font-size: 20px">Offener Nachbarschaftstreff</b><br><span style="color: var(--muted); font-size: 15px">13:30–16:30 · Viertelküche</span></span>
+<span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--leaf)">Treffen</span>
+</li>
+<li style="display: flex; gap: 24px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line)">
+<span style="flex: 0 0 72px; text-align: center; line-height: 1"><b style="display: block; font-size: 40px; font-weight: 800">28</b><span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted)">Sa · Nov</span></span>
+<span style="flex: 1; min-width: 0"><b style="font-size: 20px">Offener Nachbarschaftstreff</b><br><span style="color: var(--muted); font-size: 15px">13:30–16:30 · Viertelküche</span></span>
+<span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--leaf)">Treffen</span>
+</li>
+<li style="display: flex; gap: 24px; align-items: center; padding: 18px 0; border-bottom: 1px dashed var(--line-strong); color: var(--muted)">
+<span style="flex: 0 0 72px; text-align: center; font-size: 28px; font-weight: 800">+</span>
+<span style="flex: 1; min-width: 0"><b style="font-size: 20px; color: var(--ink)">Dein Angebot?</b><br><span style="font-size: 15px">Kochabend, Spieletreff, Kurs – der Saal und die Küche sind noch oft frei. <a href="#mitmachen">So geht’s</a></span></span>
+</li>
+</ol>
+</section>
+
+<section id="raeume" style="max-width: 1200px; margin: 0 auto; padding: 56px 32px 80px; display: flex; flex-wrap: wrap; gap: 40px 64px; align-items: flex-start">
+<div style="flex: 1 1 420px; min-width: 0; position: relative; height: 440px">
+<div class="ph" style="position: absolute; left: 0; top: 0; width: 78%; height: 330px; background-color: var(--surface); border: 10px solid var(--surface); box-shadow: 0 1px 0 var(--line-strong), 0 0 0 1px var(--line); transform: rotate(-2deg)">FOTO: Viertelsaal bei einer Veranstaltung</div>
+<div class="ph" style="position: absolute; right: 0; bottom: 0; width: 58%; height: 230px; border: 10px solid var(--surface); box-shadow: 0 0 0 1px var(--line); transform: rotate(2.5deg)">FOTO: Viertelküche beim Samstagstreff</div>
+</div>
+<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em">Zwei Räume fürs Viertel</h2>
+<p style="margin: 0; color: var(--muted)">Für dein Fest, deinen Kurs oder deine Initiative. Du brauchst kein Konto und kein Passwort.</p>
+<div style="border-top: 2px solid var(--ink)">
+<a href="Raum-Viertelsaal.dc.html" style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none"><b style="font-size: 22px">Viertelsaal</b><span style="color: var(--muted); font-size: 15px; text-align: right">ca. 60 Personen · Vorträge, Feste</span></a>
+<a href="#" style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none"><b style="font-size: 22px">Viertelküche</b><span style="color: var(--muted); font-size: 15px; text-align: right">ca. 15 Personen · Feiern, Kochkurse</span></a>
+<a href="#" style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none"><b style="font-size: 22px">Saal + Küche zusammen</b><span style="color: var(--muted); font-size: 15px; text-align: right">für größere Feste</span></a>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center">
+<a href="Buchen-1.dc.html" style="background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 6px">Raum anfragen</a>
+</div>
+</div>
+</section>
+
+<section id="mitmachen" style="background: var(--tint)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 88px 32px; display: flex; flex-wrap: wrap; gap: 32px 64px; align-items: flex-end">
+<h2 style="flex: 2 1 560px; min-width: 0; margin: 0; font-size: clamp(40px, 5vw, 64px); font-weight: 800; line-height: 1; letter-spacing: -0.03em">Dir fehlt was im Viertel?<br><span style="color: var(--primary)">Mach’s hier.</span></h2>
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<p style="margin: 0">Reparaturcafé, Spieleabend, Tanzkurs, Kindercafé – wenn du eine Idee hast, finden wir einen Raum dafür.</p>
+<p style="margin: 0; font-weight: 700">Idee schicken → kurz reden → Raum bekommen <span class="todo">Konditionen</span></p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center">
+<a href="#" style="border: 2px solid var(--primary); color: var(--primary); text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 6px">Idee einreichen</a>
+<a href="#" style="font-size: 15px">Lieber mithelfen?</a>
+</div>
+</div>
+</div>
+</section>
+
+<section id="haus" style="max-width: 1200px; margin: 0 auto; padding: 88px 32px; display: flex; flex-wrap: wrap; gap: 40px 64px">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--leaf)">Das Haus</span>
+<p style="margin: 0; font-size: 24px; font-weight: 600; line-height: 1.35">Rund 65 Erwachsene und 30 Kinder wohnen im Treibhaus <span class="todo">prüfen</span>. Wir teilen Küche, Bibliothek und Sauna – und das Erdgeschoß mit dem ganzen Viertel.</p>
+<a href="#" class="go" style="align-self: flex-start">Mehr über uns →</a>
+</div>
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--leaf)">Solidarität</span>
+<p style="margin: 0; font-size: 24px; font-weight: 600; line-height: 1.35">Zwei Wohnungen im Haus sind Soli-Wohnungen für Familien mit Fluchterfahrung – finanziert von vielen Menschen per Crowdfunding.</p>
+<a href="#" class="go" style="align-self: flex-start">Zu den Soli-Wohnungen →</a>
+</div>
+</section>
+
+<section id="hallo" style="background: var(--band); color: var(--on-band)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 80px 32px; display: flex; flex-wrap: wrap; gap: 40px 64px; align-items: flex-start">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: clamp(48px, 6vw, 80px); font-weight: 800; line-height: 0.95; letter-spacing: -0.03em">Sag hallo.</h2>
+<p style="margin: 0; font-size: 19px; color: var(--on-band-2)">Fragen, Ideen, Lob, Beschwerden – schreib uns im offenen Chat-Raum vom Treibhaus.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center">
+<a href="https://matrix.to/#/#hallo:treibhausdonaufeld.at" style="background: var(--band-accent); color: var(--on-accent); text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 6px">Im Matrix-Raum hallo sagen</a>
+<span style="font-size: 15px; color: var(--on-band-2)">#hallo:treibhausdonaufeld.at</span>
+</div>
+<p style="margin: 0">Oder per Mail: <a href="mailto:hallo@treibhausdonaufeld.at" style="color: var(--on-band); font-weight: 700">hallo@treibhausdonaufeld.at</a></p>
+</div>
+<div style="flex: 1 1 340px; min-width: 0; border-left: 2px solid var(--band-accent); padding-left: 28px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 19px">Noch nie von Matrix gehört?</b>
+<p style="margin: 0; color: var(--on-band-2)">Matrix ist ein freier Chat – wie WhatsApp, nur ohne Konzern dahinter. So kommst du rein:</p>
+<p style="margin: 0; color: var(--on-band-2)"><b style="color: var(--on-band)">1.</b> Auf den Knopf klicken.<br><b style="color: var(--on-band)">2.</b> „Element“ wählen – geht auch im Browser.<br><b style="color: var(--on-band)">3.</b> Konto anlegen (eine Minute) und losschreiben.</p>
+</div>
+</div>
+</section>
+
+<section id="anfahrt" style="max-width: 1200px; margin: 0 auto; padding: 80px 32px; display: flex; flex-wrap: wrap; gap: 40px 64px">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em">Simone-Veil-Gasse 7</h2>
+<p style="margin: 0"><b>Am besten mit dem Rad</b> über den Radhighway Reichsbrücke.<br>Straßenbahn 25 bis Prandaugasse, 25/26 bis Carminweg.<br>U1 Kagran, dann ca. 15 Minuten zu Fuß.</p>
+<div class="ph" style="height: 220px; border: 1px solid var(--line-strong); border-radius: 4px">KARTE: OpenStreetMap-Ausschnitt rund um die Simone-Veil-Gasse (statisches Bild, kein Tracking)</div>
+</div>
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em">Post aus dem Haus</h2>
+<p style="margin: 0; color: var(--muted)">Unser Newsletter sagt dir, was im Erdgeschoß los ist. <span class="todo">wie oft</span> Abmelden geht jederzeit.</p>
+<form style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end">
+<label style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 700">E-Mail-Adresse<input type="email" autocomplete="email" style="font: inherit; font-weight: 400; padding: 12px 14px; border: 2px solid var(--field); border-radius: 6px; background: var(--surface); color: var(--ink)"></label>
+<button type="submit" style="font: inherit; font-weight: 700; background: var(--primary); color: var(--on-primary); border: 0; padding: 14px 20px; border-radius: 6px; cursor: pointer">Anmelden</button>
+</form>
+</div>
+</section>
+
+<footer style="background: var(--footer); color: var(--on-footer); font-size: 15px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: flex; flex-wrap: wrap; gap: 20px 48px; align-items: center">
+<img class="lg-d" src="/_blob/6214bc0246f1fd3f4e571e51857bbb22" alt="treibhaus donaufeld" style="height: 40px; width: auto; display: block">
+<span style="margin-right: auto">Treibhaus – Verein für gemeinschaftliches Bauen und Wohnen</span>
+<a href="https://matrix.to/#/#hallo:treibhausdonaufeld.at" style="color: var(--footer-link)">Matrix #hallo</a>
+<a href="mailto:hallo@treibhausdonaufeld.at" style="color: var(--footer-link)">hallo@treibhausdonaufeld.at</a>
+<span><a href="#" style="color: var(--on-footer)">Wohnen</a> · <a href="#" style="color: var(--on-footer)">Hausregeln</a> · <a href="#" style="color: var(--on-footer)">Impressum</a> · <a href="#" style="color: var(--on-footer)">Datenschutz</a> · <a href="#" lang="en" style="color: var(--on-footer)">English</a></span>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modus":{"editor":"enum","options":["hell","dunkel"],"default":"hell"},"$preview":{"width":1440,"height":4100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: (this.props.modus ?? 'hell') === 'dunkel' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

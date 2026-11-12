@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Buchen: Raum, Zeit, Angaben</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.th{--bg:#FAF8F3;--surface:#FFFFFF;--surface-2:#ECE6F4;--tint:#F0ECE2;--line:#E2DDD1;--line-soft:#EDE9E0;--line-strong:#C9C0AE;--field:#7A7262;--ink:#1E1C19;--muted:#5F5A50;--primary:#4A2C7A;--primary-hover:#3A2262;--on-primary:#FFFFFF;--primary-text:#2F4410;--link:#5D7A10;--brand:#4A2C7A;--on-brand:#FFFFFF;--icon:#5D7A10;--band:#34460A;--band-2:#2A3908;--on-band:#FFFFFF;--on-band-2:#DCE3CC;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#1E1C19;--on-footer:#CFC9BC;--on-footer-strong:#FFFFFF;--footer-link:#ECE6F4;--hint:#ECE6F4;--todo-bg:#FFF0B3;--todo-ink:#5E4300;--err:#A3261B;--on-err:#FFFFFF;--err-text:#8A2E1F;--err-bg:#FCEDEA;--ph1:#ECE7DC;--ph2:#F4F1EA;--ph-line:#B0A795;--ph-ink:#4A4539;--busy1:#D8D2C4;--busy2:#E6E1D6;--busy-ink:#2E2B25;--block:#4A453B;--on-block:#FFFFFF;--canvas:#EFEBE2;color-scheme:light}
+.th.dark{--bg:#151410;--surface:#1F1D19;--surface-2:#2A2238;--tint:#26231E;--line:#36322B;--line-soft:#2C2924;--line-strong:#504A40;--field:#9A9282;--ink:#F1EEE6;--muted:#BDB6A8;--primary:#B7A2DC;--primary-hover:#CDBFE6;--on-primary:#1A1320;--primary-text:#DDE7C0;--link:#B9D27A;--brand:#B7A2DC;--on-brand:#1A1320;--icon:#A9C46A;--band:#1E2A0E;--band-2:#18220A;--on-band:#F1EEE6;--on-band-2:#C9D0B6;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#0E0D0B;--on-footer:#BDB6A8;--on-footer-strong:#F1EEE6;--footer-link:#CDBFE6;--hint:#2A2238;--todo-bg:#4A3C0A;--todo-ink:#FFE38A;--err:#F07A6A;--on-err:#15140F;--err-text:#FF9E90;--err-bg:#3A1A15;--ph1:#23211C;--ph2:#2A2721;--ph-line:#5A5446;--ph-ink:#BDB6A8;--busy1:#3D3830;--busy2:#312D27;--busy-ink:#E0DBD0;--block:#6A6458;--on-block:#FFFFFF;--canvas:#100F0C;color-scheme:dark}
+.th a{color:var(--link)}.th a:hover{color:var(--primary-text)}
+.todo{background:var(--todo-bg);color:var(--todo-ink);border-radius:4px;padding:1px 6px;font-size:.88em}
+.th input,.th select,.th textarea,.th button{font:inherit;color:var(--ink)}
+.th input,.th select,.th textarea{background:var(--surface);accent-color:var(--primary)}
+</style>
+</helmet>
+<div class="th {{themeClass}}" style="width: 1656px; height: 940px; box-sizing: border-box; padding: 48px; background: var(--canvas); color: var(--ink); font-family: 'Kumbh Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.45; display: flex; gap: 40px">
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">1 · Raum wählen</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><a href="Main.dc.html">‹ Zurück</a><span style="color: var(--muted)">Schritt 1 von 4</span></div>
+<div style="height: 6px; background: var(--line-soft); border-radius: 3px"><div style="width: 25%; height: 6px; background: var(--brand); border-radius: 3px"></div></div>
+</div>
+<form style="padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1">
+<h1 style="margin: 0 0 6px; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Welchen Raum brauchst du?</h1>
+<label style="display: flex; gap: 12px; align-items: center; border: 2px solid var(--primary); background: var(--surface-2); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" checked="" style="width: 20px; height: 20px"><span><b>Viertelsaal</b><br><span style="font-size: 14px; color: var(--muted)">ca. 60 Personen · Vorträge, Feste</span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" style="width: 20px; height: 20px"><span><b>Viertelküche</b><br><span style="font-size: 14px; color: var(--muted)">ca. 15 Personen · Feiern, Kochkurse</span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" style="width: 20px; height: 20px"><span><b>Saal + Küche zusammen</b><br><span style="font-size: 14px; color: var(--muted)">für größere Feste</span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" style="width: 20px; height: 20px"><span><b>Bewegungsraum</b><br><span style="font-size: 14px; color: var(--muted)">Yoga, Tanz, Kinderturnen</span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" style="width: 20px; height: 20px"><span><b>Gemeinschaftswerkstatt</b><br><span style="font-size: 14px; color: var(--muted)"><span class="todo">nur mit Einschulung?</span></span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px"><input type="radio" name="r" style="width: 20px; height: 20px"><span><b>Nähwerkstatt</b><br><span style="font-size: 14px; color: var(--muted)">Nähen, Upcycling</span></span></label>
+<a href="#" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 15px; border-radius: 999px">Weiter: Zeit wählen</a>
+</form>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">2 · Zeit wählen</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><a href="#">‹ Raum</a><span style="color: var(--muted)">Schritt 2 von 4 · Viertelsaal</span></div>
+<div style="height: 6px; background: var(--line-soft); border-radius: 3px"><div style="width: 50%; height: 6px; background: var(--brand); border-radius: 3px"></div></div>
+</div>
+<form style="padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Wann?</h1>
+<div role="group" aria-label="Tag wählen" style="display: flex; gap: 6px">
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Mo<br><b>16</b></button>
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Di<br><b>17</b></button>
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Mi<br><b>18</b></button>
+<button type="button" aria-pressed="true" style="flex: 1; border: 2px solid var(--primary); background: var(--primary); color: var(--on-primary); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Do<br><b>19</b></button>
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Fr<br><b>20</b></button>
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">Sa<br><b>21</b></button>
+<button type="button" style="flex: 1; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 6px 0; font-size: 13px; line-height: 1.2">So<br><b>22</b></button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<b style="font-size: 14px">Donnerstag, 19. November</b>
+<div style="display: flex; height: 34px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line-strong); font-size: 12px">
+<span style="flex: 8; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--primary-text)">frei 8–16</span>
+<span style="flex: 4; background: var(--todo-bg); display: flex; align-items: center; justify-content: center; color: var(--todo-ink)">angefragt</span>
+<span style="flex: 2; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--primary-text)">frei</span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted)"><span>8</span><span>12</span><span>16</span><span>20</span><span>22</span></div>
+</div>
+<div style="display: flex; gap: 10px">
+<label style="flex: 1; display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Von<select style="padding: 11px; border: 2px solid var(--field); border-radius: 10px"><option>10:00</option></select></label>
+<label style="flex: 1; display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Bis<select style="padding: 11px; border: 2px solid var(--field); border-radius: 10px"><option>14:00</option></select></label>
+</div>
+<p style="margin: 0; font-size: 14px; background: var(--surface-2); border-radius: 10px; padding: 10px 12px">Plane Zeit zum Aufbauen und Aufräumen mit ein. Wir halten danach <span class="todo">X Min.</span> für die Reinigung frei.</p>
+<label style="display: flex; gap: 10px; align-items: flex-start"><input type="checkbox" style="width: 20px; height: 20px; margin-top: 2px"><span><b>Regelmäßig</b> (z. B. jede Woche)<br><span style="font-size: 14px; color: var(--muted)">Serien schaut sich die Raum-AG immer persönlich an.</span></span></label>
+<a href="#" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 15px; border-radius: 999px">Weiter: Angaben</a>
+</form>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">3 · Angaben</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><a href="#">‹ Zeit</a><span style="color: var(--muted)">Schritt 3 von 4</span></div>
+<div style="height: 6px; background: var(--line-soft); border-radius: 3px"><div style="width: 75%; height: 6px; background: var(--brand); border-radius: 3px"></div></div>
+</div>
+<form style="padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<p style="margin: 0; font-size: 14px; color: var(--muted)">Viertelsaal · Do 19. Nov · 10:00–14:00</p>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Dein Name<input type="text" autocomplete="name" value="Amira K." style="font-weight: 400; padding: 10px 12px; border: 2px solid var(--field); border-radius: 10px"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Was hast du vor?<input type="text" value="Kleidertausch fürs Viertel" style="font-weight: 400; padding: 10px 12px; border: 2px solid var(--field); border-radius: 10px"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Wie viele Personen ungefähr?<input type="number" value="30" style="font-weight: 400; padding: 10px 12px; border: 2px solid var(--field); border-radius: 10px; width: 100px"></label>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<legend style="font-weight: 700; font-size: 15px; padding: 0; margin-bottom: 4px">Wofür?</legend>
+<label style="display: flex; gap: 8px; align-items: center"><input type="radio" name="art" style="width: 18px; height: 18px">privat</label>
+<label style="display: flex; gap: 8px; align-items: center"><input type="radio" name="art" checked="" style="width: 18px; height: 18px">gemeinnützig / Initiative</label>
+<label style="display: flex; gap: 8px; align-items: center"><input type="radio" name="art" style="width: 18px; height: 18px">kommerziell</label>
+</fieldset>
+<label style="display: flex; gap: 10px; align-items: flex-start"><input type="checkbox" checked="" style="width: 20px; height: 20px; margin-top: 2px"><span><b>Offen für alle?</b> Dann zeigen wir es im Terminkalender.</span></label>
+<label style="display: flex; gap: 10px; align-items: flex-start"><input type="checkbox" style="width: 20px; height: 20px; margin-top: 2px"><span>Ich habe die <a href="#">Hausregeln</a> gelesen und halte mich daran.</span></label>
+<a href="Buchen-2.dc.html" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 15px; border-radius: 999px">Weiter: Bestätigen</a>
+</form>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--err-text)">3 · Fehler im Formular</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><a href="#">‹ Zeit</a><span style="color: var(--muted)">Schritt 3 von 4</span></div>
+<div style="height: 6px; background: var(--line-soft); border-radius: 3px"><div style="width: 75%; height: 6px; background: var(--brand); border-radius: 3px"></div></div>
+</div>
+<form style="padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<div role="alert" style="border: 2px solid var(--err); background: var(--err-bg); border-radius: 12px; padding: 12px 14px; font-size: 15px">
+<b style="color: var(--err-text)">Bitte prüf 2 Angaben:</b>
+<ul style="margin: 4px 0 0; padding-left: 20px"><li><a href="#" style="color: var(--err-text)">Personenzahl</a></li><li><a href="#" style="color: var(--err-text)">Hausregeln</a></li></ul>
+</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Dein Name<input type="text" value="Amira K." style="font-weight: 400; padding: 10px 12px; border: 2px solid var(--field); border-radius: 10px"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Wie viele Personen ungefähr?<input type="number" value="80" aria-invalid="true" style="font-weight: 400; padding: 10px 12px; border: 3px solid var(--err); border-radius: 10px; width: 100px"><span style="font-weight: 400; font-size: 14px; color: var(--err-text)">Der Viertelsaal hat Platz für ca. 60 Personen. Für mehr: nimm Saal + Küche zusammen oder schreib uns.</span></label>
+<label style="display: flex; gap: 10px; align-items: flex-start; border: 3px solid var(--err); border-radius: 10px; padding: 10px"><input type="checkbox" aria-invalid="true" style="width: 20px; height: 20px; margin-top: 2px"><span>Ich habe die <a href="#">Hausregeln</a> gelesen und halte mich daran.<br><span style="font-size: 14px; color: var(--err-text)">Bitte lies die Hausregeln und hak das Kästchen an.</span></span></label>
+<div style="border-top: 1px dashed var(--line-strong); padding-top: 10px; font-size: 13px; color: var(--muted)">Nicht sichtbar: Honeypot-Feld + Zeitprüfung gegen Spam. Zu schnell abgeschickt → freundlicher Hinweis „Bitte versuch es gleich noch einmal“.</div>
+<a href="#" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 15px; border-radius: 999px">Weiter: Bestätigen</a>
+</form>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modus":{"editor":"enum","options":["hell","dunkel"],"default":"hell"},"$preview":{"width":1656,"height":940}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: (this.props.modus ?? 'hell') === 'dunkel' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

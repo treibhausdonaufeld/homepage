@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Sitemap und Inhaltsmodell</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#5D7A10}a:hover{color:#2C3D0B}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.86em;background:#E9EDDD;color:#5D7A10;padding:1px 5px;border-radius:4px}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1560px; box-sizing: border-box; padding: 64px; background: #F7F8F1; color: #1B2410; font-family: 'Kumbh Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.45; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 44px; color: #5D7A10">Sitemap</h1>
+<span style="color: #4E5A3C">5 Hauptpunkte im Menü · „Raum buchen“ als Button im Header · Kurz-URLs für QR-Codes in <code>grün</code></span>
+</div>
+
+<div style="display: flex; gap: 16px; align-items: center">
+<div style="background: #5D7A10; color: #FFFFFF; border-radius: 14px; padding: 16px 24px; font-weight: 700; font-size: 20px">Start <code style="background: #4A620C; color: #FFFFFF">/</code></div>
+<span style="color: #4E5A3C">Hero · drei Wege · Samstagstreff · nächste Termine · Räume · Mitmachen · Dreifelder · Soli-Wohnungen · Sag hallo · Newsletter</span>
+<div style="margin-left: auto; background: #ECE6F4; border-radius: 14px; padding: 14px 22px; font-weight: 700">Header-Button: Raum buchen <code style="background: #FFFFFF">/buchen</code></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px">
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 20px; color: #5D7A10">Was ist los</b><code>/termine</code>
+<span>Liste + Kalender, Filter: Werkstatt, Bewegung, Essen, Kinder, Kultur</span>
+<span style="border-top: 1px solid #E9EDDD; padding-top: 10px">Angebot-Detail <code>/angebote/&lt;slug&gt;</code></span>
+<span>Kurz-URLs <code>/treff</code> <code>/fahrrad</code> <code>/naehen</code> <code>/jonglieren</code></span>
+<span>iCal-Feed <code>/termine.ics</code></span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 20px; color: #5D7A10">Räume</b><code>/raeume</code>
+<span>Übersicht mit 5 Karten</span>
+<span style="border-top: 1px solid #E9EDDD; padding-top: 10px">Raum-Detail <code>/raeume/viertelsaal</code> … (×5)</span>
+<span>Buchen <code>/buchen</code> → <code>/buchen/&lt;raum&gt;</code></span>
+<span>Buchung verwalten / stornieren <code>/b/&lt;token&gt;</code></span>
+<span>Hausregeln <code>/hausregeln</code></span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 20px; color: #5D7A10">Mitmachen</b><code>/mitmachen</code>
+<span>Selbst etwas anbieten <code>/anbieten</code></span>
+<span>Foodcoop <code>/foodcoop</code></span>
+<span>Ehrenamt: Werkstatt, Treff-Schichten</span>
+<span>Matrix #hallo + Newsletter</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 20px; color: #5D7A10">Über uns</b><code>/ueber-uns</code>
+<span>Vision (4 Werte) · Dreifelder-Konzept · Haus in Zahlen · Soziokratie · Zeitleiste · Partner · Presse</span>
+<span style="border-top: 1px solid #E9EDDD; padding-top: 10px">Solidarität <code>/soli</code></span>
+<span>Wohnen im Treibhaus <code>/wohnen</code> (Nebenpfad, derzeit voll)</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 20px; color: #5D7A10">Kontakt</b><code>/kontakt</code> <code>/hallo</code>
+<span>1. Matrix #hallo + Kurzanleitung</span>
+<span>2. hallo@treibhausdonaufeld.at</span>
+<span>Adresse, OSM-Karte, Öffis, Rad</span>
+</div>
+</div>
+
+<div style="display: flex; gap: 12px; flex-wrap: wrap; color: #4E5A3C">
+<span style="font-weight: 700; color: #1B2410">Footer jeder Seite:</span> Matrix + E-Mail · Adresse · Impressum <code>/impressum</code> · Datenschutz <code>/datenschutz</code> · Hausregeln · English <code>/en/</code> (Start, Räume, Buchen, Kontakt)
+</div>
+
+<div style="border-top: 2px solid #DCE2CC; margin-top: 8px"></div>
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 44px; color: #5D7A10">Inhaltsmodell</h2>
+<span style="color: #4E5A3C">Astro Content Collections (Markdown + Frontmatter), pflegbar über Decap CMS · Termine kommen aus dem Buchungsdienst</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: start">
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; overflow: hidden">
+<div style="background: #5D7A10; color: #FFFFFF; padding: 12px 18px; font-weight: 700; font-size: 18px">Seite</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<span><code>title</code> · <code>slug</code></span>
+<span><code>lang</code> de | en</span>
+<span><code>translationOf</code> → Seite</span>
+<span><code>description</code> (für Vorschau)</span>
+<span><code>hero</code> Bild + <code>heroAlt</code> (Pflicht)</span>
+<span><code>nav</code> Position im Menü</span>
+<span><code>body</code> Markdown</span>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; overflow: hidden">
+<div style="background: #5D7A10; color: #FFFFFF; padding: 12px 18px; font-weight: 700; font-size: 18px">Angebot</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<span><code>title</code> · <code>slug</code> · <code>shortUrl</code></span>
+<span><code>kategorie</code> werkstatt | bewegung | essen | kinder | kultur</span>
+<span><code>kurz</code> 1–2 Sätze</span>
+<span><code>rhythmus</code> Text („jeden 2. Dienstag, 18–21 Uhr“)</span>
+<span><code>raum</code> → Raum</span>
+<span><code>kosten</code> gratis | Spende | Betrag</span>
+<span><code>matrixRaum</code> Standard #hallo</span>
+<span><code>ansprechperson</code> (optional)</span>
+<span><code>neuHier</code> ja/nein · <code>status</code> aktiv | pausiert</span>
+<span><code>bild</code> + <code>bildAlt</code></span>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; overflow: hidden">
+<div style="background: #5D7A10; color: #FFFFFF; padding: 12px 18px; font-weight: 700; font-size: 18px">Raum</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<span><code>name</code> · <code>slug</code></span>
+<span><code>kapazitaet</code> Personen</span>
+<span><code>ausstattung</code> Liste</span>
+<span><code>barrierefrei</code> ja | nein | teilweise + Text</span>
+<span><code>kombinierbarMit</code> → Raum</span>
+<span><code>preise</code> privat · gemeinnützig · kommerziell</span>
+<span><code>einschulung</code> ja/nein</span>
+<span><code>bilder</code> Liste mit Alt-Text</span>
+<span><code>bookingId</code> ID im Buchungsdienst</span>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; overflow: hidden">
+<div style="background: #4A620C; color: #FFFFFF; padding: 12px 18px; font-weight: 700; font-size: 18px">Termin <span style="font-weight: 400; font-size: 14px">(aus Buchungsdienst)</span></div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<span><code>titel</code> · <code>start</code> · <code>ende</code></span>
+<span><code>raum</code> → Raum</span>
+<span><code>angebot</code> → Angebot (optional)</span>
+<span><code>kategorie</code></span>
+<span><code>status</code> findet statt | abgesagt</span>
+<span style="color: #4E5A3C">Quelle: öffentliche Buchungen + Serien. Eine Quelle für Startseite, /termine und iCal.</span>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2CC; border-radius: 16px; overflow: hidden">
+<div style="background: #5D7A10; color: #FFFFFF; padding: 12px 18px; font-weight: 700; font-size: 18px">Partner</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+<span><code>name</code> · <code>url</code></span>
+<span><code>logo</code> + Alt-Text</span>
+<span><code>beschreibung</code> 1 Satz</span>
+<span><code>aktiv</code> ja/nein</span>
+<span><code>angebote</code> → Angebot (z. B. Lenkerbande → Fahrradwerkstatt)</span>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1560}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
