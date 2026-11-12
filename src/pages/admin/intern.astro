@@ -11,7 +11,7 @@ import { fmt, isValidDate, parseLocal, today } from '../../lib/time';
 
 const db = getDb();
 const rooms = listRooms(db);
-const offers = await getCollection('offers');
+const offers = (await getCollection('offers')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
 const actor = Astro.locals.admin!.name;
 let error: string | null = null;
 let conflicts: string[] = [];

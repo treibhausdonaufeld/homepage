@@ -150,6 +150,7 @@ p {
   line-height: 1.4;
   padding: 16px;
   border: 1px solid var(--ph-line);
+  overflow-wrap: anywhere;
 }
 
 /* Links mit Pfeil */
@@ -345,6 +346,8 @@ th {
 }
 .table-scroll {
   overflow-x: auto;
+  /* hält absolut positionierte .sr-only-Texte in Tabellenzellen im Scrollbereich */
+  position: relative;
 }
 
 /* Badges */

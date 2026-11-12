@@ -99,13 +99,13 @@ export const detailSchema = z.object({
   name: z.string().trim().min(2, 'Bitte gib deinen Namen an.').max(100, 'Der Name ist zu lang.'),
   zweck: z.string().trim().min(3, 'Bitte schreib kurz, was du vorhast.').max(300, 'Bitte fass dich kürzer (höchstens 300 Zeichen).'),
   personen: z.coerce
-    .number({ invalid_type_error: 'Bitte gib eine Zahl an.' })
+    .number({ error: 'Bitte gib eine Zahl an.' })
     .int('Bitte gib eine ganze Zahl an.')
     .min(1, 'Bitte gib an, wie viele Personen ungefähr kommen.')
     .max(500, 'Bitte gib eine realistische Zahl an.'),
-  art: z.enum(KINDS, { errorMap: () => ({ message: 'Bitte wähl, wofür du den Raum brauchst.' }) }),
+  art: z.enum(KINDS, { error: 'Bitte wähl, wofür du den Raum brauchst.' }),
   oeffentlich: z.string().optional(),
-  regeln: z.literal('ja', { errorMap: () => ({ message: 'Bitte lies die Hausregeln und hak das Kästchen an.' }) }),
+  regeln: z.literal('ja', { error: 'Bitte lies die Hausregeln und hak das Kästchen an.' }),
 });
 
 export type Details = z.infer<typeof detailSchema>;
@@ -124,7 +124,7 @@ export function parseDetails(f: DetailFields): { data?: Details; errors: Record<
 export function parseContact(f: ContactFields): { channel?: 'email' | 'matrix'; address?: string; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   if (f.kanal === 'email') {
-    const r = z.string().trim().email().max(200).safeParse(f.email);
+    const r = z.email().max(200).safeParse(f.email.trim());
     if (!r.success) errors.email = 'Bitte prüf deine E-Mail-Adresse.';
     else return { channel: 'email', address: r.data, errors };
   } else if (f.kanal === 'matrix') {

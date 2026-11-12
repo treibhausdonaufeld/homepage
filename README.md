@@ -184,6 +184,7 @@ Doppelbuchungen verhindert eine SQLite-Transaktion (`BEGIN IMMEDIATE`) beim Abse
 
 ## Abweichungen vom Implementierungsplan
 
+- **Astro 7 statt Astro 5** (mit Vite 8, Rust-Compiler und dem Markdown-Prozessor Sätteri). Die gelbe TODO-Markierung ist ein kleines Sätteri-Plugin ([`src/lib/markdown/todo-plugin.mjs`](src/lib/markdown/todo-plugin.mjs)). TypeScript bleibt auf 6, weil `astro check` TypeScript 7 noch nicht unterstützt.
 - **Matrix ohne SDK:** Statt `matrix-bot-sdk` spricht ein kleiner Bot ([`src/lib/notify/matrix.ts`](src/lib/notify/matrix.ts)) direkt die Client-Server-API (Raum anlegen, Nachricht senden, Sync). Das spart native Krypto-Abhängigkeiten; Verschlüsselung war ohnehin nicht vorgesehen.
 - **Formulare als normale POST-Formulare** statt Astro Actions. CSRF-Schutz über Astros Origin-Prüfung, Validierung mit Zod. Alles funktioniert ohne JavaScript.
 - **Keine Svelte-Inseln:** Zeitwahl ist ein serverseitig gerendertes Formular mit Tageszeitleiste. JavaScript gibt es nur für den Dunkelmodus-Umschalter und die automatische Weiterleitung nach der Matrix-Bestätigung.

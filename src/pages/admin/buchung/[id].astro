@@ -46,7 +46,7 @@ if (Astro.request.method === 'POST') {
 }
 const b = getBooking(db, id)!;
 const view = bookingView(db, b);
-const offers = await getCollection('offers');
+const offers = (await getCollection('offers')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
 const log = auditFor(db, id);
 const trusted = isTrusted(db, b);
 const active = view.slots.filter((s) => !s.skipped);

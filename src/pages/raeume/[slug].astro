@@ -81,7 +81,8 @@ const bookBase = `/buchen/zeit?raum=${d.bookingId}`;
 <style>
   .top { padding-top: 16px; align-items: start; }
   .gallery :global(.photo) { border-width: 0; box-shadow: none; border-radius: 8px; }
-  .thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .gallery { min-width: 0; }
+  .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
   .prices { margin: 0 0 20px; border-top: 2px solid var(--ink); }
   .prices > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .prices dt { font-weight: 700; }

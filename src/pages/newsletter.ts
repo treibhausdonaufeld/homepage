@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
 
   if (String(f.get('website') ?? '')) return to('ok'); // Honeypot
   if (checkFormStamp(String(f.get('stamp') ?? ''), 2) === 'too-fast') return to('error');
-  const email = z.string().trim().email().max(200).safeParse(f.get('email'));
+  const email = z.email().max(200).safeParse(String(f.get('email') ?? '').trim());
   if (!email.success) return to('error');
   const db = getDb();
   if (!hit(db, `nl-ip:${locals.ip}`, 5, 3600) || !hit(db, `nl-mail:${email.data.toLowerCase()}`, 3, 86400)) return to('error');

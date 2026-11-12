@@ -1,7 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
-import rehypeTodo from './src/lib/markdown/rehype-todo.mjs';
+import { satteri } from '@astrojs/markdown-satteri';
+import { todoPlugin } from './src/lib/markdown/todo-plugin.mjs';
 
 // Inhaltsseiten werden vorgerendert (Standard), Buchung, Admin, Feeds und
 // Startseite setzen `export const prerender = false` und laufen auf dem Server.
@@ -28,7 +29,7 @@ export default defineConfig({
     '/jonglieren': '/angebote/jongliertreffen',
     '/hallo': '/kontakt',
   },
-  markdown: { rehypePlugins: [rehypeTodo] },
+  markdown: { processor: satteri({ hastPlugins: [todoPlugin] }) },
   vite: {
     ssr: { external: ['better-sqlite3'] },
   },

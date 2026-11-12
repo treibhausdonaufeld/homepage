@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const pages = defineCollection({
@@ -58,7 +59,7 @@ const partners = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/partners' }),
   schema: z.object({
     name: z.string(),
-    url: z.string().url().optional(),
+    url: z.url().optional(),
     logo: z.string().optional(),
     logoAlt: z.string().optional(),
     beschreibung: z.string(),
