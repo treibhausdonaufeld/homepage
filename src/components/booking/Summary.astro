@@ -1,0 +1,23 @@
+---
+import type { BookingView } from '../../lib/booking/types';
+import { STATUS_LABEL } from '../../lib/booking/types';
+import { describeRule } from '../../lib/booking/recurrence';
+import { fmt } from '../../lib/time';
+interface Props { view: BookingView; showPurpose?: boolean }
+const { view, showPurpose = false } = Astro.props;
+const first = view.occurrences[0] ?? view.skipped[0];
+const statusText = view.booking.status === 'vorlaeufig' ? 'vorläufig reserviert' : STATUS_LABEL[view.booking.status];
+---
+<div class="summary-card">
+  <strong>{view.room.name}{showPurpose && view.booking.purpose && <> · {view.booking.purpose}</>}</strong>
+  {first && <span>{fmt.long(first.start)}</span>}
+  {first && <span>{fmt.range(first.start, first.end)}</span>}
+  {view.seriesRule && <span class="muted">{describeRule(view.seriesRule)}, {view.occurrences.length} Termine bis {fmt.dayMonth(view.occurrences.at(-1)!.start)}</span>}
+  {view.skipped.length > 0 && <span class="muted">{view.skipped.length} Termin(e) der Serie sind schon belegt und nicht reserviert.</span>}
+  <span><span class={`badge ${view.booking.status}`}>{statusText}</span></span>
+</div>
+<style>
+  .summary-card { display: flex; flex-direction: column; gap: 2px; background: var(--hint); border-radius: 12px; padding: 16px 20px; margin: 0 0 24px; }
+  .summary-card strong { font-size: 19px; }
+  .summary-card .badge { margin-top: 8px; }
+</style>

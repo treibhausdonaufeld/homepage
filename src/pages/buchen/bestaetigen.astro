@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import { getDb } from '../../lib/db';
+import { verifyToken } from '../../lib/booking/service';
+import { getNotifier } from '../../lib/notify';
+
+/**
+ * Bestätigungslink aus Mail oder Matrix. Mail-Programme rufen Links manchmal vorab auf –
+ * deshalb bestätigt erst ein Klick auf den Knopf (POST), nicht schon das Öffnen.
+ */
+const token = Astro.url.searchParams.get('t') ?? '';
+let result: string | null = null;
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const r = await verifyToken(getDb(), getNotifier(), String(form.get('t') ?? ''));
+  if (r.result === 'ok' || r.result === 'already' || r.result === 'conflict') {
+    return Astro.redirect(`/buchen/danke?b=${r.booking.publicId}`, 303);
+  }
+  result = r.result;
+}
+---
+<Base title="Anfrage bestätigen" noindex>
+  <Shell>
+    {result === 'expired' ? (
+      <>
+        <h1>Der Link ist abgelaufen</h1>
+        <p>Kein Problem. Auf der Seite, auf der du den Code eingeben solltest, kannst du einen neuen anfordern. Deine Angaben bleiben gespeichert.</p>
+      </>
+    ) : result ? (
+      <>
+        <h1>Dieser Link gilt nicht</h1>
+        <p>Vielleicht wurde schon ein neuerer Code geschickt. Nimm den Link aus der letzten Nachricht oder stell eine neue Anfrage.</p>
+        <p><a class="btn" href="/buchen">Neue Anfrage</a></p>
+      </>
+    ) : (
+      <>
+        <h1>Anfrage bestätigen</h1>
+        <p>Ein Klick noch, dann ist deine Anfrage bei der Raum-AG.</p>
+        <form method="post">
+          <input type="hidden" name="t" value={token} />
+          <button class="btn big" type="submit">Ja, Anfrage bestätigen</button>
+        </form>
+      </>
+    )}
+  </Shell>
+</Base>

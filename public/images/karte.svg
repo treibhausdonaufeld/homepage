@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" width="560" height="320" font-family="system-ui, sans-serif" font-size="13">
+  <title>Skizze: Anfahrt zum Treibhaus Donaufeld</title>
+  <rect width="560" height="320" fill="#F0ECE2"/>
+  <!-- Alte Donau -->
+  <path d="M0 270 C120 250 200 300 330 280 S520 250 560 265 L560 320 L0 320 Z" fill="#CFE0E8"/>
+  <text x="380" y="300" fill="#3D6275">Alte Donau</text>
+  <!-- Straßen -->
+  <path d="M40 40 L520 70" stroke="#fff" stroke-width="14"/>
+  <path d="M60 200 L540 170" stroke="#fff" stroke-width="10"/>
+  <path d="M250 20 L230 260" stroke="#fff" stroke-width="10"/>
+  <!-- Straßenbahn -->
+  <path d="M40 40 L520 70" stroke="#A3261B" stroke-width="3" stroke-dasharray="10 6"/>
+  <text x="60" y="30" fill="#A3261B" font-weight="700">Straßenbahn 25 / 26</text>
+  <circle cx="150" cy="47" r="7" fill="#fff" stroke="#A3261B" stroke-width="3"/>
+  <text x="120" y="80" fill="#1E1C19">Prandaugasse (25)</text>
+  <circle cx="420" cy="64" r="7" fill="#fff" stroke="#A3261B" stroke-width="3"/>
+  <text x="380" y="97" fill="#1E1C19">Carminweg (25/26)</text>
+  <!-- Haus -->
+  <rect x="270" y="120" width="56" height="44" fill="#4A2C7A"/>
+  <text x="298" y="147" fill="#fff" font-weight="700" text-anchor="middle">TH</text>
+  <text x="336" y="138" fill="#1E1C19" font-weight="700">Treibhaus</text>
+  <text x="336" y="155" fill="#5F5A50">Simone-Veil-Gasse 7</text>
+  <!-- Rad -->
+  <text x="20" y="228" fill="#5D7A10" font-weight="700">← Radhighway Reichsbrücke</text>
+  <text x="440" y="200" fill="#5F5A50">U1 Kagran ↘</text>
+  <text x="12" y="312" fill="#5F5A50" font-size="11">Skizze, nicht maßstabsgetreu</text>
+</svg>

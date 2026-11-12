@@ -1,0 +1,81 @@
+---
+export const prerender = false;
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { blockIntervals, listBookings, listRooms } from '../../lib/booking/service';
+import { addDays, dayStart, fmt, isValidDate, localDate, mondayOf, today } from '../../lib/time';
+
+const db = getDb();
+const w = Astro.url.searchParams.get('woche');
+const monday = mondayOf(isValidDate(w) ? w : today());
+const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+const from = dayStart(monday);
+const to = dayStart(addDays(monday, 7));
+const rooms = listRooms(db).filter((r) => !r.combines?.length);
+const views = listBookings(db, { statuses: ['vorlaeufig', 'bestaetigt'], from, to });
+type Item = { start: Date; end: Date; label: string; href?: string; kind: string };
+const cells = new Map<string, Item[]>();
+const add = (day: string, room: string, it: Item) => {
+  const k = `${day}|${room}`;
+  cells.set(k, [...(cells.get(k) ?? []), it]);
+};
+for (const v of views) {
+  for (const s of v.slots) {
+    if (s.skipped || s.start >= to || s.end <= from) continue;
+    add(localDate(s.start), s.roomSlug, {
+      start: s.start,
+      end: s.end,
+      label: `${v.booking.purpose ?? '–'}${v.booking.name ? ` (${v.booking.name})` : ''}${v.room.combines?.length ? ' · Saal+Küche' : ''}`,
+      href: `/admin/buchung/${v.booking.id}`,
+      kind: v.booking.status,
+    });
+  }
+}
+for (const r of rooms) {
+  for (const b of blockIntervals(db, r.slug, from, to)) {
+    add(localDate(b.start), r.slug, { start: b.start, end: b.end, label: b.reason, kind: 'gesperrt' });
+  }
+}
+for (const list of cells.values()) list.sort((a, b) => a.start.getTime() - b.start.getTime());
+---
+<Admin title="Kalender">
+  <div class="row" style="justify-content:space-between">
+    <h1>Kalender aller Räume</h1>
+    <div class="row">
+      <a href={`?woche=${addDays(monday, -7)}`}>‹ Vorwoche</a>
+      <strong>{fmt.dayMonth(from)} – {fmt.dayMonth(dayStart(addDays(monday, 6)))}</strong>
+      <a href={`?woche=${addDays(monday, 7)}`}>Nächste Woche ›</a>
+    </div>
+  </div>
+  <ul class="legend"><li><span class="sw st-belegt"></span>bestätigt</li><li><span class="sw st-angefragt"></span>vorläufig</li><li><span class="sw st-gesperrt"></span>Sperrzeit</li></ul>
+  <div class="table-scroll">
+    <table class="cal">
+      <thead><tr><th>Tag</th>{rooms.map((r) => <th scope="col">{r.name}</th>)}</tr></thead>
+      <tbody>
+        {days.map((d) => (
+          <tr class={d === today() ? 'today' : ''}>
+            <th scope="row">{fmt.short(dayStart(d))}</th>
+            {rooms.map((r) => (
+              <td>
+                {(cells.get(`${d}|${r.slug}`) ?? []).map((it) => (
+                  it.href
+                    ? <a class={`it ${it.kind}`} href={it.href}><b>{fmt.range(it.start, it.end)}</b> {it.label}</a>
+                    : <span class="it gesperrt"><b>{fmt.range(it.start, it.end)}</b> {it.label}</span>
+                ))}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="row"><a class="btn" href="/admin/intern">Intern buchen</a> <a href="/admin/sperrzeiten">Sperrzeiten verwalten</a></p>
+</Admin>
+<style>
+  .cal td { min-width: 240px; }
+  .cal tr.today th { color: var(--primary); }
+  .it { display: block; font-size: 14px; border-radius: 6px; padding: 4px 8px; margin-bottom: 4px; text-decoration: none; color: var(--ink); }
+  .it.bestaetigt { background: var(--surface-2); border-left: 4px solid var(--primary); }
+  .it.vorlaeufig { background: var(--st-req); color: var(--todo-ink); }
+  .it.gesperrt { background: var(--tint); color: var(--muted); }
+</style>

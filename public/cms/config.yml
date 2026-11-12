@@ -1,0 +1,99 @@
+# Decap CMS – Inhaltspflege über Git.
+# TODO: Git-Hosting/Login festlegen (GitHub mit OAuth-App oder eigener Gitea), siehe README.
+backend:
+  name: github
+  repo: treibhausdonaufeld/homepage
+  branch: main
+  # base_url: https://cms-auth.treibhausdonaufeld.at   # OAuth-Proxy für GitHub
+  commit_messages:
+    create: "Inhalt: {{collection}} „{{slug}}“ angelegt"
+    update: "Inhalt: {{collection}} „{{slug}}“ geändert"
+    delete: "Inhalt: {{collection}} „{{slug}}“ gelöscht"
+
+# Änderungen erst als Entwurf (Pull Request), dann veröffentlichen
+publish_mode: editorial_workflow
+locale: de
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: offers
+    label: Angebote
+    label_singular: Angebot
+    folder: src/content/offers
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { name: title, label: Titel, widget: string }
+      - { name: kategorie, label: Kategorie, widget: select, options: [werkstatt, bewegung, essen, kinder, kultur, treffen] }
+      - { name: kurz, label: "Kurzbeschreibung (1–2 Sätze)", widget: text }
+      - { name: rhythmus, label: "Wann (z. B. jeden 2. Dienstag, 18–21 Uhr)", widget: string }
+      - { name: raum, label: Raum, widget: string }
+      - { name: kosten, label: Kosten, widget: string, default: "gratis / Spende" }
+      - { name: matrixRaum, label: Matrix-Raum, widget: string, default: "#hallo:treibhausdonaufeld.at" }
+      - { name: ansprechperson, label: Ansprechperson, widget: string, required: false }
+      - { name: shortUrl, label: "Kurz-URL (z. B. /fahrrad)", widget: string, required: false }
+      - { name: neuHier, label: "„Neu hier? Einfach kommen.“ zeigen", widget: boolean, default: true }
+      - { name: status, label: Status, widget: select, options: [aktiv, geplant, pausiert], default: aktiv }
+      - { name: bild, label: Bild, widget: image, required: false }
+      - { name: bildAlt, label: "Bildbeschreibung (Alt-Text)", widget: string, required: false }
+      - { name: reihenfolge, label: Reihenfolge, widget: number, default: 50 }
+      - { name: body, label: Text, widget: markdown }
+
+  - name: rooms
+    label: Räume
+    label_singular: Raum
+    folder: src/content/rooms
+    create: false
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: kurz, label: Kurzbeschreibung, widget: text }
+      - { name: kapazitaet, label: "Kapazität (Personen, nur Anzeige – Buchungsregeln im Admin)", widget: number }
+      - { name: nutzung, label: "Nutzung (kurz)", widget: string }
+      - { name: ausstattung, label: Ausstattung, widget: list, field: { name: punkt, label: Punkt, widget: string } }
+      - { name: barrierefrei, label: Barrierefrei, widget: select, options: [ja, nein, teilweise, offen] }
+      - { name: barrierefreiText, label: "Barrierefreiheit (Details)", widget: string, required: false }
+      - { name: kombinierbarMit, label: Kombinierbar mit, widget: string, required: false }
+      - label: Preise
+        name: preise
+        widget: object
+        fields:
+          - { name: privat, label: Privat, widget: string }
+          - { name: gemeinnuetzig, label: Gemeinnützig, widget: string }
+          - { name: kommerziell, label: Kommerziell, widget: string }
+      - { name: einschulung, label: Nur mit Einschulung, widget: boolean, default: false }
+      - label: Bilder
+        name: bilder
+        widget: list
+        fields:
+          - { name: src, label: Bild, widget: image, required: false }
+          - { name: alt, label: "Beschreibung (Alt-Text, Pflicht)", widget: string }
+      - { name: bookingId, label: "ID im Buchungssystem (nicht ändern)", widget: hidden }
+      - { name: reihenfolge, label: Reihenfolge, widget: number }
+      - { name: body, label: Text, widget: markdown }
+
+  - name: partners
+    label: Partner
+    label_singular: Partner
+    folder: src/content/partners
+    create: true
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: url, label: Website, widget: string, required: false }
+      - { name: beschreibung, label: "Beschreibung (1 Satz)", widget: string }
+      - { name: logo, label: Logo, widget: image, required: false }
+      - { name: logoAlt, label: Logo-Beschreibung, widget: string, required: false }
+      - { name: aktiv, label: Aktiv, widget: boolean, default: true }
+      - { name: rolle, label: Rolle, widget: select, options: [kooperation, projekt], default: kooperation }
+      - { name: angebote, label: "Angebote (Slugs)", widget: list, required: false }
+
+  - name: pages
+    label: Seiten
+    label_singular: Seite
+    folder: src/content/pages
+    create: true
+    fields:
+      - { name: title, label: Titel, widget: string }
+      - { name: description, label: "Beschreibung (für Vorschau)", widget: string, required: false }
+      - { name: lang, label: Sprache, widget: select, options: [de, en], default: de }
+      - { name: body, label: Text, widget: markdown }

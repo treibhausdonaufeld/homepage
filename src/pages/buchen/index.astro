@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import { getDb } from '../../lib/db';
+import { listRooms } from '../../lib/booking/service';
+
+const rooms = listRooms(getDb(), true);
+const entries = await getCollection('rooms');
+const info = new Map(entries.map((e) => [e.data.bookingId, e.data]));
+const selected = Astro.url.searchParams.get('raum') ?? rooms[0]?.slug;
+const error = Astro.url.searchParams.get('fehler') === 'raum';
+---
+<Base title="Raum buchen" description="Viertelsaal oder Viertelküche anfragen – ohne Konto, Bestätigung per E-Mail oder Matrix.">
+  <Shell step={1} back={{ href: '/raeume', label: 'Zurück' }}>
+    <h1>Welchen Raum brauchst du?</h1>
+    {error && <p class="error-box" role="alert">Bitte wähl einen Raum.</p>}
+    <form method="get" action="/buchen/zeit">
+      <fieldset>
+        <legend class="sr-only">Raum</legend>
+        <div class="choices">
+          {rooms.map((r) => {
+            const d = info.get(r.slug);
+            return (
+              <label class="choice">
+                <input type="radio" name="raum" value={r.slug} checked={r.slug === selected} required />
+                <span><strong>{r.name}</strong><span class="muted">{d ? `ca. ${d.kapazitaet} Personen · ${d.nutzung}` : `ca. ${r.capacity} Personen`}</span></span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+      <button class="btn big" type="submit">Weiter: Zeit wählen</button>
+    </form>
+    <p class="small muted" style="margin-top:20px">Kein Konto nötig. Du bestätigst deine Anfrage per E-Mail oder Matrix, dann schaut sich die Raum-AG sie an.</p>
+  </Shell>
+</Base>
+<style>
+  .choices { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .choice { display: flex; gap: 14px; align-items: center; border: 2px solid var(--line-strong); border-radius: 12px; padding: 14px 18px; cursor: pointer; }
+  .choice:has(input:checked) { border-color: var(--primary); background: var(--surface-2); }
+  .choice input { width: 20px; height: 20px; accent-color: var(--primary); flex: none; }
+  .choice > span { display: flex; flex-direction: column; }
+  .choice .muted { font-size: 15px; }
+</style>

@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+import { eq } from 'drizzle-orm';
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { rooms } from '../../lib/db/schema';
+import { audit, invalidate, listRooms } from '../../lib/booking/service';
+
+const db = getDb();
+const actor = Astro.locals.admin!.name;
+let msg: string | null = null;
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const slug = String(f.get('slug'));
+  const capacity = Math.max(1, Number(f.get('capacity')) || 1);
+  const bufferMinutes = Math.max(0, Math.min(240, Number(f.get('buffer')) || 0));
+  db.update(rooms)
+    .set({ capacity, bufferMinutes, autoApprove: f.get('auto') === 'ja', bookable: f.get('bookable') === 'ja' })
+    .where(eq(rooms.slug, slug))
+    .run();
+  audit(db, actor, 'raum-geaendert', null, `${slug}: ${capacity} Pers., ${bufferMinutes} Min. Puffer, auto=${f.get('auto') === 'ja'}`);
+  invalidate();
+  msg = 'Gespeichert. Neue Pufferzeiten gelten für neue Anfragen.';
+}
+const list = listRooms(db);
+---
+<Admin title="Räume">
+  <h1>Räume</h1>
+  <p class="muted">Beschreibung, Fotos, Preise und Hausregeln werden im CMS gepflegt (<a href="/cms/">/cms</a>). Hier stellt die Raum-AG die Buchungsregeln ein.</p>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  <div class="grid-3">
+    {list.map((r) => (
+      <form method="post" class="card">
+        <input type="hidden" name="slug" value={r.slug} />
+        <h2 class="h3">{r.name}</h2>
+        {r.combines?.length ? <p class="small muted">Kombiniert: belegt {r.combines.join(' + ')}. Puffer kommt von den einzelnen Räumen.</p> : null}
+        <div class="field"><label for={`c-${r.slug}`}>Kapazität (Personen)</label><input id={`c-${r.slug}`} type="number" name="capacity" value={r.capacity} min="1" /></div>
+        <div class="field"><label for={`b-${r.slug}`}>Pufferzeit nach jeder Buchung (Min.)</label><input id={`b-${r.slug}`} type="number" name="buffer" value={r.bufferMinutes} min="0" max="240" step="15" /></div>
+        <label class="check"><input type="checkbox" name="auto" value="ja" checked={r.autoApprove} /> Auto-Freigabe (nie für Serien)</label>
+        <label class="check"><input type="checkbox" name="bookable" value="ja" checked={r.bookable} /> Öffentlich buchbar</label>
+        <button class="btn small" type="submit" style="margin-top:12px">Speichern</button>
+      </form>
+    ))}
+  </div>
+</Admin>
+<style>.h3 { font-size: 20px; letter-spacing: 0; }</style>

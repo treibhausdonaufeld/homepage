@@ -1,0 +1,12 @@
+# Litestream spiegelt die SQLite-Datenbank laufend in einen S3-Bucket (z. B. MinIO).
+# Wiederherstellen:
+#   docker compose run --rm litestream restore -o /data/treibhaus.db /data/treibhaus.db
+dbs:
+  - path: /data/treibhaus.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: treibhaus.db
+        endpoint: ${LITESTREAM_ENDPOINT}
+        force-path-style: true
+        retention: 720h

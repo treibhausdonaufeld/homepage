@@ -1,0 +1,19 @@
+---
+import type { BookingView } from '../../lib/booking/types';
+import { KIND_LABEL, STATUS_LABEL } from '../../lib/booking/types';
+import { describeRule } from '../../lib/booking/recurrence';
+import { fmt } from '../../lib/time';
+interface Props { view: BookingView }
+const { view } = Astro.props;
+const b = view.booking;
+const first = view.occurrences[0] ?? view.skipped[0];
+---
+<tr>
+  <td><a href={`/admin/buchung/${b.id}`}>#{b.id}</a><br /><span class={`badge ${b.status}`}>{STATUS_LABEL[b.status]}</span></td>
+  <td><strong>{view.room.name}</strong><br />{first && <>{fmt.short(first.start)}, {fmt.range(first.start, first.end)}</>}
+    {view.seriesRule && <><br /><span class="small muted">{describeRule(view.seriesRule)} · {view.occurrences.length} Termine{view.skipped.length > 0 && <>, <strong>{view.skipped.length} belegt</strong></>}</span></>}
+  </td>
+  <td>{b.purpose ?? <em class="muted">–</em>}<br /><span class="small muted">{b.name ?? '–'} · {b.persons} Pers. · {KIND_LABEL[b.kind]}{b.isPublic && ' · öffentlich'}</span></td>
+  <td class="small">{b.status === 'vorlaeufig' && b.holdUntil && <>hält bis<br />{fmt.dateTime(b.holdUntil)}</>}{b.decidedBy && <>{b.decidedBy}</>}</td>
+  <td><slot /></td>
+</tr>

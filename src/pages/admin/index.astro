@@ -1,0 +1,76 @@
+---
+export const prerender = false;
+import Admin from '../../layouts/Admin.astro';
+import BookingRow from '../../components/admin/BookingRow.astro';
+import { getDb } from '../../lib/db';
+import { approve, listBookings, reject } from '../../lib/booking/service';
+import { BookingError } from '../../lib/booking/types';
+import { getNotifier } from '../../lib/notify';
+import { DAY } from '../../lib/time';
+
+const db = getDb();
+const actor = Astro.locals.admin!.name;
+let msg: string | null = null;
+let error: string | null = null;
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const id = Number(f.get('id'));
+  const note = String(f.get('notiz') ?? '').trim() || null;
+  try {
+    if (f.get('aktion') === 'annehmen') { await approve(db, getNotifier(), id, actor, note); msg = `Anfrage #${id} angenommen.`; }
+    if (f.get('aktion') === 'ablehnen') { await reject(db, getNotifier(), id, actor, note); msg = `Anfrage #${id} abgelehnt.`; }
+  } catch (e) {
+    if (e instanceof BookingError) error = e.message; else throw e;
+  }
+}
+const open = listBookings(db, { statuses: ['vorlaeufig'] }).reverse();
+const now = new Date();
+const upcoming = listBookings(db, { statuses: ['bestaetigt'], from: now, to: new Date(now.getTime() + 14 * DAY) })
+  .filter((v) => v.booking.kind !== 'intern' || !v.seriesRule)
+  .sort((a, b) => (a.occurrences[0]?.start.getTime() ?? 0) - (b.occurrences[0]?.start.getTime() ?? 0));
+const unconfirmed = listBookings(db, { statuses: ['unbestaetigt'] }).length;
+---
+<Admin title="Anfragen">
+  <h1>Offene Anfragen <span class="muted">({open.length})</span></h1>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  {error && <p class="error-box" role="alert">{error}</p>}
+  {open.length === 0 ? <p class="muted">Keine offenen Anfragen. 🎉</p> : (
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Nr.</th><th>Raum & Zeit</th><th>Was & wer</th><th>Frist</th><th>Entscheidung</th></tr></thead>
+        <tbody>
+          {open.map((v) => (
+            <BookingRow view={v}>
+              <form method="post" class="decide">
+                <input type="hidden" name="id" value={v.booking.id} />
+                <label class="sr-only" for={`n-${v.booking.id}`}>Notiz</label>
+                <input type="text" id={`n-${v.booking.id}`} name="notiz" placeholder="Notiz (wird mitgeschickt)" />
+                <div class="row">
+                  <button class="btn small" name="aktion" value="annehmen">Annehmen</button>
+                  <button class="btn small ghost" name="aktion" value="ablehnen">Ablehnen</button>
+                  <a class="small" href={`/admin/buchung/${v.booking.id}`}>Details</a>
+                </div>
+              </form>
+            </BookingRow>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {unconfirmed > 0 && <p class="small muted">{unconfirmed} Anfrage(n) warten noch auf die Bestätigung des Kontakts (blockieren nichts).</p>}
+
+  <h2 style="margin-top:48px">Nächste 14 Tage (bestätigt)</h2>
+  {upcoming.length === 0 ? <p class="muted">Nichts gebucht.</p> : (
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Nr.</th><th>Raum & Zeit</th><th>Was & wer</th><th>Freigabe</th><th></th></tr></thead>
+        <tbody>{upcoming.map((v) => <BookingRow view={v}><a class="small" href={`/admin/buchung/${v.booking.id}`}>Details</a></BookingRow>)}</tbody>
+      </table>
+    </div>
+  )}
+  <p><a href="/admin/kalender">Zum Kalender aller Räume →</a></p>
+</Admin>
+<style>
+  .decide { display: flex; flex-direction: column; gap: 6px; min-width: 220px; }
+  .decide input { min-height: 36px; padding: 6px 10px; }
+</style>

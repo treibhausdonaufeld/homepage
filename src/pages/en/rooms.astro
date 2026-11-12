@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+const rooms = [
+  { slug: 'viertelsaal', name: 'Viertelsaal (hall)', cap: 60, use: 'talks, workshops, meetings, parties' },
+  { slug: 'viertelkueche', name: 'Viertelküche (kitchen)', cap: 15, use: 'parties, cooking classes, get-togethers' },
+  { slug: 'saal-kueche', name: 'Hall + kitchen together', cap: 75, use: 'bigger parties' },
+];
+---
+<Base title="Rooms" lang="en" alternate="/raeume">
+  <section class="wrap section">
+    <h1>Rooms for the neighbourhood</h1>
+    <p class="lead">You can request our ground-floor rooms for your party, class or initiative. You don’t need an account or a password.</p>
+    <div class="grid-3" style="margin-top:32px">
+      {rooms.map((r) => (
+        <article class="card">
+          <h2 style="font-size:24px">{r.name}</h2>
+          <p class="muted">about {r.cap} people · {r.use}</p>
+          <p class="row"><a class="btn" href={`/buchen/zeit?raum=${r.slug}`}>Request (German form)</a> <a href={`/raeume/${r.slug}#belegung`}>When is it free?</a></p>
+        </article>
+      ))}
+    </div>
+    <p class="notice" style="margin-top:32px">Prices, house rules and key handover: <mark class="todo">TODO</mark>. Questions? Write to <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a>.</p>
+  </section>
+</Base>

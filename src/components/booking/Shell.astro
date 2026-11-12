@@ -1,0 +1,36 @@
+---
+/** Rahmen für die Buchungsschritte: Zurück-Link, „Schritt X von 4“, Fortschrittsbalken. */
+interface Props { step?: number; back?: { href: string; label: string } | null; backForm?: boolean; context?: string }
+const { step, back = null, context } = Astro.props;
+---
+<div class="wrap shell-wrap">
+  <div class="shell">
+    {(back || step || Astro.slots.has('back')) && (
+      <div class="head">
+        <div class="row between">
+          {Astro.slots.has('back') ? <slot name="back" /> : back ? <a href={back.href}>‹ {back.label}</a> : <span />}
+          {step && <span class="muted">Schritt {step} von 4{context && ` · ${context}`}</span>}
+        </div>
+        {step && <div class="progress" role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={step} aria-label={`Schritt ${step} von 4`}><span style={`width:${step * 25}%`}></span></div>}
+      </div>
+    )}
+    <div class="body">
+      <slot />
+    </div>
+  </div>
+</div>
+<style>
+  .shell-wrap { padding-top: 40px; padding-bottom: 64px; }
+  .shell { max-width: 600px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 24px; overflow: hidden; }
+  .head { padding: 18px 28px 0; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+  .between { justify-content: space-between; font-size: 15px; }
+  .progress { height: 6px; background: var(--line-soft); border-radius: 999px; margin-top: 12px; overflow: hidden; }
+  .progress span { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+  .body { padding: 28px; }
+  .body :global(h1) { font-size: 32px; color: var(--primary-text); }
+  :global(:root[data-theme='dark']) .body :global(h1) { color: var(--ink); }
+  @media (max-width: 640px) {
+    .shell-wrap { padding-top: 16px; }
+    .body, .head { padding-left: 18px; padding-right: 18px; }
+  }
+</style>

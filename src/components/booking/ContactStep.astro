@@ -1,0 +1,62 @@
+---
+/** Schritt 4: Wie willst du bestätigen? */
+import Shell from './Shell.astro';
+import Hidden from './Hidden.astro';
+import ErrorSummary from './ErrorSummary.astro';
+import type { AllFields } from '../../lib/booking/form';
+import { config } from '../../lib/config';
+interface Props { fields: AllFields; errors?: Record<string, string>; matrixError?: string | null }
+const { fields, errors = {}, matrixError = null } = Astro.props;
+const kanal = fields.kanal || 'email';
+---
+<Shell step={4}>
+  <form slot="back" method="post" action="/buchen/angaben" class="inline">
+    <Hidden fields={fields} except={['kanal', 'email', 'matrix']} />
+    <input type="hidden" name="prefill" value="1" />
+    <button class="linkbtn" type="submit">‹ Angaben</button>
+  </form>
+  <h1>Fast fertig!</h1>
+  <p>Wir schicken dir einen Code. So wissen wir, dass die Anfrage echt ist. Über diesen Weg bekommst du auch unsere Antwort.</p>
+  <ErrorSummary errors={errors} />
+  {matrixError && (
+    <div class="error-box" role="alert" style="margin-bottom:20px">
+      <strong>{matrixError}</strong>
+      <p style="margin:4px 0 0">Prüf die Schreibweise (@name:server) oder bestätige per E-Mail.</p>
+    </div>
+  )}
+  <form method="post" action="/buchen/senden">
+    <Hidden fields={fields} except={['kanal', 'email', 'matrix']} />
+    <fieldset id="f-kanal">
+      <legend>Wohin sollen wir schreiben?</legend>
+      <div class="ways">
+        <label class="way">
+          <span class="check"><input type="radio" name="kanal" value="email" checked={kanal === 'email'} /> <strong>Per E-Mail</strong></span>
+          <span class="field" id="f-email">
+            <label for="email" class="sr-only">E-Mail-Adresse</label>
+            <input type="email" id="email" name="email" value={fields.email} placeholder="E-Mail-Adresse" autocomplete="email" aria-invalid={errors.email ? 'true' : undefined} />
+            {errors.email && <span class="field-error">{errors.email}</span>}
+          </span>
+        </label>
+        <label class="way">
+          <span class="check"><input type="radio" name="kanal" value="matrix" checked={kanal === 'matrix'} /> <strong>Per Matrix-Nachricht</strong></span>
+          <span class="field" id="f-matrix">
+            <label for="matrix" class="sr-only">Matrix-ID</label>
+            <input type="text" id="matrix" name="matrix" value={fields.matrix} placeholder="@name:matrix.org" autocomplete="off" autocapitalize="off" spellcheck="false" aria-invalid={errors.matrix || matrixError ? 'true' : undefined} aria-describedby="matrix-hint" />
+            <span class="small muted" id="matrix-hint">Du brauchst eine Matrix-ID, z. B. @amira:matrix.org</span>
+            {errors.matrix && <span class="field-error">{errors.matrix}</span>}
+          </span>
+        </label>
+      </div>
+    </fieldset>
+    <p class="small muted">Wir speichern deine Daten nur für diese Buchung und löschen sie nach <mark class="todo">{config.booking.retentionMonths} Monaten</mark>. <a href="/datenschutz">Datenschutz</a></p>
+    <button class="btn big" type="submit">Code schicken</button>
+  </form>
+</Shell>
+<style>
+  .inline { display: inline; }
+  .ways { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .way { display: block; border: 2px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; }
+  .way:has(input[type='radio']:checked) { border-color: var(--primary); background: var(--surface-2); }
+  .way .field { margin: 10px 0 0; }
+  .way .check { margin: 0; }
+</style>

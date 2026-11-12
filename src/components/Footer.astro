@@ -1,0 +1,50 @@
+---
+import Logo from './Logo.astro';
+import { EMAIL, MATRIX_URL, t, type Lang } from '../lib/i18n';
+interface Props { lang?: Lang }
+const { lang = 'de' } = Astro.props;
+const L = t[lang];
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <span class="logo-wrap"><Logo height={40} href={lang === 'en' ? '/en/' : '/'} /></span>
+        <p>{L.org}<br />Simone-Veil-Gasse 7, 1210 Wien</p>
+      </div>
+      <ul class="contact">
+        <li><a href={MATRIX_URL}>Matrix #hallo</a></li>
+        <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+      </ul>
+    </div>
+    <ul class="links">
+      {lang === 'de' ? (
+        <>
+          <li><a href="/wohnen">Wohnen</a></li>
+          <li><a href="/hausregeln">Hausregeln</a></li>
+          <li><a href="/impressum">Impressum</a></li>
+          <li><a href="/datenschutz">Datenschutz</a></li>
+          <li><a href="/termine.ics">Kalender (iCal)</a></li>
+        </>
+      ) : (
+        <>
+          <li><a href="/impressum">Imprint (German)</a></li>
+          <li><a href="/datenschutz">Privacy (German)</a></li>
+        </>
+      )}
+      <li><a href={L.otherLang.href} lang={lang === 'de' ? 'en' : 'de'}>{L.otherLang.label}</a></li>
+      <li><button type="button" class="linkbtn theme" data-theme-toggle data-dark={L.dark} data-light={L.light} hidden><span aria-hidden="true">◐</span> <span data-label>{L.dark}</span></button></li>
+    </ul>
+  </div>
+</footer>
+<style>
+  .site-footer { background: var(--footer); color: var(--on-footer); padding: 40px 0; font-size: 15px; margin-top: 0; }
+  .site-footer a, .site-footer .linkbtn { color: var(--footer-link); }
+  .top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: flex-start; }
+  .brand { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; }
+  .brand p { margin: 0; }
+  .logo-wrap :global(.lg-l) { display: none !important; }
+  .logo-wrap :global(.lg-d) { display: block !important; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  .links { margin-top: 24px; gap: 8px 18px; }
+</style>

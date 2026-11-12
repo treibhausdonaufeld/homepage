@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import ContactStep from '../../components/booking/ContactStep.astro';
+import ConflictStep from '../../components/booking/ConflictStep.astro';
+import Shell from '../../components/booking/Shell.astro';
+import { getDb } from '../../lib/db';
+import { createRequest, freeRanges, getRoom, sendVerification } from '../../lib/booking/service';
+import { BookingError, ConflictError } from '../../lib/booking/types';
+import { parseContact, parseDetails, parseTime, readFields, timeQuery } from '../../lib/booking/form';
+import { getNotifier } from '../../lib/notify';
+import { log } from '../../lib/log';
+
+if (Astro.request.method !== 'POST') return Astro.redirect('/buchen');
+const db = getDb();
+const form = await Astro.request.formData();
+const fields = readFields(form);
+const room = getRoom(db, fields.raum);
+const t = parseTime(fields);
+if (!room || !t.start || !t.end || Object.keys(t.errors).length) return Astro.redirect(`/buchen/zeit?${timeQuery(fields)}`);
+const d = parseDetails(fields);
+if (!d.data) {
+  // zurück zu Schritt 3 – passiert nur bei manipulierten Formularen
+  return Astro.redirect(`/buchen/angaben?${timeQuery(fields)}`);
+}
+const c = parseContact(fields);
+
+let errors = c.errors;
+let matrixError: string | null = null;
+let conflict = false;
+let fatal: string | null = null;
+
+if (!Object.keys(errors).length) {
+  const notifier = getNotifier();
+  let booking;
+  try {
+    booking = createRequest(
+      db,
+      {
+        roomSlug: room.slug,
+        start: t.start,
+        end: t.end,
+        seriesRule: t.seriesRule,
+        seriesUntil: t.seriesUntil,
+        name: d.data.name,
+        purpose: d.data.zweck,
+        persons: d.data.personen,
+        kind: d.data.art,
+        isPublic: d.data.oeffentlich === 'ja',
+        channel: c.channel!,
+        address: c.address!,
+      },
+      { ip: Astro.locals.ip },
+    );
+    await sendVerification(db, notifier, booking);
+    return Astro.redirect(`/buchen/code?b=${booking.publicId}`, 303);
+  } catch (err) {
+    if (err instanceof ConflictError) conflict = true;
+    else if (err instanceof BookingError && err.code === 'matrix-unreachable') {
+      matrixError = 'Matrix-ID nicht gefunden.';
+      // Anfrage bleibt bestehen, Person kann auf E-Mail wechseln
+      if (booking) {
+        return Astro.redirect(`/buchen/code?b=${booking.publicId}&fehler=matrix`, 303);
+      }
+    } else if (err instanceof BookingError) {
+      if (booking) return Astro.redirect(`/buchen/code?b=${booking.publicId}&fehler=senden`, 303);
+      fatal = err.message;
+    } else {
+      log.error('Anfrage fehlgeschlagen', { err });
+      fatal = 'Da ist etwas schiefgegangen. Bitte versuch es noch einmal oder schreib uns.';
+    }
+  }
+}
+const free = conflict ? freeRanges(db, room, fields.datum) : [];
+---
+<Base title="Bestätigen · Raum buchen" noindex>
+  {conflict ? (
+    <ConflictStep fields={fields} free={free} />
+  ) : fatal ? (
+    <Shell>
+      <h1>Das hat nicht geklappt</h1>
+      <p class="error-box" role="alert">{fatal}</p>
+      <p>Fragen? Schreib im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder an <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a>.</p>
+    </Shell>
+  ) : (
+    <ContactStep fields={fields} errors={errors} matrixError={matrixError} />
+  )}
+</Base>

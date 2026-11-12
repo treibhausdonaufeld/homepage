@@ -1,0 +1,31 @@
+---
+import { formStamp } from '../lib/verify/tokens';
+interface Props { status?: string | null; lang?: 'de' | 'en' }
+const { status = null, lang = 'de' } = Astro.props;
+const de = lang === 'de';
+// Auf vorgerenderten Seiten gibt es keinen Zeitstempel – der Server prüft dann nur Honeypot und Rate-Limit.
+let stamp = '';
+try { stamp = formStamp(); } catch { stamp = ''; }
+---
+<div id="newsletter">
+  <h2>{de ? 'Post aus dem Haus' : 'News from the house'}</h2>
+  <p class="muted">{de ? <>Unser Newsletter sagt dir, was im Erdgeschoß los ist. <mark class="todo">wie oft</mark> Abmelden geht jederzeit.</> : 'Our newsletter (in German) tells you what is happening on the ground floor. Unsubscribe any time.'}</p>
+  {status === 'ok' && <p class="ok-box" role="status">{de ? 'Fast geschafft! Bitte bestätige deine Adresse über den Link in der Mail.' : 'Almost done! Please confirm via the link in the email.'}</p>}
+  {status === 'error' && <p class="error-box" role="alert">{de ? 'Das hat leider nicht geklappt. Bitte versuch es später noch einmal.' : 'That did not work. Please try again later.'}</p>}
+  <form method="post" action="/newsletter" class="nl">
+    <div class="field">
+      <label for="nl-email">{de ? 'E-Mail-Adresse' : 'Email address'}</label>
+      <div class="row nowrap">
+        <input id="nl-email" type="email" name="email" required autocomplete="email" />
+        <button class="btn" type="submit">{de ? 'Anmelden' : 'Subscribe'}</button>
+      </div>
+    </div>
+    <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+    <input type="hidden" name="stamp" value={stamp} />
+    <input type="hidden" name="back" value={Astro.url.pathname} />
+  </form>
+</div>
+<style>
+  .nowrap { flex-wrap: nowrap; }
+  .nowrap input { flex: 1; min-width: 0; }
+</style>

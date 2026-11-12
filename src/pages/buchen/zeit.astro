@@ -1,0 +1,154 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import ErrorSummary from '../../components/booking/ErrorSummary.astro';
+import { getDb } from '../../lib/db';
+import { buildCandidates, checkTime, dayTimeline, findConflicts, freeRanges, getRoom, seriesOccurrences } from '../../lib/booking/service';
+import { parseTime, readFields, timeOptions, timeQuery } from '../../lib/booking/form';
+import { SERIES_RULES } from '../../lib/booking/recurrence';
+import { config } from '../../lib/config';
+import { addDays, dayStart, fmt, isValidDate, localParts, localTime, mondayOf, today } from '../../lib/time';
+
+const db = getDb();
+const f = readFields(Astro.url.searchParams);
+const room = getRoom(db, f.raum);
+if (!room || !room.bookable) return Astro.redirect('/buchen?fehler=raum');
+
+const t0 = today();
+const datum = isValidDate(f.datum) && f.datum >= t0 ? f.datum : t0;
+const wParam = Astro.url.searchParams.get('woche');
+const monday = mondayOf(isValidDate(wParam) ? wParam : datum);
+const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+
+let errors: Record<string, string> = {};
+let conflictInfo: string | null = null;
+if (Astro.url.searchParams.get('weiter')) {
+  const p = parseTime({ ...f, datum });
+  errors = { ...p.errors };
+  if (!Object.keys(errors).length) {
+    const tErr = checkTime(room, p.start, p.end);
+    if (tErr.zeit) errors.bis = tErr.zeit;
+  }
+  if (!Object.keys(errors).length) {
+    const occ = seriesOccurrences(p.start!, p.end!, p.seriesRule, p.seriesUntil);
+    const conflicts = findConflicts(db, buildCandidates(db, room, occ));
+    const first = conflicts.filter((c) => c.occurrence === 0);
+    if (first.length) {
+      const c = first[0];
+      errors.bis = c.type === 'block'
+        ? `Diese Zeit ist gesperrt (${c.reason}).`
+        : `Diese Zeit überschneidet sich mit einer anderen Buchung (inkl. ${room.bufferMinutes} Min. Reinigung danach).`;
+    } else {
+      if (conflicts.length) conflictInfo = `${new Set(conflicts.map((c) => c.occurrence)).size} Termin(e) der Serie sind schon belegt. Die Raum-AG sieht das.`;
+      return Astro.redirect(`/buchen/angaben?${timeQuery({ ...f, datum })}${conflictInfo ? '&serienkonflikt=1' : ''}`);
+    }
+  }
+}
+
+const tl = dayTimeline(db, room, datum);
+const span = (config.booking.dayEndHour - config.booking.dayStartHour) * 3600_000;
+// Heute: nur Zeiten ab der nächsten halben Stunde vorschlagen
+const soon = Math.ceil(Date.now() / 1_800_000) * 1_800_000;
+const free = freeRanges(db, room, datum, 30)
+  .map((s) => (s.start.getTime() < soon ? { ...s, start: new Date(soon) } : s))
+  .filter((s) => s.end.getTime() - s.start.getTime() >= 30 * 60_000);
+const opts = timeOptions();
+const von = f.von || (free[0] ? localTime(free[0].start) : '10:00');
+const bis = f.bis || (free[0] ? localTime(new Date(Math.min(free[0].end.getTime(), free[0].start.getTime() + 2 * 3600_000))) : '12:00');
+const base = `/buchen/zeit?raum=${room.slug}`;
+const scale = [];
+for (let h = config.booking.dayStartHour; h < config.booking.dayEndHour; h += 4) scale.push(h);
+scale.push(config.booking.dayEndHour);
+const LBL = { frei: 'frei', angefragt: 'angefragt', belegt: 'belegt', gesperrt: 'gesperrt' };
+---
+<Base title={`Zeit wählen · ${room.name}`} noindex>
+  <Shell step={2} back={{ href: `/buchen?raum=${room.slug}`, label: 'Raum' }} context={room.name}>
+    <h1>Wann?</h1>
+    <ErrorSummary errors={errors} />
+    <nav class="days" aria-label="Tag wählen">
+      <a href={`${base}&datum=${addDays(monday, -7) < t0 ? t0 : addDays(monday, -7)}&woche=${addDays(monday, -7)}`} class="wk" aria-label="Vorige Woche">‹</a>
+      {days.map((d) => {
+        const past = d < t0;
+        const p = localParts(dayStart(d));
+        return past
+          ? <span class="day past" aria-disabled="true"><span>{fmt.wdShort(dayStart(d))}</span><b>{p.day}</b></span>
+          : <a class="day" href={`${base}&datum=${d}`} aria-current={d === datum ? 'date' : undefined} aria-label={fmt.long(dayStart(d))}><span>{fmt.wdShort(dayStart(d))}</span><b>{p.day}</b></a>;
+      })}
+      <a href={`${base}&datum=${addDays(monday, 7)}`} class="wk" aria-label="Nächste Woche">›</a>
+    </nav>
+
+    <h2 class="dayh">{fmt.long(dayStart(datum))}</h2>
+    <div class="timeline" aria-hidden="true">
+      {tl.map((s) => (
+        <div class={`st-${s.state}`} style={`flex:${(s.end.getTime() - s.start.getTime()) / span}`} title={`${LBL[s.state]} ${fmt.range(s.start, s.end)}`}>
+          {(s.end.getTime() - s.start.getTime()) / span > 0.12 ? `${LBL[s.state]} ${localParts(s.start).hour}–${localParts(s.end).hour}` : ''}
+        </div>
+      ))}
+    </div>
+    <div class="timeline-scale" aria-hidden="true">{scale.map((h) => <span>{h}</span>)}</div>
+    <p class="sr-only">
+      {tl.map((s) => `${fmt.range(s.start, s.end)} ${LBL[s.state]}. `)}
+    </p>
+
+    <form method="get" action="/buchen/zeit" class="timeform">
+      <input type="hidden" name="raum" value={room.slug} />
+      <input type="hidden" name="datum" value={datum} />
+      <input type="hidden" name="weiter" value="1" />
+      <div class="row two">
+        <div class="field" id="f-von">
+          <label for="von">Von</label>
+          <select id="von" name="von" aria-invalid={errors.von ? 'true' : undefined}>
+            {opts.slice(0, -1).map((o) => <option value={o} selected={o === von}>{o}</option>)}
+          </select>
+        </div>
+        <div class="field" id="f-bis">
+          <label for="bis">Bis</label>
+          <select id="bis" name="bis" aria-invalid={errors.bis ? 'true' : undefined} aria-describedby={errors.bis ? 'bis-err' : undefined}>
+            {opts.slice(1).map((o) => <option value={o} selected={o === bis}>{o}</option>)}
+          </select>
+        </div>
+      </div>
+      {(errors.von || errors.bis) && <p class="field-error" id="bis-err">{errors.bis ?? errors.von}</p>}
+      {(errors.von || errors.bis) && free.length > 0 && (
+        <p class="small">Freie Zeiten an diesem Tag: {free.map((s, i) => <>{i > 0 && ', '}{fmt.range(s.start, s.end)}</>)}</p>
+      )}
+      <p class="hint small">Plane Zeit zum Aufbauen und Aufräumen mit ein. Wir halten danach {room.bufferMinutes} Min. <mark class="todo">prüfen</mark> für die Reinigung frei.</p>
+
+      <details class="series" open={!!f.serie || !!errors.serie || !!errors.serie_bis}>
+        <summary><strong>Regelmäßig</strong> (z. B. jede Woche)</summary>
+        <p class="small muted">Serien schaut sich die Raum-AG immer persönlich an.</p>
+        <div class="row two">
+          <div class="field" id="f-serie">
+            <label for="serie">Wie oft?</label>
+            <select id="serie" name="serie">
+              <option value="">nur einmal</option>
+              {Object.entries(SERIES_RULES).map(([k, v]) => <option value={k} selected={f.serie === k}>{v.label}</option>)}
+            </select>
+          </div>
+          <div class="field" id="f-serie_bis">
+            <label for="serie_bis">Serie läuft bis</label>
+            <input type="date" id="serie_bis" name="serie_bis" value={f.serie_bis} min={datum} max={addDays(datum, config.booking.seriesMaxWeeks * 7)} aria-invalid={errors.serie_bis ? 'true' : undefined} />
+          </div>
+        </div>
+        {(errors.serie || errors.serie_bis) && <p class="field-error">{errors.serie ?? errors.serie_bis}</p>}
+      </details>
+
+      <button class="btn big" type="submit">Weiter: Angaben</button>
+    </form>
+    <p class="small" style="margin-top:16px"><a href={`/raeume/${room.slug === 'saal-kueche' ? 'saal-kueche' : room.slug}?woche=${monday}#belegung`}>Ganze Woche ansehen</a></p>
+  </Shell>
+</Base>
+<style>
+  .days { display: flex; gap: 6px; margin-bottom: 20px; align-items: stretch; }
+  .day { flex: 1; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--line-strong); border-radius: 10px; padding: 6px 0; text-decoration: none; color: var(--ink); font-size: 14px; line-height: 1.2; min-width: 0; }
+  .day[aria-current] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .day.past { opacity: 0.4; }
+  .wk { display: flex; align-items: center; padding: 0 4px; text-decoration: none; font-size: 22px; }
+  .dayh { font-size: 17px; letter-spacing: 0; margin: 0 0 8px; }
+  .timeform { margin-top: 24px; }
+  .two { flex-wrap: nowrap; }
+  .two .field { flex: 1; }
+  .series { margin: 20px 0 28px; }
+  .series summary { cursor: pointer; padding: 6px 0; }
+</style>

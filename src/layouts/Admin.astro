@@ -1,0 +1,44 @@
+---
+import Base from './Base.astro';
+interface Props { title: string }
+const { title } = Astro.props;
+const admin = Astro.locals.admin;
+const path = Astro.url.pathname.replace(/\/$/, '');
+const items = [
+  ['/admin', 'Anfragen'],
+  ['/admin/kalender', 'Kalender'],
+  ['/admin/intern', 'Intern buchen'],
+  ['/admin/sperrzeiten', 'Sperrzeiten'],
+  ['/admin/raeume', 'Räume'],
+  ['/admin/statistik', 'Statistik & Export'],
+  ['/admin/protokoll', 'Protokoll'],
+];
+---
+<Base title={`${title} · Raum-AG`} noindex>
+  <div class="adminbar">
+    <div class="wrap row">
+      <strong>Raum-AG</strong>
+      <nav aria-label="Admin">
+        {items.map(([href, label]) => <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>)}
+      </nav>
+      {admin && (
+        <form method="post" action="/admin/logout" class="who">
+          <span class="small">{admin.name}</span>
+          <button class="linkbtn small" type="submit">Abmelden</button>
+        </form>
+      )}
+    </div>
+  </div>
+  <div class="wrap admin">
+    <slot />
+  </div>
+</Base>
+<style>
+  .adminbar { background: var(--surface-2); border-bottom: 1px solid var(--line); padding: 10px 0; }
+  .adminbar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; flex: 1; }
+  .adminbar nav a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }
+  .adminbar nav a[aria-current] { color: var(--primary); text-decoration: underline; }
+  .who { display: flex; gap: 10px; align-items: center; }
+  .admin { padding-top: 32px; padding-bottom: 64px; }
+  .admin :global(h1) { font-size: 34px; }
+</style>

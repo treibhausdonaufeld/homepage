@@ -1,0 +1,123 @@
+---
+export const prerender = false;
+import Base from '../layouts/Base.astro';
+import EventList from '../components/EventList.astro';
+import HouseSection from '../components/HouseSection.astro';
+import Newsletter from '../components/Newsletter.astro';
+import Photo from '../components/Photo.astro';
+import SagHallo from '../components/SagHallo.astro';
+import { getDb } from '../lib/db';
+import { upcomingEvents } from '../lib/booking/service';
+
+const events = upcomingEvents(getDb(), 4);
+Astro.response.headers.set('Cache-Control', 'public, max-age=60');
+const nl = Astro.url.searchParams.get('newsletter');
+---
+<Base title="Treibhaus Donaufeld – ein Haus mit offener Tür" alternate="/en/">
+  <section class="wrap hero">
+    <div class="intro">
+      <span class="eyebrow">Simone-Veil-Gasse 7 · Donaufeld</span>
+      <h1>Ein Haus mit<br />offener Tür.</h1>
+      <p class="lead">Im Erdgeschoß vom Treibhaus gibt es zwei Räume für das ganze Viertel: den Viertelsaal und die Viertelküche. Hier treffen sich Nachbar:innen, kochen, feiern und planen Neues.</p>
+      <p class="row ways">
+        <a class="go" href="/termine">Was ist los →</a>
+        <a class="go" href="/buchen">Raum buchen →</a>
+        <a class="go" href="/anbieten">Selbst was anbieten →</a>
+      </p>
+    </div>
+    <HouseSection />
+  </section>
+
+  <div class="wrap">
+    <p class="notice"><strong>Jeden Samstag, 13:30–16:30:</strong> offener Nachbarschaftstreff in der Viertelküche. Ohne Anmeldung – einfach kommen.</p>
+  </div>
+
+  <section class="wrap section next" aria-labelledby="next-h">
+    <div>
+      <h2 id="next-h">Demnächst im Erdgeschoß</h2>
+      <p class="muted">Im Moment gibt es ein offenes Angebot: den Nachbarschaftstreff am Samstag. Mehr soll dazukommen – vielleicht von dir?</p>
+      <p><a class="go" href="/termine">Alle Termine →</a></p>
+      <p class="small"><a href="/termine.ics">Kalender abonnieren (iCal)</a></p>
+    </div>
+    <div>
+      {events.length ? <EventList events={events} showAdd /> : <p class="muted">Gerade stehen keine Termine im Kalender.</p>}
+    </div>
+  </section>
+
+  <section class="wrap section rooms" aria-labelledby="rooms-h">
+    <div class="photos">
+      <Photo alt="Viertelsaal bei einer Veranstaltung" tilt={-3} />
+      <Photo alt="Viertelküche beim Samstagstreff" tilt={2} class="second" />
+    </div>
+    <div>
+      <h2 id="rooms-h">Zwei Räume fürs Viertel</h2>
+      <p class="muted">Für dein Fest, deinen Kurs oder deine Initiative. Du brauchst kein Konto und kein Passwort.</p>
+      <ul class="roomlist">
+        <li><a href="/raeume/viertelsaal">Viertelsaal</a><span>ca. 60 Personen · Vorträge, Feste</span></li>
+        <li><a href="/raeume/viertelkueche">Viertelküche</a><span>ca. 15 Personen · Feiern, Kochkurse</span></li>
+        <li><a href="/raeume/saal-kueche">Saal + Küche zusammen</a><span>für größere Feste</span></li>
+      </ul>
+      <a class="btn" href="/buchen">Raum anfragen</a>
+    </div>
+  </section>
+
+  <section class="section tint" id="mitmachen" aria-labelledby="mm-h">
+    <div class="wrap grid-2 mm">
+      <h2 id="mm-h" class="mm-h">Dir fehlt was im Viertel? <span>Mach’s hier.</span></h2>
+      <div>
+        <p>Reparaturcafé, Spieleabend, Tanzkurs, Kindercafé – wenn du eine Idee hast, finden wir einen Raum dafür.</p>
+        <p><strong>Idee schicken → kurz reden → Raum bekommen</strong> <mark class="todo">Konditionen</mark></p>
+        <p class="row"><a class="btn ghost" href="/anbieten">Idee einreichen</a> <a href="/mitmachen">Lieber mithelfen?</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section grid-2" id="haus">
+    <div>
+      <span class="eyebrow">Das Haus</span>
+      <p class="statement">Rund 65 Erwachsene und 30 Kinder wohnen im Treibhaus <mark class="todo">prüfen</mark>. Wir teilen Küche, Bibliothek und Sauna – und das Erdgeschoß mit dem ganzen Viertel.</p>
+      <a class="go" href="/ueber-uns">Mehr über uns →</a>
+    </div>
+    <div>
+      <span class="eyebrow">Solidarität</span>
+      <p class="statement">Zwei Wohnungen im Haus sind Soli-Wohnungen für Familien mit Fluchterfahrung – finanziert von vielen Menschen per Crowdfunding.</p>
+      <a class="go" href="/soli">Zu den Soli-Wohnungen →</a>
+    </div>
+  </section>
+
+  <SagHallo />
+
+  <section class="wrap section grid-2">
+    <div>
+      <h2>Simone-Veil-Gasse 7</h2>
+      <p><strong>Am besten mit dem Rad</strong> über den Radhighway Reichsbrücke. Straßenbahn 25 bis Prandaugasse, 25/26 bis Carminweg. U1 Kagran, dann ca. 15 Minuten zu Fuß.</p>
+      <a href="/kontakt#anfahrt" class="map-link"><img src="/images/karte.svg" alt="Karte: Das Treibhaus in der Simone-Veil-Gasse 7, zwischen Prandaugasse und Carminweg (Straßenbahn 25 und 26). Mehr zur Anfahrt." width="560" height="320" /></a>
+    </div>
+    <Newsletter status={nl} />
+  </section>
+</Base>
+
+<style>
+  .hero { display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-end; padding-top: 64px; padding-bottom: 56px; }
+  .intro { flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .intro h1 { font-size: clamp(52px, 7vw, 92px); line-height: 0.95; letter-spacing: -0.035em; margin: 0; }
+  .intro .lead { margin: 0; }
+  .ways { gap: 12px 28px; }
+  .hero > :global(.house) { flex: 1 1 400px; }
+  .next { display: grid; gap: 32px 64px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  @media (min-width: 900px) { .next { grid-template-columns: 1fr 1.6fr; } }
+  .rooms { display: grid; gap: 48px 64px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: center; }
+  .photos { position: relative; padding-bottom: 80px; }
+  .photos :global(.ph) { width: 75%; }
+  .photos :global(.second) { position: absolute; right: 0; bottom: 0; width: 55%; }
+  .roomlist { list-style: none; padding: 0; margin: 0 0 24px; border-top: 2px solid var(--ink); }
+  .roomlist li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .roomlist a { font-size: 20px; font-weight: 800; color: var(--ink); text-decoration: none; }
+  .roomlist a:hover { color: var(--primary); text-decoration: underline; }
+  .roomlist span { font-size: 14px; color: var(--muted); }
+  .mm { align-items: center; }
+  .mm-h { font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.03em; }
+  .mm-h span { color: var(--primary); display: block; }
+  .statement { font-size: 21px; font-weight: 600; line-height: 1.4; margin: 12px 0 16px; }
+  .map-link img { width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+</style>

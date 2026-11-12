@@ -1,0 +1,18 @@
+---
+export const prerender = false;
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { recentAudit } from '../../lib/booking/service';
+import { fmt } from '../../lib/time';
+const log = recentAudit(getDb(), 300);
+---
+<Admin title="Protokoll">
+  <h1>Protokoll</h1>
+  <p class="muted">Wer hat wann was entschieden. Die letzten 300 Einträge.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Wann</th><th>Wer</th><th>Was</th><th>Buchung</th><th>Details</th></tr></thead>
+      <tbody>{log.map((l) => <tr><td>{fmt.dateTime(l.at)}</td><td>{l.actor}</td><td>{l.action}</td><td>{l.bookingId && <a href={`/admin/buchung/${l.bookingId}`}>#{l.bookingId}</a>}</td><td>{l.details}</td></tr>)}</tbody>
+    </table>
+  </div>
+</Admin>

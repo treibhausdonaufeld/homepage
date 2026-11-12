@@ -15,3 +15,8 @@ yarn-error.log*
 .env.production
 .DS_Store
 .vscode/
+
+# lokale Daten
+data/
+test-results/
+playwright-report/

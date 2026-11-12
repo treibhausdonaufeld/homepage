@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { statistics } from '../../lib/booking/service';
+import { KIND_LABEL } from '../../lib/booking/types';
+import { addDays, dayStart, isValidDate, today } from '../../lib/time';
+
+const q = Astro.url.searchParams;
+const t = today();
+const von = isValidDate(q.get('von')) ? q.get('von')! : `${t.slice(0, 4)}-01-01`;
+const bis = isValidDate(q.get('bis')) ? q.get('bis')! : `${t.slice(0, 4)}-12-31`;
+const stats = statistics(getDb(), dayStart(von), dayStart(addDays(bis, 1)));
+const kinds = ['privat', 'gemeinnuetzig', 'kommerziell', 'intern'] as const;
+const h = (n: number | undefined) => (n ? n.toLocaleString('de-AT', { maximumFractionDigits: 1 }) : '–');
+const total = stats.reduce((s, r) => s + r.total, 0);
+---
+<Admin title="Statistik & Export">
+  <h1>Statistik</h1>
+  <form method="get" class="row" style="align-items:flex-end">
+    <div class="field"><label for="von">Von</label><input type="date" id="von" name="von" value={von} /></div>
+    <div class="field"><label for="bis">Bis</label><input type="date" id="bis" name="bis" value={bis} /></div>
+    <div class="field"><button class="btn" type="submit">Anzeigen</button></div>
+  </form>
+  <p class="muted">Nutzungsstunden bestätigter Buchungen, gut für Förderberichte. „Saal + Küche“ wird als eigener Raum gezählt.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Raum</th>{kinds.map((k) => <th>{KIND_LABEL[k]}</th>)}<th>Stunden gesamt</th><th>Termine</th><th>Personen (Summe, ca.)</th></tr></thead>
+      <tbody>
+        {stats.map((r) => <tr><th scope="row">{r.room}</th>{kinds.map((k) => <td>{h(r.kinds[k])}</td>)}<td><strong>{h(r.total)}</strong></td><td>{r.count}</td><td>{r.persons}</td></tr>)}
+        <tr><th scope="row">Summe</th>{kinds.map((k) => <td>{h(stats.reduce((s, r) => s + (r.kinds[k] ?? 0), 0))}</td>)}<td><strong>{h(total)}</strong></td><td>{stats.reduce((s, r) => s + r.count, 0)}</td><td>{stats.reduce((s, r) => s + r.persons, 0)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 style="margin-top:48px">Export</h2>
+  <p class="row">
+    <a class="btn ghost" href={`/admin/export.csv?von=${von}&bis=${bis}`}>CSV ({von} bis {bis})</a>
+    <a class="btn ghost" href={`/admin/export.ics?von=${von}&bis=${bis}`}>iCal ({von} bis {bis})</a>
+  </p>
+  <p class="small muted">Die Exporte enthalten Namen und Kontakte (sofern noch nicht gelöscht). Bitte vertraulich behandeln.</p>
+</Admin>

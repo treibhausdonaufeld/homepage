@@ -1,0 +1,49 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import Shell from '../../components/booking/Shell.astro';
+import { oidcEnabled, startLogin } from '../../lib/auth/oidc';
+import { setFlowCookie, setSession } from '../../lib/auth/session';
+import { config } from '../../lib/config';
+import { log } from '../../lib/log';
+
+const nextRaw = Astro.url.searchParams.get('next') ?? '/admin';
+const next = nextRaw.startsWith('/admin') ? nextRaw : '/admin';
+const err = Astro.url.searchParams.get('fehler');
+let error: string | null = err === 'gruppe' ? `Dein Konto ist nicht in der Gruppe „${config.oidc.adminGroup}“.` : err ? 'Die Anmeldung hat nicht geklappt. Bitte versuch es noch einmal.' : null;
+
+if (oidcEnabled() && !err) {
+  try {
+    const flow = await startLogin();
+    setFlowCookie(Astro.cookies, { verifier: flow.verifier, state: flow.state, next });
+    return Astro.redirect(flow.url);
+  } catch (e) {
+    log.error('OIDC-Login konnte nicht starten', { err: e });
+    error = 'Authentik ist gerade nicht erreichbar.';
+  }
+}
+if (!oidcEnabled() && config.devAdminLogin && Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const name = String(form.get('name') ?? '').trim() || 'Entwicklung';
+  setSession(Astro.cookies, { sub: `dev:${name}`, name });
+  log.warn('Entwicklungs-Login für Admin-Bereich', { name });
+  return Astro.redirect(next);
+}
+---
+<Base title="Anmelden · Raum-AG" noindex>
+  <Shell>
+    <h1>Raum-AG</h1>
+    {error && <p class="error-box" role="alert">{error}</p>}
+    {oidcEnabled() ? (
+      <p><a class="btn big" href={`/admin/login?next=${encodeURIComponent(next)}`}>Mit Authentik anmelden</a></p>
+    ) : config.devAdminLogin ? (
+      <form method="post">
+        <p class="hint small">Authentik ist nicht eingerichtet (OIDC_ISSUER). Entwicklungs-Login – nur lokal verwenden!</p>
+        <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" value="Entwicklung" /></div>
+        <button class="btn big" type="submit">Anmelden</button>
+      </form>
+    ) : (
+      <p class="error-box">Der Login ist nicht eingerichtet. Setze OIDC_ISSUER, OIDC_CLIENT_ID und OIDC_CLIENT_SECRET.</p>
+    )}
+  </Shell>
+</Base>

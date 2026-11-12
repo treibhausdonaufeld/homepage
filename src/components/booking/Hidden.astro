@@ -1,0 +1,8 @@
+---
+/** Bisherige Eingaben als versteckte Felder weitertragen. */
+import type { AllFields } from '../../lib/booking/form';
+interface Props { fields: Partial<AllFields>; only?: (keyof AllFields)[]; except?: (keyof AllFields)[] }
+const { fields, only, except = [] } = Astro.props;
+const keys = (only ?? (Object.keys(fields) as (keyof AllFields)[])).filter((k) => !except.includes(k));
+---
+{keys.map((k) => fields[k] ? <input type="hidden" name={k} value={fields[k]} /> : null)}

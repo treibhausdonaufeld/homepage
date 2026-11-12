@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import T from '../../components/T.astro';
+
+const rooms = (await getCollection('rooms')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+---
+<Base title="Räume" description="Viertelsaal und Viertelküche im Treibhaus Donaufeld – für Feste, Kurse und Initiativen aus dem Viertel." alternate="/en/rooms">
+  <section class="wrap section">
+    <h1>Räume fürs Viertel</h1>
+    <p class="lead">Im Erdgeschoß gibt es zwei Räume, die alle aus dem Viertel nutzen können: für dein Fest, deinen Kurs oder deine Initiative. Du brauchst kein Konto und kein Passwort.</p>
+    <div class="grid-3" style="margin-top:40px">
+      {rooms.map((r) => (
+        <article class="card room">
+          <Photo src={r.data.bilder[0]?.src} alt={r.data.bilder[0]?.alt ?? r.data.name} ratio="3/2" />
+          <h2><a href={`/raeume/${r.id}`}>{r.data.name}</a></h2>
+          <p class="muted">ca. {r.data.kapazitaet} Personen · {r.data.nutzung}</p>
+          <p><T text={r.data.kurz} /></p>
+          {r.data.einschulung && <p><mark class="todo">nur mit Einschulung</mark></p>}
+          <p class="row"><a class="btn" href={`/buchen/zeit?raum=${r.data.bookingId}`}>Anfragen</a> <a href={`/raeume/${r.id}`}>Wann ist frei?</a></p>
+        </article>
+      ))}
+    </div>
+    <p class="notice" style="margin-top:40px">Im Haus gibt es noch mehr Räume: Bewegungsraum, Gemeinschaftswerkstatt und Nähwerkstatt. <mark class="todo">TODO: Sind sie fürs Viertel buchbar?</mark></p>
+    <p><a class="go" href="/hausregeln">Hausregeln lesen →</a></p>
+  </section>
+</Base>
+<style>
+  .room :global(.photo) { border-width: 0; box-shadow: none; border-radius: 8px; margin-bottom: 16px; }
+  .room h2 { font-size: 24px; margin: 0 0 4px; }
+  .room h2 a { color: var(--ink); text-decoration: none; }
+</style>
