@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Buchen: Anfrage, Freigabe, Storno</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.th{--bg:#FAF8F3;--surface:#FFFFFF;--surface-2:#ECE6F4;--tint:#F0ECE2;--line:#E2DDD1;--line-soft:#EDE9E0;--line-strong:#C9C0AE;--field:#7A7262;--ink:#1E1C19;--muted:#5F5A50;--primary:#4A2C7A;--primary-hover:#3A2262;--on-primary:#FFFFFF;--primary-text:#2F4410;--link:#5D7A10;--brand:#4A2C7A;--on-brand:#FFFFFF;--icon:#5D7A10;--band:#34460A;--band-2:#2A3908;--on-band:#FFFFFF;--on-band-2:#DCE3CC;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#1E1C19;--on-footer:#CFC9BC;--on-footer-strong:#FFFFFF;--footer-link:#ECE6F4;--hint:#ECE6F4;--todo-bg:#FFF0B3;--todo-ink:#5E4300;--err:#A3261B;--on-err:#FFFFFF;--err-text:#8A2E1F;--err-bg:#FCEDEA;--ph1:#ECE7DC;--ph2:#F4F1EA;--ph-line:#B0A795;--ph-ink:#4A4539;--busy1:#D8D2C4;--busy2:#E6E1D6;--busy-ink:#2E2B25;--block:#4A453B;--on-block:#FFFFFF;--canvas:#EFEBE2;color-scheme:light}
+.th.dark{--bg:#151410;--surface:#1F1D19;--surface-2:#2A2238;--tint:#26231E;--line:#36322B;--line-soft:#2C2924;--line-strong:#504A40;--field:#9A9282;--ink:#F1EEE6;--muted:#BDB6A8;--primary:#B7A2DC;--primary-hover:#CDBFE6;--on-primary:#1A1320;--primary-text:#DDE7C0;--link:#B9D27A;--brand:#B7A2DC;--on-brand:#1A1320;--icon:#A9C46A;--band:#1E2A0E;--band-2:#18220A;--on-band:#F1EEE6;--on-band-2:#C9D0B6;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#0E0D0B;--on-footer:#BDB6A8;--on-footer-strong:#F1EEE6;--footer-link:#CDBFE6;--hint:#2A2238;--todo-bg:#4A3C0A;--todo-ink:#FFE38A;--err:#F07A6A;--on-err:#15140F;--err-text:#FF9E90;--err-bg:#3A1A15;--ph1:#23211C;--ph2:#2A2721;--ph-line:#5A5446;--ph-ink:#BDB6A8;--busy1:#3D3830;--busy2:#312D27;--busy-ink:#E0DBD0;--block:#6A6458;--on-block:#FFFFFF;--canvas:#100F0C;color-scheme:dark}
+.th a{color:var(--link)}.th a:hover{color:var(--primary-text)}
+.todo{background:var(--todo-bg);color:var(--todo-ink);border-radius:4px;padding:1px 6px;font-size:.88em}
+.th input,.th select,.th textarea,.th button{font:inherit;color:var(--ink)}
+.th input,.th select,.th textarea{background:var(--surface);accent-color:var(--primary)}
+</style>
+</helmet>
+<div class="th {{themeClass}}" style="width: 1656px; height: 940px; box-sizing: border-box; padding: 48px; background: var(--canvas); color: var(--ink); font-family: 'Kumbh Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.45; display: flex; gap: 40px">
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">6 · Anfrage ist da (vorläufig)</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; padding: 28px 20px 20px; box-sizing: border-box; gap: 14px">
+<div style="width: 56px; height: 56px; border-radius: 50%; background: var(--todo-bg); display: flex; align-items: center; justify-content: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: var(--todo-ink)"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Danke! Deine Anfrage ist da.</h1>
+<div style="background: var(--bg); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 2px">
+<b>Viertelsaal</b><span>Donnerstag, 19. November</span><span>10:00–14:00</span><span style="margin-top: 6px; align-self: flex-start; font-size: 14px; background: var(--todo-bg); color: var(--todo-ink); padding: 2px 10px; border-radius: 999px">vorläufig reserviert</span>
+</div>
+<p style="margin: 0"><b>Wie geht es weiter?</b></p>
+<ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px">
+<li>Wir halten den Termin <span class="todo">X Stunden</span> für dich frei.</li>
+<li>Die Raum-AG schaut sich die Anfrage an. Das dauert meist <span class="todo">X Tage</span>.</li>
+<li>Du bekommst die Antwort per E-Mail an amira@example.org.</li>
+</ol>
+<p style="margin: auto 0 0; font-size: 14px; color: var(--muted)">Fragen? <a href="https://matrix.to/#/#hallo:treibhausdonaufeld.at">Matrix #hallo</a> oder <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a></p>
+<a href="Main.dc.html" style="border: 2px solid var(--primary-text); color: var(--primary-text); text-decoration: none; font-weight: 700; text-align: center; padding: 13px; border-radius: 999px">Zur Startseite</a>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">7 · Bestätigt – Buchung verwalten (Link aus Mail/DM)</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; padding: 28px 20px 20px; box-sizing: border-box; gap: 14px">
+<div style="width: 56px; height: 56px; border-radius: 50%; background: var(--brand); display: flex; align-items: center; justify-content: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: var(--on-brand)"><path d="M5 12l5 5L19 7"></path></svg></div>
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Alles klar – der Saal gehört dir!</h1>
+<div style="background: var(--bg); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 2px">
+<b>Viertelsaal · Kleidertausch fürs Viertel</b><span>Do 19. November, 10:00–14:00</span><span style="margin-top: 6px; align-self: flex-start; font-size: 14px; background: var(--primary); color: var(--on-primary); padding: 2px 10px; border-radius: 999px">bestätigt</span>
+</div>
+<a href="#" style="display: flex; align-items: center; gap: 10px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; text-decoration: none; color: var(--ink)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: var(--icon)"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M12 11v6M9 14h6"></path></svg><b>In meinen Kalender (iCal)</b></a>
+<div style="border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+<b>Schlüssel und Zugang</b>
+<span style="font-size: 15px"><span class="todo">TODO: Schlüsselübergabe, wo und wann</span></span>
+</div>
+<div style="border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+<b>Kosten</b>
+<span style="font-size: 15px"><span class="todo">TODO: Betrag, Kaution, wie zahlen</span></span>
+</div>
+<p style="margin: 0; font-size: 15px">Dein Termin steht auch im öffentlichen Kalender, weil du „Offen für alle“ gewählt hast.</p>
+<a href="#" style="margin-top: auto; color: var(--err-text); text-align: center; padding: 12px">Buchung stornieren</a>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--err-text)">7b · Nicht geklappt</b>
+<div style="height: 780px; display: flex; flex-direction: column; gap: 20px">
+<div style="background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; padding: 24px 20px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 14px; color: var(--muted)">Fall A: beim Abschicken</b>
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15; color: var(--err-text)">Diese Zeit ist gerade vergeben worden</h2>
+<p style="margin: 0">Jemand war ein paar Minuten schneller. Deine Angaben haben wir behalten.</p>
+<p style="margin: 0; font-weight: 700">Freie Zeiten am selben Tag:</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" style="border: 2px solid var(--primary-text); background: var(--surface); color: var(--primary-text); border-radius: 999px; padding: 8px 14px; font-weight: 700">08:00–12:00</button>
+<button type="button" style="border: 2px solid var(--primary-text); background: var(--surface); color: var(--primary-text); border-radius: 999px; padding: 8px 14px; font-weight: 700">20:00–22:00</button>
+</div>
+<a href="#">Anderen Tag wählen</a>
+</div>
+<div style="background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; padding: 24px 20px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<b style="font-size: 14px; color: var(--muted)">Fall B: Raum-AG sagt ab (Mail/DM)</b>
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15">Leider klappt es diesmal nicht</h2>
+<p style="margin: 0">Der Viertelsaal ist am 19. November nicht frei. Die Raum-AG schreibt dazu:</p>
+<blockquote style="margin: 0; background: var(--bg); border-radius: 12px; padding: 12px 14px; font-style: italic">„An diesem Tag ist Hausputz. Wie wäre der 26.?“ <span style="font-style: normal; font-size: 13px; color: var(--muted)">(Beispiel)</span></blockquote>
+<a href="Buchen-1.dc.html" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 14px; border-radius: 999px">Neue Anfrage stellen</a>
+</div>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">8 · Stornieren</b>
+<div style="height: 780px; display: flex; flex-direction: column; gap: 20px">
+<div style="background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; padding: 24px 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15; color: var(--primary-text)">Buchung wirklich stornieren?</h2>
+<div style="background: var(--bg); border-radius: 12px; padding: 12px 14px">Viertelsaal · Do 19. Nov · 10:00–14:00</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px">Magst du uns sagen, warum? (freiwillig)<textarea rows="3" style="padding: 10px; border: 2px solid var(--field); border-radius: 10px; font-weight: 400"></textarea></label>
+<p style="margin: 0; font-size: 14px; color: var(--muted)">Storno-Bedingungen: <span class="todo">TODO</span></p>
+<button type="button" style="background: var(--err); color: var(--on-err); border: 0; font-weight: 700; padding: 14px; border-radius: 999px">Ja, stornieren</button>
+<a href="#" style="text-align: center; padding: 6px">Nein, Buchung behalten</a>
+</div>
+<div style="background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1">
+<div style="width: 48px; height: 48px; border-radius: 50%; background: var(--line-soft); display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="stroke: var(--muted)"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+<h2 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15">Storniert</h2>
+<p style="margin: 0">Der Termin ist wieder frei. Du bekommst eine kurze Bestätigung per E-Mail.</p>
+<a href="Buchen-1.dc.html" style="margin-top: auto; border: 2px solid var(--primary-text); color: var(--primary-text); text-decoration: none; font-weight: 700; text-align: center; padding: 12px; border-radius: 999px">Neuen Termin finden</a>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modus":{"editor":"enum","options":["hell","dunkel"],"default":"hell"},"$preview":{"width":1656,"height":940}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: (this.props.modus ?? 'hell') === 'dunkel' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

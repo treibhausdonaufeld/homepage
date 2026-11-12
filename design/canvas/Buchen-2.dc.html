@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Buchen: Bestätigen per E-Mail oder Matrix</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+.th{--bg:#FAF8F3;--surface:#FFFFFF;--surface-2:#ECE6F4;--tint:#F0ECE2;--line:#E2DDD1;--line-soft:#EDE9E0;--line-strong:#C9C0AE;--field:#7A7262;--ink:#1E1C19;--muted:#5F5A50;--primary:#4A2C7A;--primary-hover:#3A2262;--on-primary:#FFFFFF;--primary-text:#2F4410;--link:#5D7A10;--brand:#4A2C7A;--on-brand:#FFFFFF;--icon:#5D7A10;--band:#34460A;--band-2:#2A3908;--on-band:#FFFFFF;--on-band-2:#DCE3CC;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#1E1C19;--on-footer:#CFC9BC;--on-footer-strong:#FFFFFF;--footer-link:#ECE6F4;--hint:#ECE6F4;--todo-bg:#FFF0B3;--todo-ink:#5E4300;--err:#A3261B;--on-err:#FFFFFF;--err-text:#8A2E1F;--err-bg:#FCEDEA;--ph1:#ECE7DC;--ph2:#F4F1EA;--ph-line:#B0A795;--ph-ink:#4A4539;--busy1:#D8D2C4;--busy2:#E6E1D6;--busy-ink:#2E2B25;--block:#4A453B;--on-block:#FFFFFF;--canvas:#EFEBE2;color-scheme:light}
+.th.dark{--bg:#151410;--surface:#1F1D19;--surface-2:#2A2238;--tint:#26231E;--line:#36322B;--line-soft:#2C2924;--line-strong:#504A40;--field:#9A9282;--ink:#F1EEE6;--muted:#BDB6A8;--primary:#B7A2DC;--primary-hover:#CDBFE6;--on-primary:#1A1320;--primary-text:#DDE7C0;--link:#B9D27A;--brand:#B7A2DC;--on-brand:#1A1320;--icon:#A9C46A;--band:#1E2A0E;--band-2:#18220A;--on-band:#F1EEE6;--on-band-2:#C9D0B6;--band-accent:#ECE6F4;--on-accent:#2A1946;--footer:#0E0D0B;--on-footer:#BDB6A8;--on-footer-strong:#F1EEE6;--footer-link:#CDBFE6;--hint:#2A2238;--todo-bg:#4A3C0A;--todo-ink:#FFE38A;--err:#F07A6A;--on-err:#15140F;--err-text:#FF9E90;--err-bg:#3A1A15;--ph1:#23211C;--ph2:#2A2721;--ph-line:#5A5446;--ph-ink:#BDB6A8;--busy1:#3D3830;--busy2:#312D27;--busy-ink:#E0DBD0;--block:#6A6458;--on-block:#FFFFFF;--canvas:#100F0C;color-scheme:dark}
+.th a{color:var(--link)}.th a:hover{color:var(--primary-text)}
+.todo{background:var(--todo-bg);color:var(--todo-ink);border-radius:4px;padding:1px 6px;font-size:.88em}
+.th input,.th select,.th textarea,.th button{font:inherit;color:var(--ink)}
+.th input,.th select,.th textarea{background:var(--surface);accent-color:var(--primary)}
+</style>
+</helmet>
+<div class="th {{themeClass}}" style="width: 1656px; height: 940px; box-sizing: border-box; padding: 48px; background: var(--canvas); color: var(--ink); font-family: 'Kumbh Sans', system-ui, sans-serif; font-size: 16px; line-height: 1.45; display: flex; gap: 40px">
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">4 · Wie willst du bestätigen?</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><a href="Buchen-1.dc.html">‹ Angaben</a><span style="color: var(--muted)">Schritt 4 von 4</span></div>
+<div style="height: 6px; background: var(--line-soft); border-radius: 3px"><div style="width: 100%; height: 6px; background: var(--brand); border-radius: 3px"></div></div>
+</div>
+<form style="padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Fast fertig!</h1>
+<p style="margin: 0">Wir schicken dir einen Code. So wissen wir, dass die Anfrage echt ist. Über diesen Weg bekommst du auch unsere Antwort.</p>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<legend style="font-weight: 700; margin-bottom: 8px; padding: 0">Wohin sollen wir schreiben?</legend>
+<div style="border: 2px solid var(--primary); background: var(--surface-2); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+<label style="display: flex; gap: 10px; align-items: center; font-weight: 700"><input type="radio" name="k" checked="" style="width: 20px; height: 20px">Per E-Mail</label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 15px">E-Mail-Adresse<input type="email" autocomplete="email" value="amira@example.org" style="padding: 10px 12px; border: 2px solid var(--field); border-radius: 10px"></label>
+</div>
+<div style="border: 1px solid var(--line-strong); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+<label style="display: flex; gap: 10px; align-items: center; font-weight: 700"><input type="radio" name="k" style="width: 20px; height: 20px">Per Matrix-Nachricht</label>
+<span style="font-size: 14px; color: var(--muted)">Du brauchst eine Matrix-ID, z. B. @amira:matrix.org</span>
+</div>
+</fieldset>
+<p style="margin: 0; font-size: 14px; color: var(--muted)">Wir speichern deine Daten nur für diese Buchung und löschen sie nach <span class="todo">X Monaten</span>. <a href="#">Datenschutz</a></p>
+<a href="#" style="margin-top: auto; background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 700; text-align: center; padding: 15px; border-radius: 999px">Code schicken</a>
+</form>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">5a · Code aus der E-Mail</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); font-size: 14px"><a href="#">‹ Anderen Weg wählen</a></div>
+<form style="padding: 20px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: var(--icon)"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Schau in dein Postfach</h1>
+<p style="margin: 0">Wir haben dir einen Code an <b>amira@example.org</b> geschickt. Gib ihn hier ein – oder klick einfach auf den Link in der Mail.</p>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700">6-stelliger Code
+<input type="text" inputmode="numeric" autocomplete="one-time-code" value="4 8 1 2" style="font-family: ui-monospace, Menlo, monospace; font-size: 28px; letter-spacing: 0.3em; text-align: center; padding: 12px; border: 2px solid var(--primary); border-radius: 12px"></label>
+<p style="margin: 0; font-size: 14px; color: var(--muted)">Der Code gilt <span class="todo">X Minuten</span>. Nichts bekommen? Schau auch im Spam-Ordner.</p>
+<button type="button" style="align-self: flex-start; border: 0; background: none; color: var(--primary-text); text-decoration: underline; padding: 8px 0">Code noch einmal schicken</button>
+<button type="submit" style="margin-top: auto; background: var(--primary); color: var(--on-primary); border: 0; font-weight: 700; padding: 15px; border-radius: 999px">Anfrage abschicken</button>
+</form>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--muted)">5b · Bestätigen in Matrix</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); font-size: 14px"><a href="#">‹ Anderen Weg wählen</a></div>
+<div style="padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Schau in deine Matrix-App</h1>
+<ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px">
+<li>Du bekommst eine Einladung von <b>@raeume:treibhaus­donaufeld.at</b>. Nimm sie an.</li>
+<li>Tippe in der Nachricht auf <b>Bestätigen</b>.</li>
+</ol>
+<div aria-hidden="true" style="background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px">
+<span style="color: var(--muted)">So sieht die Nachricht aus:</span>
+<div style="background: var(--surface); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<b>Treibhaus Räume</b>
+<span>Hallo! Hast du den Viertelsaal für Do 19. Nov, 10–14 Uhr angefragt? Dein Code: <b>481 207</b></span>
+<span style="align-self: flex-start; background: var(--primary); color: var(--on-primary); padding: 6px 14px; border-radius: 999px; font-weight: 700">Bestätigen</span>
+</div>
+</div>
+<div role="status" style="display: flex; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 12px; padding: 12px 14px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="stroke: var(--icon)"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+<span>Wir warten auf deine Bestätigung …</span>
+</div>
+<details style="font-size: 15px"><summary style="cursor: pointer; color: var(--primary-text); padding: 6px 0">Knopf geht nicht? Code hier eingeben</summary>
+<label style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px">Code<input type="text" inputmode="numeric" style="padding: 10px; border: 2px solid var(--field); border-radius: 10px; font-family: ui-monospace, monospace; font-size: 20px; letter-spacing: 0.2em"></label>
+</details>
+<p style="margin: auto 0 0; font-size: 14px; color: var(--muted)">Keine Einladung da? <button type="button" style="border: 0; background: none; color: var(--primary-text); text-decoration: underline; padding: 0; font-size: 14px">Noch einmal schicken</button> oder <a href="#">per E-Mail bestätigen</a>.</p>
+</div>
+</div>
+</div>
+
+<div style="width: 360px; display: flex; flex-direction: column; gap: 12px">
+<b style="font-size: 15px; color: var(--err-text)">5c · Code falsch oder abgelaufen</b>
+<div style="height: 780px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); font-size: 14px"><a href="#">‹ Anderen Weg wählen</a></div>
+<form style="padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1">
+<h1 style="margin: 0; font-family: 'Kumbh Sans', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--primary-text)">Schau in dein Postfach</h1>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700">6-stelliger Code
+<input type="text" inputmode="numeric" value="481 270" aria-invalid="true" aria-describedby="err" style="font-family: ui-monospace, Menlo, monospace; font-size: 28px; letter-spacing: 0.2em; text-align: center; padding: 12px; border: 3px solid var(--err); border-radius: 12px"></label>
+<p id="err" role="alert" style="margin: 0; color: var(--err-text); font-weight: 700">Der Code stimmt nicht. Du hast noch 2 Versuche.</p>
+<button type="submit" style="background: var(--primary); color: var(--on-primary); border: 0; font-weight: 700; padding: 15px; border-radius: 999px">Noch einmal versuchen</button>
+<div style="border-top: 1px solid var(--line-soft); padding-top: 14px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 14px; color: var(--muted)">Weitere Fehlerfälle</b>
+<div style="background: var(--err-bg); border-radius: 12px; padding: 12px; font-size: 14px"><b>Code abgelaufen</b><br>Kein Problem. Wir schicken dir einen neuen. Deine Angaben bleiben gespeichert.<br><button type="button" style="margin-top: 6px; border: 0; background: none; color: var(--err-text); text-decoration: underline; padding: 0">Neuen Code schicken</button></div>
+<div style="background: var(--err-bg); border-radius: 12px; padding: 12px; font-size: 14px"><b>Matrix-ID nicht gefunden</b><br>Prüf die Schreibweise (@name:server) oder bestätige per E-Mail.</div>
+<div style="background: var(--err-bg); border-radius: 12px; padding: 12px; font-size: 14px"><b>Zu viele Versuche</b><br>Bitte warte <span class="todo">X Min.</span> oder schreib uns im Matrix-Raum #hallo.</div>
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modus":{"editor":"enum","options":["hell","dunkel"],"default":"hell"},"$preview":{"width":1656,"height":940}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: (this.props.modus ?? 'hell') === 'dunkel' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

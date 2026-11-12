@@ -1,0 +1,70 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Angebote-dunkel.dc.html": {"expand": "fill", "h": 2900, "title": "Angebote & Termine · dunkel", "w": 1440, "x": 1990, "y": 9700},
+    "Angebote.dc.html": {"expand": "fill", "h": 2900, "title": "Angebote & Termine", "w": 1440, "x": 1990, "y": 1900},
+    "Buchen-1-dunkel.dc.html": {"h": 940, "title": "Buchen 1–3 · dunkel", "w": 1656, "x": 0, "y": 14400},
+    "Buchen-1.dc.html": {"h": 940, "title": "Buchen 1–3: Raum, Zeit, Angaben", "w": 1656, "x": 0, "y": 6600},
+    "Buchen-2-dunkel.dc.html": {"h": 940, "title": "Buchen 4–5 · dunkel", "w": 1656, "x": 1736, "y": 14400},
+    "Buchen-2.dc.html": {"h": 940, "title": "Buchen 4–5: Bestätigen per E-Mail oder Matrix", "w": 1656, "x": 1736, "y": 6600},
+    "Buchen-3-dunkel.dc.html": {"h": 940, "title": "Buchen 6–8 · dunkel", "w": 1656, "x": 3472, "y": 14400},
+    "Buchen-3.dc.html": {"h": 940, "title": "Buchen 6–8: Anfrage, Freigabe, Storno", "w": 1656, "x": 3472, "y": 6600},
+    "Main-dunkel.dc.html": {"expand": "fill", "h": 4100, "title": "Start (Desktop) · dunkel", "w": 1440, "x": 0, "y": 9700},
+    "Main.dc.html": {"expand": "fill", "h": 4100, "title": "Start (Desktop)", "w": 1440, "x": 0, "y": 1900},
+    "Marke.dc.html": {"h": 2760, "title": "Logo & Farben", "w": 1600, "x": 5300, "y": 0},
+    "Raum-Viertelsaal-dunkel.dc.html": {"expand": "fill", "h": 2300, "title": "Raumdetail: Viertelsaal · dunkel", "w": 1440, "x": 3510, "y": 9700},
+    "Raum-Viertelsaal.dc.html": {"expand": "fill", "h": 2300, "title": "Raumdetail: Viertelsaal", "w": 1440, "x": 3510, "y": 1900},
+    "Sequenz.dc.html": {"h": 1400, "title": "Sequenz: Verifizierung & Freigabe", "w": 1640, "x": 0, "y": 7780},
+    "Sitemap.dc.html": {"h": 1560, "title": "Sitemap & Inhaltsmodell", "w": 1600, "x": 0, "y": 0},
+    "Start-Mobil-dunkel.dc.html": {"h": 3900, "title": "Start (Handy) · dunkel", "w": 390, "x": 1520, "y": 9700},
+    "Start-Mobil.dc.html": {"h": 3900, "title": "Start (Handy) · oberer Teil", "w": 390, "x": 1520, "y": 1900}
+  },
+  "createdOnFiles": {"at": "2026-11-11T10:00:00Z", "v": 1},
+  "designSystems": [],
+  "launch": {"view": "canvas"},
+  "noteOrder": ["t_seiten", "t_buchen", "entscheidungen", "hinweise", "t_dunkel", "t_buchen_dunkel"],
+  "notes": {
+    "entscheidungen": {
+      "fill": "orange",
+      "size": 24,
+      "text": "Offene Entscheidungen für die Hausgemeinschaft\n\n1. Preise bzw. Spendenempfehlung pro Raum: privat / gemeinnützig / kommerziell\n2. Hausregeln: Lautstärke, Uhrzeiten, Nachtruhe, Alkohol, Reinigung, Kaution, Schlüsselübergabe\n3. Wer gibt Buchungen frei (Raum-AG?) und in welcher Zeit (z. B. 3 Werktage)?\n4. Wie lange hält eine vorläufige Anfrage den Slot (X Stunden)?\n5. Automatische Freigabe: für welche Räume, Zeiten, bekannte Nutzende?\n6. Vorrang-Regeln für Buchungen von Bewohner:innen\n7. Pufferzeiten pro Raum (Auf-/Abbau, Reinigung)\n8. Sperrzeiten: Nachtruhe ab wann, Hausversammlungen\n9. Gemeinschaftswerkstatt nur mit Einschulung?\n10. Löschfrist für Buchungsdaten (X Monate)\n11. Rhythmen + Ansprechpersonen aller Angebote\n12. Status der Foodcoop (Abholzeiten, Beitritt)\n13. Aktive Kooperationen, aktuelle Kennzahlen, Fotos\n14. Englische Version: welche Seiten zum Start?\n15. Logo-Farbe: dunkleres Grün #476B12 auch für Drucksachen übernehmen?",
+      "w": 620,
+      "x": 1720,
+      "y": 0
+    },
+    "hinweise": {
+      "fill": "green",
+      "size": 24,
+      "text": "Design-Notizen\n\n• Farben und Logo: siehe Artboard „Logo & Farben“ rechts.\n• Grün #5D7A10: Logo, Links, Icons. Holunder #4A2C7A: Buttons (weiße Schrift) und Hervorhebungen (Erdgeschoß, Samstagshinweis). Holunderblüte #ECE6F4: helle Flächen, immer mit dunkler Schrift.\n• Dunkelmodus: warmes Fast-Schwarz, Logo in Hellgrün, Buttons in hellem Holunder mit dunkler Schrift.\n• Jede Seite hat den Tweak „modus“ (hell/dunkel). Auf der echten Site automatisch nach Systemeinstellung plus Umschalter.\n• Startseite: Schnitt durchs Haus als Erkennungszeichen, große Typografie, Listen statt Karten, Fotos leicht schräg wie aufgeklebt. Schrift überall Kumbh Sans (selbst gehostet).\n• Gelb = [TODO], gestreift = Foto-Platzhalter.\n• Kurz-URLs: /buchen /termine /fahrrad /naehen /treff /hallo",
+      "w": 560,
+      "x": 2420,
+      "y": 0
+    },
+    "t_buchen": {"kind": "title1", "maxW": 5128, "text": "Buchungsablauf – alle Schritte, Fehler und Bestätigungen", "w": 240, "x": 0, "y": 6320},
+    "t_buchen_dunkel": {"kind": "title1", "maxW": 5128, "text": "Dunkelmodus – Buchungsablauf", "w": 240, "x": 0, "y": 14120},
+    "t_dunkel": {"kind": "title1", "maxW": 4950, "text": "Dunkelmodus – Seiten", "w": 240, "x": 0, "y": 9420},
+    "t_seiten": {"kind": "title1", "maxW": 4950, "text": "Seiten – Wireframes mit echten Texten", "w": 240, "x": -1761, "y": 1449}
+  },
+  "order": [
+    "Sitemap.dc.html",
+    "Main.dc.html",
+    "Start-Mobil.dc.html",
+    "Angebote.dc.html",
+    "Raum-Viertelsaal.dc.html",
+    "Buchen-1.dc.html",
+    "Buchen-2.dc.html",
+    "Buchen-3.dc.html",
+    "Sequenz.dc.html",
+    "Main-dunkel.dc.html",
+    "Start-Mobil-dunkel.dc.html",
+    "Angebote-dunkel.dc.html",
+    "Raum-Viertelsaal-dunkel.dc.html",
+    "Buchen-1-dunkel.dc.html",
+    "Buchen-2-dunkel.dc.html",
+    "Buchen-3-dunkel.dc.html",
+    "Marke.dc.html"
+  ],
+  "pages": [],
+  "title": "Treibhaus Donaufeld – neue Website"
+}
