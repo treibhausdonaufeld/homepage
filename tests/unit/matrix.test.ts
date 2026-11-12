@@ -25,6 +25,8 @@ beforeAll(async () => {
       if (u.endsWith('/createRoom')) return json(200, { room_id: '!dm:example.org' });
       if (u.includes('/send/m.room.message/')) return json(200, { event_id: '$1' });
       if (u.includes('/state/m.room.member/')) return json(200, { membership: 'join' });
+      if (u.includes('/directory/room/#raum-ag:example.org')) return json(200, { room_id: '!raumag:example.org' });
+      if (u.includes('/join/')) return json(200, { room_id: u.split('/join/')[1] });
       return json(404, { errcode: 'M_UNRECOGNIZED' });
     });
   });
@@ -53,5 +55,15 @@ describe('Matrix-Bot', () => {
     expect(sends).toHaveLength(2);
     expect(sends[0].body.body).toContain('123 456');
     expect(sends[0].body.formatted_body).toContain('<b>');
+  });
+
+  it('schickt Hinweise in einen Raum per Alias und tritt vorher bei', async () => {
+    const bot = new MatrixBot(base, 'tok', path.join(os.tmpdir(), `mb-${Date.now()}-3.json`));
+    await bot.sendToRoom('#raum-ag:example.org', 'Neue Anfrage', '<b>Neue Anfrage</b>');
+    const joins = calls.filter((c) => c.url.includes('/join/'));
+    expect(decodeURIComponent(joins.at(-1)!.url)).toContain('!raumag:example.org');
+    const send = calls.filter((c) => c.url.includes('/send/')).at(-1)!;
+    expect(decodeURIComponent(send.url)).toContain('/rooms/!raumag:example.org/send/');
+    expect(send.body.msgtype).toBe('m.notice');
   });
 });

@@ -1,0 +1,13 @@
+---
+/**
+ * Geschützte E-Mail-Adresse: im HTML nur kodiert, das Skript public/js/email.js macht
+ * daraus einen mailto-Link. Ohne JavaScript steht lesbar „hallo (at) treibhausdonaufeld.at“ da.
+ * Mit Inhalt (Slot) wird dieser statt der Adresse angezeigt.
+ */
+import { config } from '../lib/config';
+import { displayEmail, encodeEmail } from '../lib/email-obfuscate.mjs';
+interface Props { address?: string; subject?: string; class?: string; strong?: boolean }
+const { address = config.contactEmail, subject, class: cls, strong = false } = Astro.props;
+const label = Astro.slots.has('default') ? await Astro.slots.render('default') : null;
+---
+<a class:list={['eml', cls]} data-e={encodeEmail(address)} data-s={subject}>{label ? <Fragment set:html={label} /> : strong ? <strong class="eml-t">{displayEmail(address)}</strong> : <span class="eml-t">{displayEmail(address)}</span>}</a>

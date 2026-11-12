@@ -32,7 +32,10 @@ export class MatrixBot {
   lastError: string | null = null;
   private state: BotState = { dms: {} };
   private running = false;
-  private adminRoomId: string | null = null;
+  /** Räume für Benachrichtigungen der Raum-AG (aufgelöste IDs); Einladungen dorthin nimmt der Bot an. */
+  private notifyRooms = new Set<string>();
+  private aliasCache = new Map<string, string>();
+  private joined = new Set<string>();
   private onCode: CodeHandler | null = null;
 
   constructor(
@@ -96,22 +99,37 @@ export class MatrixBot {
     this.running = false;
   }
 
-  private async resolveAdminRoom(): Promise<string | null> {
-    if (this.adminRoomId) return this.adminRoomId;
-    const r = config.matrix.adminRoom;
-    if (!r) return null;
-    if (r.startsWith('#')) {
-      const res = await this.req<{ room_id: string }>('GET', `/directory/room/${encodeURIComponent(r)}`);
-      this.adminRoomId = res.room_id;
-    } else {
-      this.adminRoomId = r;
+  /** Raum-ID oder Alias (#name:server) in eine Raum-ID auflösen. */
+  async resolveRoom(room: string): Promise<string> {
+    if (!room.startsWith('#')) return room;
+    const cached = this.aliasCache.get(room);
+    if (cached) return cached;
+    const res = await this.req<{ room_id: string }>('GET', `/directory/room/${encodeURIComponent(room)}`);
+    this.aliasCache.set(room, res.room_id);
+    return res.room_id;
+  }
+
+  private async ensureJoined(roomId: string) {
+    if (this.joined.has(roomId)) return;
+    await this.req('POST', `/join/${encodeURIComponent(roomId)}`, {});
+    this.joined.add(roomId);
+  }
+
+  /** Benachrichtigungsräume aus dem Admin übernehmen: auflösen und beitreten (wenn möglich). */
+  async setNotifyRooms(rooms: string[]) {
+    const ids = new Set<string>();
+    for (const r of rooms) {
+      try {
+        const id = await this.resolveRoom(r);
+        ids.add(id);
+        await this.ensureJoined(id).catch((err) =>
+          log.warn('Matrix-Bot kann dem Raum noch nicht beitreten – bitte einladen', { room: r, err }),
+        );
+      } catch (err) {
+        log.warn('Matrix-Raum nicht gefunden', { room: r, err });
+      }
     }
-    try {
-      await this.req('POST', `/join/${encodeURIComponent(this.adminRoomId)}`, {});
-    } catch (err) {
-      log.warn('Konnte dem Raum-AG-Raum nicht beitreten', { err });
-    }
-    return this.adminRoomId;
+    this.notifyRooms = ids;
   }
 
   private async syncLoop() {
@@ -151,8 +169,10 @@ export class MatrixBot {
   private async handleSync(res: any) {
     // Einladungen nur in den Raum-AG-Raum annehmen
     for (const roomId of Object.keys(res.rooms?.invite ?? {})) {
-      if (roomId === config.matrix.adminRoom || roomId === this.adminRoomId) {
-        await this.req('POST', `/join/${encodeURIComponent(roomId)}`, {}).catch(() => undefined);
+      if (this.notifyRooms.has(roomId)) {
+        await this.req('POST', `/join/${encodeURIComponent(roomId)}`, {})
+          .then(() => this.joined.add(roomId))
+          .catch(() => undefined);
       }
     }
     const dmRooms = new Set(Object.values(this.state.dms));
@@ -228,9 +248,10 @@ export class MatrixBot {
     await this.send(roomId, text, html);
   }
 
-  async sendAdmin(text: string, html?: string) {
-    const roomId = await this.resolveAdminRoom();
-    if (!roomId) return;
+  /** Hinweis (m.notice) in einen Raum schicken, z. B. den Raum der Raum-AG. */
+  async sendToRoom(room: string, text: string, html?: string) {
+    const roomId = await this.resolveRoom(room);
+    await this.ensureJoined(roomId);
     await this.send(roomId, text, html, true);
   }
 }

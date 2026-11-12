@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import { satteri } from '@astrojs/markdown-satteri';
 import { todoPlugin } from './src/lib/markdown/todo-plugin.mjs';
+import { emailPlugin } from './src/lib/email-obfuscate.mjs';
 
 // Inhaltsseiten werden vorgerendert (Standard), Buchung, Admin, Feeds und
 // Startseite setzen `export const prerender = false` und laufen auf dem Server.
@@ -29,7 +30,7 @@ export default defineConfig({
     '/jonglieren': '/angebote/jongliertreffen',
     '/hallo': '/kontakt',
   },
-  markdown: { processor: satteri({ hastPlugins: [todoPlugin] }) },
+  markdown: { processor: satteri({ hastPlugins: [todoPlugin, emailPlugin] }) },
   vite: {
     ssr: { external: ['better-sqlite3'] },
   },

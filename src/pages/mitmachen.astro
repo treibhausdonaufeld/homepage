@@ -1,7 +1,8 @@
 ---
+import Email from '../components/Email.astro';
 import Base from '../layouts/Base.astro';
 import Newsletter from '../components/Newsletter.astro';
-import { EMAIL, MATRIX_URL } from '../lib/i18n';
+import { MATRIX_URL } from '../lib/i18n';
 ---
 <Base title="Mitmachen" description="Selbst etwas anbieten, bei der Foodcoop mitmachen oder im Haus mithelfen.">
   <section class="wrap section">
@@ -27,7 +28,7 @@ import { EMAIL, MATRIX_URL } from '../lib/i18n';
           <li>Schichten beim Samstagstreff</li>
           <li>Feste und Aktionen fürs Viertel</li>
         </ul>
-        <p>Schreib uns, was dich interessiert – im Matrix-Raum <a href={MATRIX_URL}>#hallo</a> oder an <a href={`mailto:${EMAIL}?subject=Mithelfen`}>{EMAIL}</a>. <mark class="todo">Ansprechpersonen</mark></p>
+        <p>Schreib uns, was dich interessiert – im Matrix-Raum <a href={MATRIX_URL}>#hallo</a> oder an <Email subject="Mithelfen" />. <mark class="todo">Ansprechpersonen</mark></p>
       </article>
       <article class="card">
         <h2>Im Gespräch bleiben</h2>

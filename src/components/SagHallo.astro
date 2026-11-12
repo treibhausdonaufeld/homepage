@@ -1,5 +1,6 @@
 ---
-import { EMAIL, MATRIX_ROOM, MATRIX_URL } from '../lib/i18n';
+import Email from './Email.astro';
+import { MATRIX_ROOM, MATRIX_URL } from '../lib/i18n';
 interface Props { lang?: 'de' | 'en' }
 const { lang = 'de' } = Astro.props;
 const de = lang === 'de';
@@ -13,7 +14,7 @@ const de = lang === 'de';
         <a class="btn light" href={MATRIX_URL}>{de ? 'Im Matrix-Raum hallo sagen' : 'Say hello on Matrix'}</a>
         <span class="small">{MATRIX_ROOM}</span>
       </p>
-      <p>{de ? 'Oder per Mail:' : 'Or by email:'} <a href={`mailto:${EMAIL}`}><strong>{EMAIL}</strong></a></p>
+      <p>{de ? 'Oder per Mail:' : 'Or by email:'} <Email strong /></p>
     </div>
     <div class="howto">
       <h3>{de ? 'Noch nie von Matrix gehört?' : 'Never heard of Matrix?'}</h3>
@@ -28,7 +29,7 @@ const de = lang === 'de';
 </section>
 <style>
   .band { background: var(--band); color: var(--on-band); padding: 72px 0; }
-  .band a:not(.btn) { color: var(--on-band); }
+  .band :global(a:not(.btn)) { color: var(--on-band); }
   .grid { display: grid; gap: 40px 64px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: start; }
   .big { font-size: clamp(48px, 7vw, 80px); letter-spacing: -0.035em; margin-bottom: 16px; }
   .lead { color: var(--on-band-2); }

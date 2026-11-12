@@ -47,8 +47,8 @@ export function fakeNotifier() {
     async cancelled(view) {
       sent.push({ kind: 'cancelled', view });
     },
-    async admin(text) {
-      admin.push(text);
+    async admin(event, msg) {
+      admin.push(`${event}: ${msg.title}`);
     },
   };
   return { n, sent, admin };

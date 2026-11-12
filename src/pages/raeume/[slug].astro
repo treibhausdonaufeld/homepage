@@ -1,4 +1,5 @@
 ---
+import Email from '../../components/Email.astro';
 export const prerender = false;
 import { getEntry, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
@@ -74,7 +75,7 @@ const bookBase = `/buchen/zeit?raum=${d.bookingId}`;
         <li>Schlüssel abholen und zurückgeben: <mark class="todo">TODO</mark></li>
       </ul>
       <p><a class="go" href="/hausregeln">Alle Hausregeln lesen →</a></p>
-      <p class="muted">Fragen zum Raum? Schreib im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder an <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a>.</p>
+      <p class="muted">Fragen zum Raum? Schreib im Matrix-Raum <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder an <Email />.</p>
     </div>
   </section>
 </Base>

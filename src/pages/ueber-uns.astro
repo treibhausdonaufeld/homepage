@@ -1,4 +1,5 @@
 ---
+import Email from '../components/Email.astro';
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import HouseSection from '../components/HouseSection.astro';
@@ -85,7 +86,7 @@ const timeline = [
       </div>
       <div>
         <h2>Presse</h2>
-        <p>Für Anfragen von Presse oder anderen Baugruppen schreib an <a href="mailto:hallo@treibhausdonaufeld.at?subject=Presse">hallo@treibhausdonaufeld.at</a>. <mark class="todo">Pressematerial, Fotos</mark></p>
+        <p>Für Anfragen von Presse oder anderen Baugruppen schreib an <Email subject="Presse" />. <mark class="todo">Pressematerial, Fotos</mark></p>
       </div>
     </div>
   </section>

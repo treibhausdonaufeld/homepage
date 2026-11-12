@@ -38,6 +38,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
     <link rel="alternate" type="text/calendar" title="Termine (iCal)" href="/termine.ics" />
     <script is:inline src="/js/theme.js"></script>
+    <script is:inline src="/js/email.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#inhalt">{t[lang].skip}</a>

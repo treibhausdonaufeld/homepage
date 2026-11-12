@@ -41,4 +41,3 @@ export const t = {
 
 export const MATRIX_ROOM = '#hallo:treibhausdonaufeld.at';
 export const MATRIX_URL = 'https://matrix.to/#/%23hallo:treibhausdonaufeld.at';
-export const EMAIL = 'hallo@treibhausdonaufeld.at';

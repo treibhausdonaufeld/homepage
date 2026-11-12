@@ -8,6 +8,30 @@ import { describeRule } from '../booking/recurrence';
 import { fmt } from '../time';
 import { sendMail } from './mail';
 import { getMatrixBot, MatrixError } from './matrix';
+import { sendRocketChat } from './rocketchat';
+import { dispatch, listTargets, type Senders } from './targets';
+import { getDb } from '../db';
+
+/** Versandwege für Meldungen an die Raum-AG. Zugangsdaten kommen aus der Umgebung. */
+export const adminSenders: Senders = {
+  email: (to, subject, text) => sendMail({ to, subject, text }),
+  rocketchat: (channel, text) => sendRocketChat(channel, text),
+  async matrix(room, text, html) {
+    const bot = getMatrixBot();
+    if (!bot) throw new Error('Matrix ist nicht eingerichtet (MATRIX_HOMESERVER, MATRIX_BOT_TOKEN).');
+    await bot.sendToRoom(room, text, html);
+  },
+};
+
+/** Matrix-Bot über die eingestellten Räume informieren (beitreten, Einladungen annehmen). */
+export async function refreshMatrixRooms() {
+  const bot = getMatrixBot();
+  if (!bot) return;
+  const rooms = listTargets(getDb())
+    .filter((t) => t.kind === 'matrix' && t.enabled)
+    .map((t) => t.target);
+  await bot.setNotifyRooms(rooms);
+}
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
@@ -193,15 +217,8 @@ export function createNotifier(): Notifier {
       });
     },
 
-    async admin(text, html) {
-      const bot = getMatrixBot();
-      if (bot) await bot.sendAdmin(text, html).catch((err) => log.error('Raum-AG-Meldung fehlgeschlagen', { err }));
-      else log.info('Raum-AG-Meldung', { text });
-      if (config.adminEmail) {
-        await sendMail({ to: config.adminEmail, subject: `[Raum-AG] ${text.split(':')[0]}`, text }).catch((err) =>
-          log.error('Raum-AG-Mail fehlgeschlagen', { err }),
-        );
-      }
+    async admin(event, msg) {
+      await dispatch(getDb(), event, msg, adminSenders);
     },
   };
 }

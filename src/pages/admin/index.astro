@@ -7,6 +7,7 @@ import { approve, listBookings, reject } from '../../lib/booking/service';
 import { BookingError } from '../../lib/booking/types';
 import { getNotifier } from '../../lib/notify';
 import { DAY } from '../../lib/time';
+import { listTargets } from '../../lib/notify/targets';
 
 const db = getDb();
 const actor = Astro.locals.admin!.name;
@@ -29,9 +30,11 @@ const upcoming = listBookings(db, { statuses: ['bestaetigt'], from: now, to: new
   .filter((v) => v.booking.kind !== 'intern' || !v.seriesRule)
   .sort((a, b) => (a.occurrences[0]?.start.getTime() ?? 0) - (b.occurrences[0]?.start.getTime() ?? 0));
 const unconfirmed = listBookings(db, { statuses: ['unbestaetigt'] }).length;
+const noTargets = !listTargets(db).some((t) => t.enabled && t.events.includes('anfrage'));
 ---
 <Admin title="Anfragen">
   <h1>Offene Anfragen <span class="muted">({open.length})</span></h1>
+  {noTargets && <p class="hint">Niemand wird über neue Anfragen benachrichtigt. <a href="/admin/benachrichtigungen">Benachrichtigung einstellen →</a></p>}
   {msg && <p class="ok-box" role="status">{msg}</p>}
   {error && <p class="error-box" role="alert">{error}</p>}
   {open.length === 0 ? <p class="muted">Keine offenen Anfragen. 🎉</p> : (

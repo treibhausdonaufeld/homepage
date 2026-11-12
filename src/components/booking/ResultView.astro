@@ -1,4 +1,5 @@
 ---
+import Email from '../Email.astro';
 /** Ergebnis nach der Bestätigung des Kontakts: vorläufig, automatisch bestätigt oder Konflikt. */
 import Summary from './Summary.astro';
 import type { BookingView } from '../../lib/booking/types';
@@ -42,7 +43,7 @@ const contact = b.contactChannel === 'email' ? `per E-Mail an ${maskEmail(b.cont
     <p><a class="btn" href="/buchen">Neue Anfrage stellen</a></p>
   </>
 )}
-<p class="small muted" style="margin-top:24px">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a></p>
+<p class="small muted" style="margin-top:24px">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
 <p><a class="btn big" href="/">Zur Startseite</a></p>
 <style>
   .h3 { font-size: 19px; letter-spacing: 0; }

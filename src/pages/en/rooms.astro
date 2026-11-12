@@ -1,4 +1,5 @@
 ---
+import Email from '../../components/Email.astro';
 import Base from '../../layouts/Base.astro';
 const rooms = [
   { slug: 'viertelsaal', name: 'Viertelsaal (hall)', cap: 60, use: 'talks, workshops, meetings, parties' },
@@ -19,6 +20,6 @@ const rooms = [
         </article>
       ))}
     </div>
-    <p class="notice" style="margin-top:32px">Prices, house rules and key handover: <mark class="todo">TODO</mark>. Questions? Write to <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a>.</p>
+    <p class="notice" style="margin-top:32px">Prices, house rules and key handover: <mark class="todo">TODO</mark>. Questions? Write to <Email />.</p>
   </section>
 </Base>

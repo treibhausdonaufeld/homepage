@@ -38,6 +38,8 @@ import {
   BLOCKING_STATUSES,
   BookingError,
   ConflictError,
+  KIND_LABEL,
+  type AdminMessage,
   type BookingView,
   type CandidateSlot,
   type Conflict,
@@ -671,23 +673,30 @@ async function confirmContact(db: DB, notifier: Notifier, booking: Booking, veri
     const url = manageUrl(outcome.booking);
     if (outcome.autoApproved) {
       void safe(() => notifier.confirmed(view, url, bookingIcs(view, url)));
-      void safe(() => notifier.admin(...adminText('Automatisch freigegeben', view)));
+      void safe(() => notifier.admin('auto', adminMessage('Automatisch freigegeben', view)));
     } else {
       void safe(() => notifier.received(view, url));
-      void safe(() => notifier.admin(...adminText('Neue Anfrage', view)));
+      void safe(() => notifier.admin('anfrage', adminMessage('Neue Anfrage', view)));
     }
   }
   return outcome;
 }
 
-function adminText(title: string, view: BookingView): [string, string] {
+/** Meldung an die Raum-AG zu einer Buchung (ohne Kontaktdaten – die stehen im Admin-Bereich). */
+export function adminMessage(title: string, view: BookingView): AdminMessage {
   const b = view.booking;
-  const when = view.occurrences[0] ? describeOccurrence(view.occurrences[0]) : '';
+  const when = view.occurrences[0] ?? view.skipped[0];
   const extra = view.occurrences.length > 1 ? ` (+${view.occurrences.length - 1} weitere Termine)` : '';
-  const url = `${config.publicUrl}/admin/buchung/${b.id}`;
-  const text = `${title}: ${view.room.name}, ${when}${extra} – ${b.purpose ?? ''} (${b.persons} Pers., ${b.kind}). ${url}`;
-  const html = `<b>${esc(title)}</b>: ${esc(view.room.name)}, ${esc(when)}${esc(extra)}<br>${esc(b.purpose ?? '')} · ${b.persons} Pers. · ${esc(b.kind)}<br><a href="${url}">Im Admin-Bereich ansehen</a>`;
-  return [text, html];
+  return {
+    title: `${title}: ${view.room.name}${when ? `, ${describeOccurrence(when)}` : ''}`,
+    text: `${b.purpose ?? '–'}${extra}\n${b.persons} Personen · ${KIND_LABEL[b.kind]}${b.isPublic ? ' · öffentlich' : ''}${view.seriesRule ? ' · Serie' : ''}`,
+    url: `${config.publicUrl}/admin/buchung/${b.id}`,
+  };
+}
+
+/** Formular abgeschickt, Kontakt noch nicht bestätigt (Ereignis „abgeschickt“). */
+export async function announceRequest(db: DB, notifier: Notifier, booking: Booking) {
+  await safe(() => notifier.admin('abgeschickt', adminMessage('Formular ausgefüllt, Code noch offen', bookingView(db, booking))));
 }
 
 export function describeOccurrence(o: { start: Date; end: Date }): string {
@@ -700,7 +709,6 @@ export function describeOccurrence(o: { start: Date; end: Date }): string {
   return `${d}, ${t(o.start)}–${t(o.end)}`;
 }
 
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 async function safe(fn: () => Promise<void>) {
   try {
@@ -775,7 +783,7 @@ export async function cancelByGuest(db: DB, notifier: Notifier, booking: Booking
   const nb = getBooking(db, booking.id)!;
   const view = bookingView(db, nb);
   void safe(() => notifier.cancelled(view, false, null));
-  void safe(() => notifier.admin(...adminText('Storniert von der buchenden Person', view)));
+  void safe(() => notifier.admin('storno', adminMessage('Storniert von der buchenden Person', view)));
   return nb;
 }
 
@@ -952,7 +960,7 @@ export async function expireHolds(db: DB, notifier: Notifier) {
     audit(db, 'System', 'haltefrist-abgelaufen', b.id);
     const view = bookingView(db, getBooking(db, b.id)!);
     void safe(() => notifier.expired(view, 'hold'));
-    void safe(() => notifier.admin(...adminText('Haltefrist abgelaufen', view)));
+    void safe(() => notifier.admin('abgelaufen', adminMessage('Haltefrist abgelaufen', view)));
   }
   if (due.length) invalidate();
   return due.length;

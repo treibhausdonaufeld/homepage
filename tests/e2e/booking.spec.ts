@@ -1,20 +1,6 @@
 import fs from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
-
-/** Letzten Code aus dem Server-Log lesen (ohne SMTP werden Mails geloggt). */
-function lastCode(): string {
-  const lines = fs.readFileSync('test-results/e2e/server.log', 'utf8').trim().split('\n').reverse();
-  for (const l of lines) {
-    const m = /Dein Code: (\d{3}) (\d{3})/.exec(l);
-    if (m) return m[1] + m[2];
-  }
-  throw new Error('kein Code im Log');
-}
-
-function futureDate(days: number) {
-  const d = new Date(Date.now() + days * 86400000);
-  return d.toISOString().slice(0, 10);
-}
+import { codeFor, futureDate } from './helpers';
 
 async function fillRequest(page: Page, date: string, von: string, bis: string, email: string) {
   await page.goto('/buchen');
@@ -57,7 +43,7 @@ test('Anfrage, Code, Freigabe durch die Raum-AG, Storno', async ({ page }) => {
   const wrong = page.getByText(/Der Code stimmt nicht/);
   if (await wrong.count()) await expect(wrong).toBeVisible();
 
-  await page.getByLabel(/Code/).first().fill(lastCode());
+  await page.getByLabel(/Code/).first().fill(codeFor('amira@example.org'));
   await page.getByRole('button', { name: /Anfrage abschicken|Noch einmal versuchen/ }).click();
   await expect(page.getByRole('heading', { name: 'Danke! Deine Anfrage ist da.' })).toBeVisible();
   await expect(page.getByText('vorläufig reserviert')).toBeVisible();
@@ -99,9 +85,9 @@ test('Fall A: Zeit wird vergeben, während jemand das Formular ausfüllt', async
   const a = await browser.newPage();
   const b = await browser.newPage();
   await fillRequest(a, date, '16:00', '18:00', 'a@example.org');
-  const codeA = lastCode();
+  const codeA = codeFor('a@example.org');
   await fillRequest(b, date, '16:00', '18:00', 'b@example.org');
-  const codeB = lastCode();
+  const codeB = codeFor('b@example.org');
   await b.getByLabel('6-stelliger Code').fill(codeB);
   await b.getByRole('button', { name: 'Anfrage abschicken' }).click();
   await expect(b.getByText('vorläufig reserviert')).toBeVisible();

@@ -47,14 +47,18 @@ export const config = {
     pass: env('SMTP_PASS'),
     from: env('SMTP_FROM', 'Treibhaus Donaufeld <hallo@treibhausdonaufeld.at>'),
   },
-  /** Zusätzliche Benachrichtigung der Raum-AG per Mail (optional). */
-  adminEmail: env('ADMIN_EMAIL'),
 
   matrix: {
     homeserver: env('MATRIX_HOMESERVER').replace(/\/$/, ''),
     token: env('MATRIX_BOT_TOKEN'),
-    adminRoom: env('MATRIX_ADMIN_ROOM'),
     stateFile: env('MATRIX_STATE_FILE', './data/matrix-bot.json'),
+  },
+
+  /** Rocket.Chat: Bot-Benutzer mit persönlichem Zugangstoken. Der Channel wird im Admin eingestellt. */
+  rocketchat: {
+    url: env('ROCKETCHAT_URL').replace(/\/$/, ''),
+    userId: env('ROCKETCHAT_USER_ID'),
+    token: env('ROCKETCHAT_TOKEN'),
   },
 
   oidc: {

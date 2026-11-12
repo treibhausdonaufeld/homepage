@@ -170,3 +170,27 @@ export type Booking = typeof bookings.$inferSelect;
 export type Slot = typeof slots.$inferSelect;
 export type Block = typeof blocks.$inferSelect;
 export type Verification = typeof verifications.$inferSelect;
+
+export const NOTIFY_KINDS = ['email', 'rocketchat', 'matrix'] as const;
+export type NotifyKind = (typeof NOTIFY_KINDS)[number];
+
+/**
+ * Interne Benachrichtigungen an die Raum-AG. Hier steht nur das Ziel
+ * (Adresse, Channel, Raum) – Zugangsdaten kommen aus Umgebungsvariablen.
+ */
+export const notificationTargets = sqliteTable('notification_targets', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  kind: text('kind', { enum: NOTIFY_KINDS }).notNull(),
+  /** E-Mail-Adresse, Rocket.Chat-Channel (#raum-ag) oder Matrix-Raum (!id:server / #alias:server) */
+  target: text('target').notNull(),
+  label: text('label'),
+  /** Ereignisse, bei denen benachrichtigt wird (JSON-Liste) */
+  events: text('events', { mode: 'json' }).$type<string[]>().notNull(),
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: ts('created_at').notNull().default(now),
+  lastSentAt: ts('last_sent_at'),
+  lastError: text('last_error'),
+});
+
+export type NotificationTarget = typeof notificationTargets.$inferSelect;

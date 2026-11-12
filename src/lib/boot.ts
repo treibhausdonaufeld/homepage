@@ -4,7 +4,7 @@
 import { config, configProblems } from './config';
 import { getDb } from './db';
 import { seed } from './db/seed';
-import { getNotifier } from './notify';
+import { getNotifier, refreshMatrixRooms } from './notify';
 import { getMatrixBot } from './notify/matrix';
 import { verifyFromMatrix } from './booking/service';
 import { startJobs } from '../jobs';
@@ -54,6 +54,7 @@ async function boot() {
           return null;
       }
     });
+    await refreshMatrixRooms().catch((err) => log.warn('Matrix-Räume für Benachrichtigungen nicht erreichbar', { err }));
   } else {
     log.info('Matrix-Bot nicht konfiguriert (MATRIX_HOMESERVER/MATRIX_BOT_TOKEN)');
   }

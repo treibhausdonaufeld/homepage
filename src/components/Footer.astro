@@ -1,6 +1,7 @@
 ---
+import Email from './Email.astro';
 import Logo from './Logo.astro';
-import { EMAIL, MATRIX_URL, t, type Lang } from '../lib/i18n';
+import { MATRIX_URL, t, type Lang } from '../lib/i18n';
 interface Props { lang?: Lang }
 const { lang = 'de' } = Astro.props;
 const L = t[lang];
@@ -14,7 +15,7 @@ const L = t[lang];
       </div>
       <ul class="contact">
         <li><a href={MATRIX_URL}>Matrix #hallo</a></li>
-        <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+        <li><Email /></li>
       </ul>
     </div>
     <ul class="links">
@@ -39,7 +40,7 @@ const L = t[lang];
 </footer>
 <style>
   .site-footer { background: var(--footer); color: var(--on-footer); padding: 40px 0; font-size: 15px; margin-top: 0; }
-  .site-footer a, .site-footer .linkbtn { color: var(--footer-link); }
+  .site-footer :global(a), .site-footer .linkbtn { color: var(--footer-link); }
   .top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: flex-start; }
   .brand { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; }
   .brand p { margin: 0; }

@@ -1,4 +1,5 @@
 ---
+import Email from '../components/Email.astro';
 export const prerender = false;
 import { z } from 'zod';
 import Base from '../layouts/Base.astro';
@@ -35,11 +36,14 @@ if (Astro.request.method === 'POST') {
       const text = `Neue Idee fürs Erdgeschoß von ${d.name} (${d.kontakt}):\n\n${d.idee}\n\nWann/wie oft: ${d.wann || '–'}`;
       try {
         await sendMail({ to: config.contactEmail, subject: `Idee fürs Viertel: ${d.name}`, text });
-        await getNotifier().admin(`Neue Idee fürs Erdgeschoß von ${d.name} – Details per Mail an ${config.contactEmail}.`);
+        await getNotifier().admin('idee', {
+          title: `Neue Idee fürs Erdgeschoß von ${d.name}`,
+          text: `${d.idee.slice(0, 300)}${d.idee.length > 300 ? ' …' : ''}\nWann: ${d.wann || '–'} · Kontakt und volle Nachricht per Mail an ${config.contactEmail}`,
+        });
         sent = true;
       } catch (err) {
         log.error('Idee konnte nicht gesendet werden', { err });
-        errors._form = 'Das hat leider nicht geklappt. Schreib uns bitte direkt an hallo@treibhausdonaufeld.at.';
+        errors._form = 'mail';
       }
     }
   }
@@ -63,7 +67,7 @@ const stamp = formStamp();
         <div class="ok-box" role="status"><h2>Danke für deine Idee!</h2><p>Wir melden uns bald bei dir.</p></div>
       ) : (
         <form method="post" class="card" novalidate>
-          {errors._form && <p class="error-box" role="alert">{errors._form}</p>}
+          {errors._form === 'mail' ? <p class="error-box" role="alert">Das hat leider nicht geklappt. Schreib uns bitte direkt an <Email />.</p> : errors._form && <p class="error-box" role="alert">{errors._form}</p>}
           <input type="hidden" name="stamp" value={stamp} />
           <div class="field"><label for="name">Dein Name</label><input id="name" name="name" type="text" value={values.name} autocomplete="name" required aria-invalid={errors.name ? 'true' : undefined} />{errors.name && <span class="field-error">{errors.name}</span>}</div>
           <div class="field"><label for="kontakt">E-Mail oder Matrix-ID</label><input id="kontakt" name="kontakt" type="text" value={values.kontakt} required aria-invalid={errors.kontakt ? 'true' : undefined} />{errors.kontakt && <span class="field-error">{errors.kontakt}</span>}</div>

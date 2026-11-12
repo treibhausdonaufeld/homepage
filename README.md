@@ -94,9 +94,8 @@ Alle Werte über Umgebungsvariablen, Vorlage in [`.env.example`](.env.example), 
 | `PUBLIC_URL` | öffentliche Adresse, für Links in Mails und Matrix (Pflicht in Produktion) |
 | `HMAC_SECRET`, `SESSION_SECRET` | Geheimnisse für Codes/Links und Admin-Sessions (Pflicht, `openssl rand -base64 32`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Mailversand über das SMTP des Hauses |
-| `ADMIN_EMAIL` | optional: Raum-AG zusätzlich per Mail benachrichtigen |
 | `MATRIX_HOMESERVER`, `MATRIX_BOT_TOKEN` | Bot-Konto `@raeume:treibhausdonaufeld.at` |
-| `MATRIX_ADMIN_ROOM` | interner Raum-AG-Raum (`!id:…` oder `#alias:…`), der Bot tritt bei |
+| `ROCKETCHAT_URL`, `ROCKETCHAT_USER_ID`, `ROCKETCHAT_TOKEN` | Rocket.Chat-Bot für Meldungen an die Raum-AG (Channel wird im Admin eingestellt) |
 | `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_ADMIN_GROUP` | Login der Raum-AG über Authentik |
 | `DEV_ADMIN_LOGIN` | Admin-Login ohne Authentik – nur lokal! In Produktion `false` |
 | `LISTMONK_URL`, `LISTMONK_LIST_UUIDS` | Newsletter-Anmeldung über die öffentliche listmonk-API |
@@ -105,7 +104,9 @@ Alle Werte über Umgebungsvariablen, Vorlage in [`.env.example`](.env.example), 
 
 **Authentik:** Anwendung als OAuth2/OpenID-Provider anlegen, Redirect-URI `https://treibhausdonaufeld.at/admin/callback`, Scopes `openid profile email` (das `profile`-Scope liefert `groups`). Zugriff hat, wer in der Gruppe `raum-ag` ist.
 
-**Matrix:** Bot-Konto auf dem Hausserver anlegen, Access-Token als `MATRIX_BOT_TOKEN` setzen und den Bot in den Raum-AG-Raum einladen. Der Bot legt mit Buchenden unverschlüsselte Direktnachrichten-Räume an und akzeptiert dort auch die Antwort mit dem Code.
+**Matrix:** Bot-Konto auf dem Hausserver anlegen und das Access-Token als `MATRIX_BOT_TOKEN` setzen. Der Bot legt mit Buchenden unverschlüsselte Direktnachrichten-Räume an und akzeptiert dort auch die Antwort mit dem Code. Räume für Meldungen an die Raum-AG werden im Admin eingestellt; der Bot tritt bei bzw. nimmt Einladungen in diese Räume an.
+
+**Rocket.Chat:** Bot-Benutzer anlegen, unter „Mein Konto → Persönliche Zugangstoken“ ein Token erzeugen und User-ID und Token als `ROCKETCHAT_USER_ID` und `ROCKETCHAT_TOKEN` setzen. Der Bot muss Mitglied im Channel sein, den die Raum-AG im Admin einträgt.
 
 ## Inhalte pflegen
 
@@ -135,19 +136,22 @@ Inhaltsänderungen brauchen einen neuen Build (ein paar Minuten bis zum neuen Im
 - **Intern buchen:** Buchungen des Hauses, sofort bestätigt. Mit „Vorrang“ werden überschneidende Anfragen storniert und die Betroffenen benachrichtigt (Notiz Pflicht).
 - **Sperrzeiten:** einmalig oder wiederkehrend (z. B. Nachtruhe täglich 22–8 Uhr), für einen oder alle Räume.
 - **Räume:** Kapazität, Pufferzeit, Auto-Freigabe, öffentlich buchbar.
+- **Benachrichtigungen:** wohin die Raum-AG Meldungen bekommt – E-Mail-Adresse, Rocket.Chat-Channel oder Matrix-Raum, beliebig viele. Je Ziel wählbar, bei welchen Ereignissen: Anfrage abgeschickt (Kontakt bestätigt), automatisch freigegeben, storniert, Haltefrist abgelaufen, neue Idee, optional auch schon beim ausgefüllten Formular vor der Code-Eingabe (kann Spam sein). Mit „Test senden“ prüfen, ob es ankommt; der letzte Fehler steht beim Ziel. Hier steht nur das Ziel – Zugangsdaten kommen aus den Umgebungsvariablen. Meldungen enthalten keine Kontaktdaten der buchenden Person, nur einen Link in den Admin-Bereich.
 - **Statistik & Export:** Nutzungsstunden pro Raum und Art, CSV- und iCal-Export.
 - **Protokoll:** wer hat wann was gemacht.
 
 ## Buchungsablauf
 
 1. Raum wählen → 2. Zeit wählen (Tageszeitleiste, optional Serie) → 3. Angaben → 4. Bestätigungsweg (E-Mail oder Matrix) → Code eingeben oder Link klicken.
-2. Erst dann blockiert die Anfrage den Raum (**vorläufig**, bis zur Haltefrist). Die Raum-AG bekommt eine Meldung im Matrix-Raum.
+2. Erst dann blockiert die Anfrage den Raum (**vorläufig**, bis zur Haltefrist). Die Raum-AG bekommt eine Meldung über die im Admin eingestellten Kanäle.
 3. Die Raum-AG nimmt an (**bestätigt**, Mail/Nachricht mit `.ics`, Zugangsinfos und Verwaltungslink) oder lehnt ab. Läuft die Haltefrist ab, wird die Anfrage **abgelaufen** und die Person bekommt Bescheid.
 4. Über den Verwaltungslink `/b/<token>` kann die Person stornieren.
 
 Doppelbuchungen verhindert eine SQLite-Transaktion (`BEGIN IMMEDIATE`) beim Absenden und noch einmal bei der Bestätigung. Pufferzeiten zählen bei der Prüfung mit, „Saal + Küche“ belegt beide Räume, Sperrzeiten gelten für alle betroffenen Räume. Serien werden nie automatisch freigegeben; belegte Einzeltermine einer Serie werden übersprungen und der Raum-AG angezeigt.
 
 **Spamschutz ohne Captcha:** Honeypot-Feld, Mindestzeit zum Ausfüllen (signierter Zeitstempel), Rate-Limit pro IP und pro Kontakt, und die Raum-AG sieht nur Anfragen mit bestätigtem Kontakt.
+
+**E-Mail-Adresse geschützt:** `hallo@treibhausdonaufeld.at` steht im HTML nie im Klartext. Die Komponente `src/components/Email.astro` (und für Markdown das Sätteri-Plugin in `src/lib/email-obfuscate.mjs`) gibt sie kodiert aus, `public/js/email.js` macht daraus den `mailto:`-Link. Ohne JavaScript steht lesbar „hallo (at) treibhausdonaufeld.at“ da. In Markdown einfach normal schreiben (`[hallo@…](mailto:hallo@…?subject=WG)` oder die nackte Adresse) – der Schutz passiert beim Build. Das hält einfache Adress-Sammler ab, nicht aber solche, die JavaScript ausführen; gegen Spam hilft vor allem der Filter des Mailservers.
 
 **Datenschutz:** Codes, Links und Kontakt-Hashes werden nur als HMAC gespeichert. Unbestätigte Anfragen werden nach 24 Stunden gelöscht, Name, Kontakt und (nicht öffentlicher) Zweck X Monate nach dem Termin (`RETENTION_MONTHS`). Raum, Zeit, Art und Personenzahl bleiben für die Statistik. Keine Tracker, keine fremden Ressourcen (Kumbh Sans liegt im Projekt).
 
@@ -192,4 +196,5 @@ Doppelbuchungen verhindert eine SQLite-Transaktion (`BEGIN IMMEDIATE`) beim Abse
 - **Verwaltungslink** wird aus dem Server-Geheimnis abgeleitet (in der Datenbank steht nur ein Hash), damit jede Nachricht ihn enthalten kann.
 - **Karte:** vorerst eine Skizze (`public/images/karte.svg`), der OpenStreetMap-Ausschnitt ist noch offen.
 - **Englisch:** Start, Räume, Buchung (Erklärung, Formular auf Deutsch) und Kontakt unter `/en/`.
+- **Meldungen an die Raum-AG** gehen an Ziele, die im Admin eingestellt werden (E-Mail, Rocket.Chat, Matrix), statt an einen festen Raum aus `MATRIX_ADMIN_ROOM`. Neu dazu: Rocket.Chat (`ROCKETCHAT_*`).
 - **Container-Plattform:** nur `linux/amd64`. Für ARM-Server im Workflow `platforms` erweitern.

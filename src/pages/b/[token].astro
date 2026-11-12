@@ -1,4 +1,5 @@
 ---
+import Email from '../../components/Email.astro';
 export const prerender = false;
 import Base from '../../layouts/Base.astro';
 import Shell from '../../components/booking/Shell.astro';
@@ -37,7 +38,7 @@ const first = view?.occurrences[0];
       <>
         <h1>Buchung nicht gefunden</h1>
         <p>Der Link stimmt nicht oder die Daten wurden nach Ablauf der Löschfrist entfernt.</p>
-        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a></p>
+        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
       </>
     ) : cancelled ? (
       <>
@@ -83,7 +84,7 @@ const first = view?.occurrences[0];
           <details><summary>Alle {view.occurrences.length} Termine</summary><ul>{view.occurrences.map((o) => <li>{fmt.short(o.start)} · {fmt.range(o.start, o.end)}</li>)}</ul></details>
         )}
         {active && booking!.contactChannel !== 'intern' && <p style="margin-top:24px"><a class="btn big ghost" href={`/b/${token}?storno=1`}>{booking!.status === 'vorlaeufig' ? 'Anfrage zurückziehen' : 'Buchung stornieren'}</a></p>}
-        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <a href="mailto:hallo@treibhausdonaufeld.at">hallo@treibhausdonaufeld.at</a></p>
+        <p class="small muted">Fragen? Matrix <a href="https://matrix.to/#/%23hallo:treibhausdonaufeld.at">#hallo</a> oder <Email /></p>
       </>
     )}
   </Shell>

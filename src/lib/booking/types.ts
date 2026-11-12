@@ -111,6 +111,27 @@ export class ConflictError extends BookingError {
   }
 }
 
+/** Ereignisse, zu denen die Raum-AG benachrichtigt werden kann. */
+export const ADMIN_EVENTS = {
+  abgeschickt: { label: 'Formular ausgefüllt, Code noch nicht eingegeben', hint: 'kann Spam sein', default: false },
+  anfrage: { label: 'Neue Anfrage abgeschickt (Kontakt bestätigt, wartet auf Freigabe)', hint: '', default: true },
+  auto: { label: 'Anfrage automatisch freigegeben', hint: '', default: true },
+  storno: { label: 'Buchung von der buchenden Person storniert', hint: '', default: true },
+  abgelaufen: { label: 'Haltefrist abgelaufen, ohne Entscheidung', hint: '', default: true },
+  idee: { label: 'Neue Idee über „Selbst etwas anbieten“', hint: '', default: true },
+} as const;
+export type AdminEvent = keyof typeof ADMIN_EVENTS;
+export const ADMIN_EVENT_KEYS = Object.keys(ADMIN_EVENTS) as AdminEvent[];
+
+export interface AdminMessage {
+  /** Kurzer Titel, z. B. „Neue Anfrage: Viertelsaal, Do 19. Nov“ */
+  title: string;
+  /** Ein, zwei Zeilen Details (Klartext) */
+  text: string;
+  /** Link in den Admin-Bereich */
+  url?: string;
+}
+
 /** Was die Benachrichtigungen (Mail, Matrix) können müssen. Die Buchungslogik kennt nur dieses Interface. */
 export interface Notifier {
   /** Code + Link zur Bestätigung des Kontakts. Wirft BookingError('matrix-unreachable'), wenn die Matrix-ID nicht erreichbar ist. */
@@ -120,6 +141,6 @@ export interface Notifier {
   rejected(view: BookingView, note: string | null): Promise<void>;
   expired(view: BookingView, reason: 'hold' | 'conflict'): Promise<void>;
   cancelled(view: BookingView, byHouse: boolean, note: string | null): Promise<void>;
-  /** Meldung an die Raum-AG (interner Matrix-Raum, optional Mail). */
-  admin(text: string, html?: string): Promise<void>;
+  /** Meldung an die Raum-AG – an alle im Admin eingestellten Ziele, die dieses Ereignis abonniert haben. */
+  admin(event: AdminEvent, msg: AdminMessage): Promise<void>;
 }

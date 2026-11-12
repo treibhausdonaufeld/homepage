@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import { getDb } from '../lib/db';
 import { mailHealth } from '../lib/notify/mail';
 import { getMatrixBot } from '../lib/notify/matrix';
+import { rocketchatEnabled } from '../lib/notify/rocketchat';
 
 export const prerender = false;
 
@@ -17,8 +18,9 @@ export const GET: APIRoute = async () => {
   const mail = await mailHealth();
   const bot = getMatrixBot();
   const matrix = bot ? { configured: true, ok: bot.connected, userId: bot.userId, error: bot.lastError ?? undefined } : { configured: false, ok: true };
+  const rocketchat = { configured: rocketchatEnabled() };
   const ok = db.ok;
-  return new Response(JSON.stringify({ ok, db, mail, matrix }), {
+  return new Response(JSON.stringify({ ok, db, mail, matrix, rocketchat }), {
     status: ok ? 200 : 503,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
