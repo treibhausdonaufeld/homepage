@@ -335,4 +335,25 @@ export function getMatrixBot(): MatrixBot | null {
   return g.__matrixBot;
 }
 
+const h = globalThis as unknown as { __halloBot?: MatrixBot | null };
+
+/**
+ * Bot für den Website-Chat: eigenes Konto, wenn MATRIX_HALLO_TOKEN gesetzt ist,
+ * sonst derselbe Bot wie für Codes und Meldungen.
+ */
+export function getHalloBot(): MatrixBot | null {
+  if (!config.matrix.halloToken) return getMatrixBot();
+  if (h.__halloBot === undefined) {
+    const stateFile =
+      config.matrix.halloStateFile || config.matrix.stateFile.replace(/(\.json)?$/, '-hallo.json');
+    h.__halloBot = config.matrix.homeserver ? new MatrixBot(config.matrix.homeserver, config.matrix.halloToken, stateFile) : null;
+  }
+  return h.__halloBot;
+}
+
+/** Läuft der Website-Chat über ein eigenes Konto (und muss eigens gestartet werden)? */
+export function halloBotIsSeparate(): boolean {
+  return !!config.matrix.halloToken && getHalloBot() !== getMatrixBot();
+}
+
 export const MATRIX_ID_RE = /^@[a-z0-9._=\-/+]+:[a-z0-9.\-]+(:\d+)?$/i;

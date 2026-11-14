@@ -95,6 +95,7 @@ Alle Werte über Umgebungsvariablen, Vorlage in [`.env.example`](.env.example), 
 | `HMAC_SECRET`, `SESSION_SECRET` | Geheimnisse für Codes/Links und Admin-Sessions (Pflicht, `openssl rand -base64 32`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Mailversand über das SMTP des Hauses |
 | `MATRIX_HOMESERVER`, `MATRIX_BOT_TOKEN` | Bot-Konto `@raeume:treibhausdonaufeld.at` |
+| `MATRIX_HALLO_TOKEN` | Eigenes Konto für den Website-Chat (z. B. `@website:treibhausdonaufeld.at`); leer = Chat über `MATRIX_BOT_TOKEN` |
 | `MATRIX_HALLO_ROOM`, `HALLO_CHAT`, `HALLO_CHAT_RETENTION_DAYS` | Raum für den Website-Chat „Sag hallo“ (Standard `#hallo:treibhausdonaufeld.at`), Chat an/aus (Standard an), Löschfrist in Tagen (Standard 30) |
 | `ROCKETCHAT_URL`, `ROCKETCHAT_USER_ID`, `ROCKETCHAT_TOKEN` | Rocket.Chat-Bot für Meldungen an die Raum-AG (Channel wird im Admin eingestellt) |
 | `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_ADMIN_GROUP` | Login der Raum-AG über Authentik |
@@ -144,10 +145,10 @@ Inhaltsänderungen brauchen einen neuen Build (ein paar Minuten bis zum neuen Im
 
 ## Chat „Sag hallo“ auf der Website
 
-Gäste können ohne Matrix-Konto direkt auf der Website schreiben (Abschnitt „Sag hallo“ auf Start- und Kontaktseite). Der Matrix-Bot (`MATRIX_HOMESERVER`, `MATRIX_BOT_TOKEN`) postet die erste Nachricht eines Gesprächs als neuen Beitrag in `MATRIX_HALLO_ROOM` (Standard `#hallo:treibhausdonaufeld.at`), jede weitere im **Thread** darunter. Wer im Thread antwortet (oder direkt auf eine Gast-Nachricht antwortet), dessen Antwort erscheint beim Gast auf der Website, mit Anzeigenamen. Auf dem Homeserver entstehen keine Gastkonten.
+Gäste können ohne Matrix-Konto direkt auf der Website schreiben (Abschnitt „Sag hallo“ auf Start- und Kontaktseite). Der Matrix-Bot – ein eigenes Konto über `MATRIX_HALLO_TOKEN` (empfohlen, z. B. `@website:treibhausdonaufeld.at`), sonst der Buchungs-Bot über `MATRIX_BOT_TOKEN` – postet die erste Nachricht eines Gesprächs als neuen Beitrag in `MATRIX_HALLO_ROOM` (Standard `#hallo:treibhausdonaufeld.at`), jede weitere im **Thread** darunter. Wer im Thread antwortet (oder direkt auf eine Gast-Nachricht antwortet), dessen Antwort erscheint beim Gast auf der Website, mit Anzeigenamen. Auf dem Homeserver entstehen keine Gastkonten.
 
 Einrichten:
-1. Den Bot in `#hallo` einladen (bei öffentlichen Räumen tritt er selbst bei). Er braucht Schreibrecht, keine Admin-Rechte.
+1. Das Chat-Konto (`MATRIX_HALLO_TOKEN`) in `#hallo` einladen (bei öffentlichen Räumen tritt er selbst bei). Er braucht Schreibrecht, keine Admin-Rechte.
 2. `#hallo` darf **nicht verschlüsselt** sein – der Bot kann keine Ende-zu-Ende-Verschlüsselung.
 3. Fertig: Die Chat-Box erscheint, sobald der Bot verbunden und im Raum ist; sonst bleibt der Matrix-Knopf wie bisher.
 

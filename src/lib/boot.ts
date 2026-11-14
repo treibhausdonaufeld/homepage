@@ -56,10 +56,11 @@ async function boot() {
       }
     });
     await refreshMatrixRooms().catch((err) => log.warn('Matrix-Räume für Benachrichtigungen nicht erreichbar', { err }));
-    await startHallo();
   } else {
     log.info('Matrix-Bot nicht konfiguriert (MATRIX_HOMESERVER/MATRIX_BOT_TOKEN)');
   }
+  // Website-Chat: eigenes Konto (MATRIX_HALLO_TOKEN) oder derselbe Bot
+  await startHallo();
   startJobs(db, notifier);
   log.info('Treibhaus-Dienste gestartet', { publicUrl: config.publicUrl });
 }
