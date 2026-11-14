@@ -25,6 +25,15 @@ interface BotState {
 }
 
 type CodeHandler = (sender: string, code: string, roomId: string) => Promise<string | null>;
+/** Nachricht in einem beobachteten Raum (nicht vom Bot selbst). */
+export type RoomMessageHandler = (roomId: string, event: MatrixEvent) => Promise<void> | void;
+export interface MatrixEvent {
+  event_id: string;
+  sender: string;
+  type: string;
+  origin_server_ts?: number;
+  content: Record<string, any>;
+}
 
 export class MatrixBot {
   userId: string | null = null;
@@ -37,6 +46,9 @@ export class MatrixBot {
   private aliasCache = new Map<string, string>();
   private joined = new Set<string>();
   private onCode: CodeHandler | null = null;
+  /** Beobachtete Räume (z. B. #hallo für den Website-Chat); Einladungen dorthin nimmt der Bot an. */
+  private listeners = new Map<string, RoomMessageHandler>();
+  private displayNames = new Map<string, { name: string; at: number }>();
 
   constructor(
     private homeserver: string,
@@ -167,9 +179,9 @@ export class MatrixBot {
   }
 
   private async handleSync(res: any) {
-    // Einladungen nur in den Raum-AG-Raum annehmen
+    // Einladungen nur in den Raum-AG-Raum und beobachtete Räume annehmen
     for (const roomId of Object.keys(res.rooms?.invite ?? {})) {
-      if (this.notifyRooms.has(roomId)) {
+      if (this.notifyRooms.has(roomId) || this.listeners.has(roomId)) {
         await this.req('POST', `/join/${encodeURIComponent(roomId)}`, {})
           .then(() => this.joined.add(roomId))
           .catch(() => undefined);
@@ -177,6 +189,18 @@ export class MatrixBot {
     }
     const dmRooms = new Set(Object.values(this.state.dms));
     for (const [roomId, room] of Object.entries<any>(res.rooms?.join ?? {})) {
+      const listener = this.listeners.get(roomId);
+      if (listener) {
+        for (const ev of room.timeline?.events ?? []) {
+          if (ev.type !== 'm.room.message' || ev.sender === this.userId) continue;
+          try {
+            await listener(roomId, ev);
+          } catch (err) {
+            log.error('Matrix-Nachricht konnte nicht verarbeitet werden', { roomId, err });
+          }
+        }
+        continue;
+      }
       if (!dmRooms.has(roomId)) continue;
       for (const ev of room.timeline?.events ?? []) {
         if (ev.type !== 'm.room.message' || ev.sender === this.userId) continue;
@@ -234,13 +258,56 @@ export class MatrixBot {
     return room.room_id;
   }
 
-  async send(roomId: string, text: string, html?: string, notice = false) {
+  /** Nachricht senden; `extra` z. B. für `m.relates_to` (Thread). Gibt die Event-ID zurück. */
+  async send(roomId: string, text: string, html?: string, notice = false, extra: Record<string, unknown> = {}): Promise<string> {
     const txn = crypto.randomUUID();
-    await this.req('PUT', `/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${txn}`, {
+    const res = await this.req<{ event_id: string }>('PUT', `/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${txn}`, {
       msgtype: notice ? 'm.notice' : 'm.text',
       body: text,
       ...(html ? { format: 'org.matrix.custom.html', formatted_body: html } : {}),
+      ...extra,
     });
+    return res.event_id;
+  }
+
+  /** Raum beobachten: auflösen, beitreten (öffentlicher Raum oder nach Einladung) und Nachrichten weitergeben. */
+  async watchRoom(room: string, handler: RoomMessageHandler): Promise<string> {
+    const roomId = await this.resolveRoom(room);
+    this.listeners.set(roomId, handler);
+    // Nicht öffentlich? Dann klappt der Beitritt erst nach einer Einladung (siehe handleSync).
+    await this.ensureJoined(roomId).catch((err) =>
+      log.warn('Matrix-Bot kann dem Raum noch nicht beitreten – bitte einladen', { room, err }),
+    );
+    return roomId;
+  }
+
+  isJoined(roomId: string): boolean {
+    return this.joined.has(roomId);
+  }
+
+  /** Raum-ID eines Alias und ob der Bot dort Mitglied ist. */
+  async joinedRoom(room: string): Promise<string> {
+    const roomId = await this.resolveRoom(room);
+    await this.ensureJoined(roomId);
+    return roomId;
+  }
+
+  /** Anzeigename eines Mitglieds (1 h zwischengespeichert), sonst der lokale Teil der Matrix-ID. */
+  async displayName(roomId: string, userId: string): Promise<string> {
+    const hit = this.displayNames.get(userId);
+    if (hit && Date.now() - hit.at < 3_600_000) return hit.name;
+    let name = userId.replace(/^@/, '').split(':')[0];
+    try {
+      const m = await this.req<{ displayname?: string }>(
+        'GET',
+        `/rooms/${encodeURIComponent(roomId)}/state/m.room.member/${encodeURIComponent(userId)}`,
+      );
+      if (m.displayname) name = m.displayname;
+    } catch {
+      // Name bleibt der lokale Teil
+    }
+    this.displayNames.set(userId, { name, at: Date.now() });
+    return name;
   }
 
   async sendToUser(userId: string, text: string, html?: string) {

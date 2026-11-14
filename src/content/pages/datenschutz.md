@@ -30,6 +30,10 @@ Wenn du „Offen für alle“ wählst, zeigen wir den Titel deiner Veranstaltung
 
 E-Mails verschicken wir über den Mailserver des Hauses. Für Matrix-Nachrichten nutzen wir unseren eigenen Matrix-Server (treibhausdonaufeld.at). Je nachdem, wo dein Matrix-Konto liegt, wird die Nachricht auch über deinen Server zugestellt.
 
+## Chat „Sag hallo“ auf der Website
+
+Wenn du im Chat auf der Website schreibst, schickt unser Matrix-Bot deine Nachricht (und den Namen, falls du einen angibst) in den offenen Matrix-Raum #hallo:treibhausdonaufeld.at. Alle, die in diesem Raum sind, können sie lesen. Damit du Antworten siehst, speichern wir deine Nachrichten und die Antworten darauf auf unserem Server und setzen ein Cookie mit einer zufälligen Kennung (kein Tracking, nur für diesen Chat). Das Gespräch wird 30 Tage nach der letzten Nachricht gelöscht; im Matrix-Raum bleibt es stehen, bis jemand aus dem Haus es löscht. Zum Schutz vor Missbrauch zählen wir kurzzeitig, wie viele Nachrichten von deiner IP-Adresse kommen (gespeichert nur als Prüfsumme, nach zwei Tagen gelöscht).
+
 ## Newsletter
 
 Wenn du den Newsletter abonnierst, speichern wir deine E-Mail-Adresse in unserem eigenen Newsletter-System (listmonk). Du bekommst zuerst eine Mail zur Bestätigung. Abmelden geht jederzeit über den Link in jeder Mail.

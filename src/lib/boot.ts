@@ -8,6 +8,7 @@ import { getNotifier, refreshMatrixRooms } from './notify';
 import { getMatrixBot } from './notify/matrix';
 import { verifyFromMatrix } from './booking/service';
 import { startJobs } from '../jobs';
+import { startHallo } from './hallo/runtime';
 import { log } from './log';
 
 const g = globalThis as unknown as { __booted?: Promise<void> };
@@ -55,6 +56,7 @@ async function boot() {
       }
     });
     await refreshMatrixRooms().catch((err) => log.warn('Matrix-Räume für Benachrichtigungen nicht erreichbar', { err }));
+    await startHallo();
   } else {
     log.info('Matrix-Bot nicht konfiguriert (MATRIX_HOMESERVER/MATRIX_BOT_TOKEN)');
   }

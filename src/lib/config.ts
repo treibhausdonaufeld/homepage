@@ -39,6 +39,13 @@ export const config = {
   contactEmail: env('CONTACT_EMAIL', 'hallo@treibhausdonaufeld.at'),
   matrixHalloRoom: env('MATRIX_HALLO_ROOM', '#hallo:treibhausdonaufeld.at'),
 
+  /** Chat-Box „Sag hallo“ auf der Website (braucht den Matrix-Bot, der in MATRIX_HALLO_ROOM postet). */
+  halloChat: {
+    enabled: bool('HALLO_CHAT', true),
+    /** Gespräche werden so viele Tage nach der letzten Nachricht gelöscht. */
+    retentionDays: num('HALLO_CHAT_RETENTION_DAYS', 30),
+  },
+
   smtp: {
     host: env('SMTP_HOST'),
     port: num('SMTP_PORT', 587),
