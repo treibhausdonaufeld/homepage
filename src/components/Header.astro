@@ -6,30 +6,78 @@ const { lang = 'de' } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const L = t[lang];
 ---
-<header class="site-header">
+<header class="site-header" data-menu>
   <div class="wrap bar">
     <Logo href={lang === 'en' ? '/en/' : '/'} />
-    <nav aria-label={L.menu}>
-      <ul>
-        {nav[lang].map((n) => (
-          <li><a href={n.href} aria-current={path === n.href.replace(/\/$/, '') || (n.href !== '/en/' && path.startsWith(n.href + '/')) ? 'page' : undefined}>{n.label}</a></li>
-        ))}
-      </ul>
-    </nav>
-    <a class="btn" href={L.bookHref}>{L.book}</a>
+    <!-- Auf dem Handy: nur Logo und Menü-Knopf. Ohne JavaScript bleibt das Menü einfach offen. -->
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="site-menu" data-menu-btn>
+      <span class="burger" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>{L.menuButton}</span>
+    </button>
+    <div class="menu" id="site-menu">
+      <nav aria-label={L.menu}>
+        <ul>
+          {nav[lang].map((n) => (
+            <li><a href={n.href} aria-current={path === n.href.replace(/\/$/, '') || (n.href !== '/en/' && path.startsWith(n.href + '/')) ? 'page' : undefined}>{n.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+      <a class="btn" href={L.bookHref}>{L.book}</a>
+    </div>
   </div>
 </header>
+<script>
+  // Menü-Knopf fürs Handy. Die Klasse `js` am <html> setzt schon das Inline-Skript in Base.astro,
+  // damit das Menü beim Laden nicht erst offen erscheint und dann zuklappt.
+  const header = document.querySelector<HTMLElement>('[data-menu]');
+  const btn = header?.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  if (header && btn) {
+    const set = (open: boolean) => {
+      btn.setAttribute('aria-expanded', String(open));
+      header.toggleAttribute('data-open', open);
+    };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.hasAttribute('data-open')) { set(false); btn.focus(); }
+    });
+    // Beim Wechsel auf Desktop-Breite den Zustand zurücksetzen.
+    matchMedia('(min-width: 861px)').addEventListener('change', (e) => { if (e.matches) set(false); });
+  }
+</script>
 <style>
   .site-header { border-bottom: 1px solid var(--line); background: var(--bg); }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 40px; padding-top: 18px; padding-bottom: 18px; }
   .bar > :global(:first-child) { margin-right: auto; }
+  .menu { display: flex; align-items: center; gap: 12px 40px; }
   nav ul { display: flex; flex-wrap: wrap; gap: 0 28px; list-style: none; margin: 0; padding: 0; font-weight: 600; font-size: 16px; }
   nav a { color: var(--ink); text-decoration: none; padding: 10px 0; display: inline-block; }
   nav a:hover, nav a[aria-current='page'] { color: var(--primary); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 8px; }
+
+  .menu-btn { display: none; align-items: center; gap: 10px; font: inherit; font-weight: 700; font-size: 16px; color: var(--ink); background: none; border: 2px solid var(--line-strong); border-radius: 6px; padding: 9px 14px; cursor: pointer; }
+  .menu-btn:hover { border-color: var(--ink); }
+  .burger { display: inline-flex; flex-direction: column; gap: 4px; width: 20px; }
+  .burger i { display: block; height: 2px; background: currentColor; border-radius: 1px; transition: transform 0.2s, opacity 0.2s; }
+  [data-open] .burger i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  [data-open] .burger i:nth-child(2) { opacity: 0; }
+  [data-open] .burger i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
   @media (max-width: 860px) {
-    .bar { gap: 8px 16px; }
-    nav { order: 3; width: 100%; overflow-x: auto; }
-    nav ul { flex-wrap: nowrap; gap: 0 20px; white-space: nowrap; }
+    .bar { gap: 12px 16px; padding-top: 14px; padding-bottom: 14px; }
     .bar :global(.logo img) { height: 44px !important; }
+    /* Ohne JavaScript: Menü unter dem Logo, Einträge umbrechen statt abschneiden. */
+    .menu { width: 100%; flex-direction: column; align-items: stretch; gap: 16px; }
+    nav ul { flex-direction: column; gap: 0; font-size: 18px; }
+    nav li { border-bottom: 1px solid var(--line); }
+    nav li:first-child { border-top: 1px solid var(--line); }
+    nav a { display: block; padding: 14px 0; }
+    nav a:hover, nav a[aria-current='page'] { text-underline-offset: 6px; }
+    .menu .btn { align-self: flex-start; margin-bottom: 8px; }
+    /* Mit JavaScript: zugeklappt, bis der Knopf gedrückt wird. */
+    :global(.js) .menu-btn { display: inline-flex; }
+    :global(.js) .menu { display: none; }
+    :global(.js) [data-open] .menu { display: flex; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .burger i { transition: none; }
   }
 </style>
