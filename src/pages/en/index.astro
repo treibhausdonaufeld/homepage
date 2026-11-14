@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import HouseSection from '../../components/HouseSection.astro';
+import Photo from '../../components/Photo.astro';
 import SagHallo from '../../components/SagHallo.astro';
 ---
 <Base title="Treibhaus Donaufeld – a house with an open door" lang="en" alternate="/" description="Two rooms for the whole neighbourhood in Donaufeld, Vienna: open offers and room booking without an account.">
@@ -11,7 +11,7 @@ import SagHallo from '../../components/SagHallo.astro';
       <p class="lead">On the ground floor of the Treibhaus there are two rooms for the whole neighbourhood: the Viertelsaal (hall) and the Viertelküche (kitchen). Neighbours meet here, cook, celebrate and plan new things.</p>
       <p class="row"><a class="go" href="/termine">What’s on (German) →</a> <a class="go" href="/en/booking">Book a room →</a> <a class="go" href="/en/contact">Say hello →</a></p>
     </div>
-    <HouseSection />
+    <div class="house-photo"><Photo alt="The Treibhaus from outside, Simone-Veil-Gasse 7" ratio="4/5" /></div>
   </section>
   <div class="wrap"><p class="notice"><strong>Every Saturday, 1:30–4:30 pm:</strong> open neighbourhood café in the Viertelküche. No registration – just come by.</p></div>
   <section class="wrap section grid-2">
@@ -28,4 +28,5 @@ import SagHallo from '../../components/SagHallo.astro';
   </section>
   <SagHallo lang="en" />
 </Base>
-<style>.hero { display: grid; gap: 48px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); align-items: end; }</style>
+<style>.hero { display: grid; gap: 48px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); align-items: end; }
+.house-photo { max-width: 480px; }</style>

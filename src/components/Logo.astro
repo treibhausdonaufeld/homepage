@@ -1,11 +1,16 @@
 ---
+// Logos über Vite importieren: Dateiname mit Hash unter /_astro/, dort lange gecacht (Caddyfile).
+// Aus /public kamen sie ohne Cache-Header und fehlten beim Seitenwechsel kurz.
+import logoLight from '../assets/logo/logo-gruen.png';
+import logoDark from '../assets/logo/logo-hell-dunkelmodus.png';
+
 interface Props { height?: number; href?: string; label?: string }
 const { height = 54, href = '/', label = 'treibhaus donaufeld – zur Startseite' } = Astro.props;
 const w = Math.round((height * 1562) / 569);
 ---
 <a href={href} class="logo">
-  <img class="lg-l" src="/logo/logo-gruen.png" alt={label} width={w} height={height} style={`height:${height}px;width:auto`} />
-  <img class="lg-d" src="/logo/logo-hell-dunkelmodus.png" alt={label} width={w} height={height} style={`height:${height}px;width:auto`} />
+  <img class="lg-l" src={logoLight.src} alt={label} width={w} height={height} decoding="sync" style={`height:${height}px;width:auto`} />
+  <img class="lg-d" src={logoDark.src} alt={label} width={w} height={height} decoding="sync" style={`height:${height}px;width:auto`} />
 </a>
 <style>
   .logo { display: block; line-height: 0; }
