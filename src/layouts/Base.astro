@@ -23,6 +23,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Hintergrund sofort setzen, bevor das Stylesheet geladen ist: verhindert weißes Aufblitzen beim Seitenwechsel (v. a. im Dunkelmodus). -->
+    <style is:inline>
+      html { background: #faf8f3; color-scheme: light; }
+      html[data-theme='dark'] { background: #151410; color-scheme: dark; }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme='light']) { background: #151410; color-scheme: dark; }
+      }
+    </style>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

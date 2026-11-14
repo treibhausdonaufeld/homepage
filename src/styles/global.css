@@ -10,6 +10,23 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Weiche Überblendung beim Seitenwechsel (Cross-Document View Transitions,
+   Chromium und Safari; andere Browser wechseln wie bisher ohne Animation). */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
 body {
   margin: 0;
   font-family: 'Kumbh Sans Variable', 'Kumbh Sans', system-ui, sans-serif;
