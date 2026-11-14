@@ -15,8 +15,8 @@ export async function seed(db: DB, notifier: Notifier) {
   if (!hasRooms) {
     db.insert(rooms)
       .values([
-        { slug: 'viertelsaal', name: 'Viertelsaal', capacity: 60, bufferMinutes: 30, sortOrder: 1 },
-        { slug: 'viertelkueche', name: 'Viertelküche', capacity: 15, bufferMinutes: 30, sortOrder: 2 },
+        { slug: 'viertelsaal', name: 'Viertelsaal', capacity: 60, bufferMinutes: 30, sortOrder: 1, locationKeywords: ['viertelsaal'] },
+        { slug: 'viertelkueche', name: 'Viertelküche', capacity: 15, bufferMinutes: 30, sortOrder: 2, locationKeywords: ['viertelküche'] },
         {
           slug: 'saal-kueche',
           name: 'Saal + Küche',
@@ -25,6 +25,8 @@ export async function seed(db: DB, notifier: Notifier) {
           combines: ['viertelsaal', 'viertelkueche'],
           sortOrder: 3,
         },
+        // Nicht öffentlich buchbar; wird über Termine aus abonnierten Kalendern gesperrt.
+        { slug: 'werkstatt', name: 'Werkstatt', capacity: 10, bufferMinutes: 0, bookable: false, sortOrder: 4, locationKeywords: ['werkstatt'] },
       ])
       .run();
     log.info('Seed: Räume angelegt');

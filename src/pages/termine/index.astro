@@ -92,8 +92,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
               <ul>
                 {list.map((e) => (
                   <li>
-                    <span class="time">{fmt.range(e.start, e.end)}</span>
-                    <span class="title">{e.offer ? <a href={`/angebote/${e.offer}`}>{e.title}</a> : e.title} · <span class="muted">{e.roomName}</span></span>
+                    <span class="time">{e.allDay ? 'ganztägig' : fmt.range(e.start, e.end)}</span>
+                    <span class="title">{e.offer ? <a href={`/angebote/${e.offer}`}>{e.title}</a> : e.title}{e.roomName && <> · <span class="muted">{e.roomName}</span></>}</span>
                     <a class="small" href={`/termine/${e.key}.ics`}>In meinen Kalender</a>
                   </li>
                 ))}
@@ -120,7 +120,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
                     <td class={d.slice(0, 7) !== monthParam ? 'out' : d === today() ? 'today' : ''}>
                       <span class="dn">{localParts(dayStart(d)).day}</span>
                       {(byDay.get(d) ?? []).map((e) => (
-                        <a class="ev" href={e.offer ? `/angebote/${e.offer}` : `/termine/${e.key}.ics`}>{fmt.time(e.start)} {e.title}</a>
+                        <a class="ev" href={e.offer ? `/angebote/${e.offer}` : `/termine/${e.key}.ics`}>{e.allDay ? '' : `${fmt.time(e.start)} `}{e.title}</a>
                       ))}
                     </td>
                   ))}

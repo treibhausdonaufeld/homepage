@@ -5,6 +5,7 @@ import Admin from '../../layouts/Admin.astro';
 import { getDb } from '../../lib/db';
 import { rooms } from '../../lib/db/schema';
 import { audit, invalidate, listRooms } from '../../lib/booking/service';
+import { parseKeywords } from '../../lib/calendars';
 
 const db = getDb();
 const actor = Astro.locals.admin!.name;
@@ -14,11 +15,12 @@ if (Astro.request.method === 'POST') {
   const slug = String(f.get('slug'));
   const capacity = Math.max(1, Number(f.get('capacity')) || 1);
   const bufferMinutes = Math.max(0, Math.min(240, Number(f.get('buffer')) || 0));
+  const locationKeywords = f.has('stichwoerter') ? parseKeywords(String(f.get('stichwoerter'))) : undefined;
   db.update(rooms)
-    .set({ capacity, bufferMinutes, autoApprove: f.get('auto') === 'ja', bookable: f.get('bookable') === 'ja' })
+    .set({ capacity, bufferMinutes, autoApprove: f.get('auto') === 'ja', bookable: f.get('bookable') === 'ja', ...(locationKeywords !== undefined && { locationKeywords }) })
     .where(eq(rooms.slug, slug))
     .run();
-  audit(db, actor, 'raum-geaendert', null, `${slug}: ${capacity} Pers., ${bufferMinutes} Min. Puffer, auto=${f.get('auto') === 'ja'}`);
+  audit(db, actor, 'raum-geaendert', null, `${slug}: ${capacity} Pers., ${bufferMinutes} Min. Puffer, auto=${f.get('auto') === 'ja'}${locationKeywords !== undefined ? `, Stichwörter=${(locationKeywords ?? []).join('/') || 'Raumname'}` : ''}`);
   invalidate();
   msg = 'Gespeichert. Neue Pufferzeiten gelten für neue Anfragen.';
 }
@@ -36,6 +38,13 @@ const list = listRooms(db);
         {r.combines?.length ? <p class="small muted">Kombiniert: belegt {r.combines.join(' + ')}. Puffer kommt von den einzelnen Räumen.</p> : null}
         <div class="field"><label for={`c-${r.slug}`}>Kapazität (Personen)</label><input id={`c-${r.slug}`} type="number" name="capacity" value={r.capacity} min="1" /></div>
         <div class="field"><label for={`b-${r.slug}`}>Pufferzeit nach jeder Buchung (Min.)</label><input id={`b-${r.slug}`} type="number" name="buffer" value={r.bufferMinutes} min="0" max="240" step="15" /></div>
+        {!r.combines?.length && (
+          <div class="field">
+            <label for={`k-${r.slug}`}>Stichwörter im Kalender-Ort</label>
+            <input id={`k-${r.slug}`} type="text" name="stichwoerter" value={(r.locationKeywords ?? []).join(', ')} placeholder={r.name} aria-describedby={`kh-${r.slug}`} />
+            <p class="small muted" id={`kh-${r.slug}`}>Mit Komma trennen. Kommt eins davon im Ort eines Termins aus einem <a href="/admin/kalender-abos">Kalender-Abo</a> vor, ist der Raum gesperrt. Leer = Raumname.</p>
+          </div>
+        )}
         <label class="check"><input type="checkbox" name="auto" value="ja" checked={r.autoApprove} /> Auto-Freigabe (nie für Serien)</label>
         <label class="check"><input type="checkbox" name="bookable" value="ja" checked={r.bookable} /> Öffentlich buchbar</label>
         <button class="btn small" type="submit" style="margin-top:12px">Speichern</button>

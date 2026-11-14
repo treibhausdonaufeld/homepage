@@ -72,7 +72,8 @@ export interface BookingView {
 
 export interface PublicEvent {
   key: string;
-  bookingId: number;
+  /** null bei Terminen aus abonnierten Kalendern */
+  bookingId: number | null;
   title: string;
   roomSlug: string;
   roomName: string;
@@ -80,6 +81,8 @@ export interface PublicEvent {
   end: Date;
   category: string | null;
   offer: string | null;
+  /** Ganztägiger Termin (nur aus abonnierten Kalendern) */
+  allDay?: boolean;
 }
 
 export class BookingError extends Error {
