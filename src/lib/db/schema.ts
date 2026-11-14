@@ -237,3 +237,43 @@ export const externalEvents = sqliteTable(
 
 export type CalendarSubscription = typeof calendarSubscriptions.$inferSelect;
 export type ExternalEvent = typeof externalEvents.$inferSelect;
+
+/**
+ * Chat „Sag hallo“ auf der Website: Gäste schreiben ohne Konto, der Matrix-Bot postet in #hallo
+ * (erste Nachricht als neuer Beitrag, weitere im Thread). Antworten im Thread gehen zurück an den Gast.
+ */
+export const halloConversations = sqliteTable(
+  'hallo_conversations',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    /** HMAC des Cookie-Tokens */
+    tokenHash: text('token_hash').notNull(),
+    name: text('name'),
+    roomId: text('room_id'),
+    /** Event-ID der ersten Nachricht im Raum = Thread-Wurzel */
+    rootEventId: text('root_event_id'),
+    createdAt: ts('created_at').notNull().default(now),
+    lastActivityAt: ts('last_activity_at').notNull().default(now),
+  },
+  (t) => [uniqueIndex('hallo_conv_token').on(t.tokenHash), index('hallo_conv_root').on(t.rootEventId)],
+);
+
+export const halloMessages = sqliteTable(
+  'hallo_messages',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    conversationId: integer('conversation_id')
+      .notNull()
+      .references(() => halloConversations.id, { onDelete: 'cascade' }),
+    /** gast = von der Website, team = Antwort aus Matrix */
+    direction: text('direction', { enum: ['gast', 'team'] }).notNull(),
+    author: text('author'),
+    body: text('body').notNull(),
+    eventId: text('event_id'),
+    createdAt: ts('created_at').notNull().default(now),
+  },
+  (t) => [uniqueIndex('hallo_msg_event').on(t.eventId), index('hallo_msg_conv').on(t.conversationId, t.id)],
+);
+
+export type HalloConversation = typeof halloConversations.$inferSelect;
+export type HalloMessage = typeof halloMessages.$inferSelect;

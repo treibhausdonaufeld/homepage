@@ -6,6 +6,7 @@ import { config } from '../lib/config';
 import type { DB } from '../lib/db';
 import { anonymize, deleteUnconfirmed, expireHolds, invalidate } from '../lib/booking/service';
 import { syncAll } from '../lib/calendars';
+import { cleanupHallo } from '../lib/hallo';
 import type { Notifier } from '../lib/booking/types';
 import { cleanupRateLimits } from '../lib/verify/ratelimit';
 import { log } from '../lib/log';
@@ -55,6 +56,8 @@ export function startJobs(db: DB, notifier: Notifier): Cron[] {
     new Cron('7 * * * *', { ...opts, name: 'aufraeumen' }, () => {
       const n = deleteUnconfirmed(db);
       cleanupRateLimits(db);
+      const h = cleanupHallo(db);
+      if (h) log.info('Alte Website-Chats gelöscht', { count: h });
       if (n) log.info('Unbestätigte Anfragen gelöscht', { count: n });
     }),
     // Löschfrist: nächtlich

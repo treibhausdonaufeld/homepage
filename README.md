@@ -95,6 +95,7 @@ Alle Werte über Umgebungsvariablen, Vorlage in [`.env.example`](.env.example), 
 | `HMAC_SECRET`, `SESSION_SECRET` | Geheimnisse für Codes/Links und Admin-Sessions (Pflicht, `openssl rand -base64 32`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Mailversand über das SMTP des Hauses |
 | `MATRIX_HOMESERVER`, `MATRIX_BOT_TOKEN` | Bot-Konto `@raeume:treibhausdonaufeld.at` |
+| `MATRIX_HALLO_ROOM`, `HALLO_CHAT`, `HALLO_CHAT_RETENTION_DAYS` | Raum für den Website-Chat „Sag hallo“ (Standard `#hallo:treibhausdonaufeld.at`), Chat an/aus (Standard an), Löschfrist in Tagen (Standard 30) |
 | `ROCKETCHAT_URL`, `ROCKETCHAT_USER_ID`, `ROCKETCHAT_TOKEN` | Rocket.Chat-Bot für Meldungen an die Raum-AG (Channel wird im Admin eingestellt) |
 | `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_ADMIN_GROUP` | Login der Raum-AG über Authentik |
 | `DEV_ADMIN_LOGIN` | Admin-Login ohne Authentik – nur lokal! In Produktion `false` |
@@ -140,6 +141,17 @@ Inhaltsänderungen brauchen einen neuen Build (ein paar Minuten bis zum neuen Im
 - **Benachrichtigungen:** wohin die Raum-AG Meldungen bekommt – E-Mail-Adresse, Rocket.Chat-Channel oder Matrix-Raum, beliebig viele. Je Ziel wählbar, bei welchen Ereignissen: Anfrage abgeschickt (Kontakt bestätigt), automatisch freigegeben, storniert, Haltefrist abgelaufen, neue Idee, optional auch schon beim ausgefüllten Formular vor der Code-Eingabe (kann Spam sein). Mit „Test senden“ prüfen, ob es ankommt; der letzte Fehler steht beim Ziel. Hier steht nur das Ziel – Zugangsdaten kommen aus den Umgebungsvariablen. Meldungen enthalten keine Kontaktdaten der buchenden Person, nur einen Link in den Admin-Bereich.
 - **Statistik & Export:** Nutzungsstunden pro Raum und Art, CSV- und iCal-Export.
 - **Protokoll:** wer hat wann was gemacht.
+
+## Chat „Sag hallo“ auf der Website
+
+Gäste können ohne Matrix-Konto direkt auf der Website schreiben (Abschnitt „Sag hallo“ auf Start- und Kontaktseite). Der Matrix-Bot (`MATRIX_HOMESERVER`, `MATRIX_BOT_TOKEN`) postet die erste Nachricht eines Gesprächs als neuen Beitrag in `MATRIX_HALLO_ROOM` (Standard `#hallo:treibhausdonaufeld.at`), jede weitere im **Thread** darunter. Wer im Thread antwortet (oder direkt auf eine Gast-Nachricht antwortet), dessen Antwort erscheint beim Gast auf der Website, mit Anzeigenamen. Auf dem Homeserver entstehen keine Gastkonten.
+
+Einrichten:
+1. Den Bot in `#hallo` einladen (bei öffentlichen Räumen tritt er selbst bei). Er braucht Schreibrecht, keine Admin-Rechte.
+2. `#hallo` darf **nicht verschlüsselt** sein – der Bot kann keine Ende-zu-Ende-Verschlüsselung.
+3. Fertig: Die Chat-Box erscheint, sobald der Bot verbunden und im Raum ist; sonst bleibt der Matrix-Knopf wie bisher.
+
+Schutz und Moderation: Rate-Limits pro IP (15 Nachrichten / 10 Min., 60 / Tag, 3 neue Gespräche / Stunde), pro Gespräch (30 / Stunde) und für den ganzen Raum (200 / Stunde), ein unsichtbares Honigtopf-Feld gegen Bots, HTML wird maskiert, `@room` entschärft. Unerwünschte Nachrichten im Raum einfach löschen (redact). Abschalten mit `HALLO_CHAT=false`. Gespräche werden `HALLO_CHAT_RETENTION_DAYS` (Standard 30) Tage nach der letzten Nachricht gelöscht.
 
 ## Buchungsablauf
 

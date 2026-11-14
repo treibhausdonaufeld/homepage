@@ -22,6 +22,13 @@
       "when": 1794667383703,
       "tag": "0002_external_calendars",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794691493857,
+      "tag": "0003_hallo_chat",
+      "breakpoints": true
     }
   ]
 }

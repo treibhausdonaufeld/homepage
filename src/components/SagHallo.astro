@@ -4,15 +4,64 @@ import { MATRIX_ROOM, MATRIX_URL } from '../lib/i18n';
 interface Props { lang?: 'de' | 'en' }
 const { lang = 'de' } = Astro.props;
 const de = lang === 'de';
+const T = de
+  ? {
+      chatH: 'Direkt hier schreiben',
+      empty: 'Schreib uns einfach. Jemand aus dem Haus antwortet hier, sobald er oder sie es sieht – das kann auch ein paar Stunden dauern.',
+      name: 'Dein Name (freiwillig)',
+      msg: 'Nachricht',
+      send: 'Senden',
+      sending: 'Wird gesendet …',
+      note: `Deine Nachricht erscheint im offenen Matrix-Raum ${MATRIX_ROOM} – alle dort können sie lesen. Antworten siehst du hier in diesem Browser (30 Tage lang). Bitte keine sensiblen Daten.`,
+      you: 'Du',
+      team: 'Treibhaus',
+      error: 'Das hat nicht geklappt. Bitte versuch es gleich noch einmal oder schreib uns per Mail.',
+      orMatrix: 'Lieber mit eigenem Konto? Im Matrix-Raum hallo sagen',
+    }
+  : {
+      chatH: 'Write to us right here',
+      empty: 'Just write. Someone from the house will answer here when they see it – this can take a few hours.',
+      name: 'Your name (optional)',
+      msg: 'Message',
+      send: 'Send',
+      sending: 'Sending …',
+      note: `Your message appears in the open Matrix room ${MATRIX_ROOM} – everyone there can read it. You will see replies here in this browser (for 30 days). Please do not share sensitive data.`,
+      you: 'You',
+      team: 'Treibhaus',
+      error: 'That did not work. Please try again in a moment or write to us by email.',
+      orMatrix: 'Prefer your own account? Say hello on Matrix',
+    };
 ---
 <section class="band" id="hallo" aria-labelledby="hallo-h">
   <div class="wrap grid">
     <div>
       <h2 id="hallo-h" class="big">{de ? 'Sag hallo.' : 'Say hello.'}</h2>
       <p class="lead">{de ? 'Fragen, Ideen, Lob, Beschwerden – schreib uns im offenen Chat-Raum vom Treibhaus.' : 'Questions, ideas, praise, complaints – write to us in the open chat room of the Treibhaus.'}</p>
-      <p class="row">
-        <a class="btn light" href={MATRIX_URL}>{de ? 'Im Matrix-Raum hallo sagen' : 'Say hello on Matrix'}</a>
-        <span class="small">{MATRIX_ROOM}</span>
+
+      <!-- Chat ohne Konto: wird per JavaScript eingeblendet, wenn der Matrix-Bot verbunden ist -->
+      <div class="chat" data-hallo hidden data-you={T.you} data-team={T.team} data-sending={T.sending} data-send-label={T.send} data-error={T.error} data-lang={lang}>
+        <h3 class="chat-h">{T.chatH}</h3>
+        <div class="log" role="log" aria-live="polite" aria-label={T.chatH} data-log>
+          <p class="empty" data-empty>{T.empty}</p>
+        </div>
+        <form data-form novalidate>
+          <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <label class="field-l" for={`hallo-name-${lang}`}>{T.name}</label>
+          <input id={`hallo-name-${lang}`} type="text" name="name" maxlength="40" autocomplete="given-name" />
+          <label class="field-l" for={`hallo-text-${lang}`}>{T.msg}</label>
+          <textarea id={`hallo-text-${lang}`} name="text" rows="3" maxlength="1000" required></textarea>
+          <p class="err" role="alert" data-err></p>
+          <div class="row send-row">
+            <button class="btn light" type="submit" data-send>{T.send}</button>
+          </div>
+          <p class="small note">{T.note}</p>
+        </form>
+      </div>
+
+      <p class="row" data-matrix>
+        <a class="btn light" href={MATRIX_URL} data-matrix-btn>{de ? 'Im Matrix-Raum hallo sagen' : 'Say hello on Matrix'}</a>
+        <a class="small alt" href={MATRIX_URL} data-matrix-alt hidden>{T.orMatrix}</a>
+        <span class="small" data-matrix-room>{MATRIX_ROOM}</span>
       </p>
       <p>{de ? 'Oder per Mail:' : 'Or by email:'} <Email strong /></p>
     </div>
@@ -27,6 +76,112 @@ const de = lang === 'de';
     </div>
   </div>
 </section>
+<script>
+  interface Msg { id: number; from: 'gast' | 'team'; author: string | null; text: string; at: number }
+
+  const box = document.querySelector<HTMLElement>('[data-hallo]');
+  if (box) {
+    const log = box.querySelector<HTMLElement>('[data-log]')!;
+    const empty = box.querySelector<HTMLElement>('[data-empty]')!;
+    const form = box.querySelector<HTMLFormElement>('[data-form]')!;
+    const err = box.querySelector<HTMLElement>('[data-err]')!;
+    const btn = box.querySelector<HTMLButtonElement>('[data-send]')!;
+    const text = form.elements.namedItem('text') as HTMLTextAreaElement;
+    const name = form.elements.namedItem('name') as HTMLInputElement;
+    const d = box.dataset;
+    const locale = d.lang === 'en' ? 'en-GB' : 'de-AT';
+    const seen = new Set<number>();
+    let lastId = 0;
+    let timer: number | undefined;
+    let idle = 0;
+
+    const time = (ms: number) => new Date(ms).toLocaleString(locale, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+
+    function render(list: Msg[]) {
+      let added = false;
+      for (const m of list) {
+        if (seen.has(m.id)) continue;
+        seen.add(m.id);
+        lastId = Math.max(lastId, m.id);
+        const el = document.createElement('div');
+        el.className = `msg ${m.from}`;
+        const meta = document.createElement('span');
+        meta.className = 'meta';
+        meta.textContent = `${m.from === 'gast' ? d.you : `${m.author ?? d.team}`} · ${time(m.at)}`;
+        const body = document.createElement('p');
+        body.textContent = m.text;
+        el.append(meta, body);
+        log.append(el);
+        added = true;
+      }
+      if (added) {
+        empty.hidden = true;
+        log.scrollTop = log.scrollHeight;
+      }
+      return added;
+    }
+
+    async function poll() {
+      try {
+        const res = await fetch(`/api/hallo?nach=${lastId}`, { headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        if (!data.enabled && !seen.size) return;
+        box!.hidden = false;
+        document.querySelector('[data-matrix-btn]')?.setAttribute('hidden', '');
+        document.querySelector('[data-matrix-alt]')?.removeAttribute('hidden');
+        if (data.name && !name.value) name.value = data.name;
+        idle = render(data.messages) ? 0 : idle + 1;
+      } catch {
+        idle++;
+      }
+      schedule();
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (!seen.size) return; // ohne Gespräch nicht nachfragen
+      // aktiv: alle 5 s, nach 5 Min. ohne Neues alle 20 s, im Hintergrund-Tab alle 60 s
+      const ms = document.hidden ? 60_000 : idle > 60 ? 20_000 : 5_000;
+      timer = window.setTimeout(poll, ms);
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && seen.size) { idle = 0; poll(); }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.textContent = '';
+      if (!text.value.trim()) { text.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = d.sending!;
+      try {
+        const res = await fetch('/api/hallo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ name: name.value, text: text.value, website: (form.elements.namedItem('website') as HTMLInputElement).value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.error) throw new Error(data.error || d.error);
+        text.value = '';
+        render(data.messages ?? []);
+        idle = 0;
+        schedule();
+      } catch (e2) {
+        err.textContent = (e2 as Error).message || d.error!;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = d.sendLabel!;
+      }
+    });
+
+    // Enter sendet, Umschalt+Enter macht eine neue Zeile
+    text.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); }
+    });
+
+    poll();
+  }
+</script>
 <style>
   .band { background: var(--band); color: var(--on-band); padding: 72px 0; }
   .band :global(a:not(.btn)) { color: var(--on-band); }
@@ -36,4 +191,26 @@ const de = lang === 'de';
   .howto { border-left: 2px solid var(--on-band-2); padding-left: 28px; color: var(--on-band-2); font-size: 16px; }
   .howto h3 { color: var(--on-band); font-size: 18px; }
   .howto ol { padding-left: 1.2em; margin: 0; }
+
+  .chat { background: var(--band-2); border: 1px solid color-mix(in srgb, var(--on-band-2) 30%, transparent); border-radius: 8px; padding: 20px; margin: 8px 0 24px; }
+  .chat[hidden] { display: none; }
+  .chat-h { color: var(--on-band); font-size: 18px; margin: 0 0 12px; }
+  .log { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .empty { color: var(--on-band-2); font-size: 15px; margin: 0; }
+  .log :global(.msg) { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 15px; line-height: 1.45; }
+  .log :global(.msg p) { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .log :global(.msg .meta) { display: block; font-size: 12px; font-weight: 700; opacity: 0.8; margin-bottom: 2px; }
+  .log :global(.msg.gast) { align-self: flex-end; background: var(--band-accent); color: var(--on-accent); border-bottom-right-radius: 3px; }
+  .log :global(.msg.team) { align-self: flex-start; background: var(--surface); color: var(--ink); border-bottom-left-radius: 3px; }
+  .field-l { display: block; font-size: 14px; font-weight: 700; color: var(--on-band); margin: 10px 0 4px; }
+  .chat input[type='text'], .chat textarea { width: 100%; background: var(--surface); color: var(--ink); border: 2px solid color-mix(in srgb, var(--on-band-2) 55%, transparent); }
+  .chat input[type='text']:focus, .chat textarea:focus { border-color: var(--on-band); }
+  .band [hidden] { display: none !important; }
+  .chat textarea { resize: vertical; min-height: 80px; }
+  .send-row { margin-top: 12px; }
+  .err { color: #ffd7d2; font-weight: 600; margin: 8px 0 0; min-height: 0; }
+  .err:empty { display: none; }
+  .note { color: var(--on-band-2); margin: 12px 0 0; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .alt { align-self: center; }
 </style>
