@@ -2,7 +2,6 @@
 export const prerender = false;
 import Base from '../layouts/Base.astro';
 import EventList from '../components/EventList.astro';
-import HouseSection from '../components/HouseSection.astro';
 import Newsletter from '../components/Newsletter.astro';
 import Photo from '../components/Photo.astro';
 import SagHallo from '../components/SagHallo.astro';
@@ -25,7 +24,7 @@ const nl = Astro.url.searchParams.get('newsletter');
         <a class="go" href="/anbieten">Selbst was anbieten →</a>
       </p>
     </div>
-    <HouseSection />
+    <div class="house-photo"><Photo alt="Das Treibhaus von außen, Simone-Veil-Gasse 7" ratio="4/5" /></div>
   </section>
 
   <div class="wrap">
@@ -103,7 +102,7 @@ const nl = Astro.url.searchParams.get('newsletter');
   .intro h1 { font-size: clamp(52px, 7vw, 92px); line-height: 0.95; letter-spacing: -0.035em; margin: 0; }
   .intro .lead { margin: 0; }
   .ways { gap: 12px 28px; }
-  .hero > :global(.house) { flex: 1 1 400px; }
+  .house-photo { flex: 1 1 360px; max-width: 480px; }
   .next { display: grid; gap: 32px 64px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
   @media (min-width: 900px) { .next { grid-template-columns: 1fr 1.6fr; } }
   .rooms { display: grid; gap: 48px 64px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: center; }

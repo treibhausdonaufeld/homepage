@@ -1,5 +1,7 @@
 ---
 import '@fontsource-variable/kumbh-sans';
+// Schrift vorladen, damit beim Seitenwechsel nicht erst die Ersatzschrift erscheint.
+import fontUrl from '@fontsource-variable/kumbh-sans/files/kumbh-sans-latin-wght-normal.woff2?url';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -24,6 +26,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <!-- Gespeichertes Farbschema sofort anwenden, ohne auf /js/theme.js zu warten (sonst kurz das System-Schema). -->
+    <script is:inline>try{var t=localStorage.getItem('th-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     <!-- Hintergrund sofort setzen, bevor das Stylesheet geladen ist: verhindert weißes Aufblitzen beim Seitenwechsel (v. a. im Dunkelmodus). -->
     <style is:inline>
       html { background: #faf8f3; color-scheme: light; }
@@ -46,7 +50,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" href="/images/favicon-192x192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
     <link rel="alternate" type="text/calendar" title="Termine (iCal)" href="/termine.ics" />
-    <script is:inline src="/js/theme.js"></script>
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <script is:inline src="/js/theme.js" defer></script>
     <script is:inline src="/js/email.js" defer></script>
   </head>
   <body>
