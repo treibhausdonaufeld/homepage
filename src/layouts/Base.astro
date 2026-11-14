@@ -27,7 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <!-- Gespeichertes Farbschema sofort anwenden, ohne auf /js/theme.js zu warten (sonst kurz das System-Schema). -->
-    <script is:inline>try{var t=localStorage.getItem('th-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+    <script is:inline>document.documentElement.classList.add('js');try{var t=localStorage.getItem('th-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     <!-- Hintergrund sofort setzen, bevor das Stylesheet geladen ist: verhindert weißes Aufblitzen beim Seitenwechsel (v. a. im Dunkelmodus). -->
     <style is:inline>
       html { background: #faf8f3; color-scheme: light; }
