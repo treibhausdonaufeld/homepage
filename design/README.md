@@ -41,6 +41,7 @@ Schrift: **Kumbh Sans** (OFL) für alles – ExtraBold 800 für Überschriften, 
 - [`logo/logo-gruen.png`](logo/logo-gruen.png) – Primärgrün `#5D7A10`, für helle Hintergründe
 - [`logo/logo-hell-dunkelmodus.png`](logo/logo-hell-dunkelmodus.png) – Hellgrün `#B9D27A`, für den Dunkelmodus
 - [`logo/logo-original.png`](logo/logo-original.png) – Vorlage in der bisherigen Farbe
+- [`logo/bildmarke.svg`](logo/bildmarke.svg) – nur die Bildmarke (Strich und Blätter) als Vektor, aus `logo-gruen.png` nachgezeichnet. Grundlage für das Favicon (`public/favicon.svg`, wechselt im Dunkelmodus auf `#B9D27A`), `favicon.ico`, `favicon-*.png` (transparent) und `apple-touch-icon.png` (helle Marke auf Primärgrün, weil iOS keine Transparenz kann).
 
 ## Quelldateien
 
