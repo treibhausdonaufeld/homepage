@@ -2,10 +2,11 @@ import { defineMiddleware } from 'astro:middleware';
 import { ensureStarted } from './lib/boot';
 import { getSession } from './lib/auth/session';
 import { config } from './lib/config';
+import { HEAD_SCRIPT_HASH } from './lib/head-script';
 
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  `script-src 'self' ${HEAD_SCRIPT_HASH}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",

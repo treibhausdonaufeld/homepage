@@ -33,5 +33,7 @@ export default defineConfig({
   markdown: { processor: satteri({ hastPlugins: [todoPlugin, emailPlugin] }) },
   vite: {
     ssr: { external: ['better-sqlite3'] },
+    // Skripte nie inline ins HTML: die CSP (src/middleware.ts) erlaubt nur Skripte von der eigenen Origin.
+    build: { assetsInlineLimit: 0 },
   },
 });

@@ -71,7 +71,8 @@ const L = t[lang];
     nav li:first-child { border-top: 1px solid var(--line); }
     nav a { display: block; padding: 14px 0; }
     nav a:hover, nav a[aria-current='page'] { text-underline-offset: 6px; }
-    .menu .btn { align-self: flex-start; margin-bottom: 8px; }
+    /* Buchen-Knopf nur am Desktop im Kopf; auf dem Handy steht er prominent auf der Seite. */
+    .menu .btn { display: none; }
     /* Mit JavaScript: zugeklappt, bis der Knopf gedrückt wird. */
     :global(.js) .menu-btn { display: inline-flex; }
     :global(.js) .menu { display: none; }
