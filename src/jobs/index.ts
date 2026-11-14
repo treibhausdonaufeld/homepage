@@ -4,7 +4,8 @@ import path from 'node:path';
 import { Cron } from 'croner';
 import { config } from '../lib/config';
 import type { DB } from '../lib/db';
-import { anonymize, deleteUnconfirmed, expireHolds } from '../lib/booking/service';
+import { anonymize, deleteUnconfirmed, expireHolds, invalidate } from '../lib/booking/service';
+import { syncAll } from '../lib/calendars';
 import type { Notifier } from '../lib/booking/types';
 import { cleanupRateLimits } from '../lib/verify/ratelimit';
 import { log } from '../lib/log';
@@ -30,8 +31,21 @@ export function snapshot(db: DB) {
   return file;
 }
 
+/** Abonnierte Kalender abrufen und den Zwischenspeicher leeren. */
+export async function syncCalendars(db: DB) {
+  const r = await syncAll(db);
+  invalidate();
+  return r;
+}
+
 export function startJobs(db: DB, notifier: Notifier): Cron[] {
+  // Beim Start sofort abrufen, damit Sperren nicht erst nach 15 Minuten greifen.
+  syncCalendars(db).catch((err) => log.error('Kalender-Abruf fehlgeschlagen', { err }));
   return [
+    // Abonnierte Kalender: alle 15 Minuten
+    new Cron('*/15 * * * *', { ...opts, name: 'kalender' }, async () => {
+      await syncCalendars(db);
+    }),
     // Haltefrist: jede Minute
     new Cron('* * * * *', { ...opts, name: 'haltefrist' }, async () => {
       const n = await expireHolds(db, notifier);

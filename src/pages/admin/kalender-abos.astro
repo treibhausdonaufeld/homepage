@@ -1,0 +1,142 @@
+---
+export const prerender = false;
+import { eq } from 'drizzle-orm';
+import Admin from '../../layouts/Admin.astro';
+import { getDb } from '../../lib/db';
+import { calendarSubscriptions } from '../../lib/db/schema';
+import { audit, invalidate } from '../../lib/booking/service';
+import { allRooms, cleanUrl, externalEventsBetween, listSubscriptions, roomsForLocation, syncSubscription } from '../../lib/calendars';
+import { DAY, fmt } from '../../lib/time';
+
+const db = getDb();
+const actor = Astro.locals.admin!.name;
+let msg: string | null = null;
+let error: string | null = null;
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const action = String(f.get('aktion') ?? '');
+  const id = Number(f.get('id'));
+  const label = String(f.get('label') ?? '').trim();
+  const url = cleanUrl(String(f.get('url') ?? ''));
+  const flags = { showPublic: f.get('oeffentlich') === 'ja', blockRooms: f.get('sperren') === 'ja' };
+
+  if (action === 'anlegen' || action === 'speichern') {
+    if (!label) error = 'Bitte einen Namen angeben.';
+    else if (!url) error = 'Bitte eine gültige Adresse (https://…) angeben.';
+  }
+  if (!error) {
+    if (action === 'anlegen') {
+      const sub = db.insert(calendarSubscriptions).values({ label, url: url!, ...flags, createdBy: actor }).returning().get();
+      audit(db, actor, 'kalender-abo-angelegt', null, `${sub.id}: ${label}`);
+      const r = await syncSubscription(db, sub);
+      msg = r.ok ? `Abo angelegt, ${r.count} Termine geladen.` : null;
+      error = r.ok ? null : `Abo angelegt, aber der Abruf ist fehlgeschlagen: ${r.error}`;
+    } else if (action === 'speichern') {
+      db.update(calendarSubscriptions)
+        .set({ label, url: url!, ...flags, enabled: f.get('aktiv') === 'ja' })
+        .where(eq(calendarSubscriptions.id, id))
+        .run();
+      audit(db, actor, 'kalender-abo-geaendert', null, `${id}: ${label}, öffentlich=${flags.showPublic}, sperren=${flags.blockRooms}, aktiv=${f.get('aktiv') === 'ja'}`);
+      msg = 'Gespeichert.';
+    } else if (action === 'loeschen') {
+      db.delete(calendarSubscriptions).where(eq(calendarSubscriptions.id, id)).run();
+      audit(db, actor, 'kalender-abo-geloescht', null, String(id));
+      msg = 'Abo gelöscht. Seine Termine sperren keine Räume mehr.';
+    } else if (action === 'abrufen') {
+      const sub = db.select().from(calendarSubscriptions).where(eq(calendarSubscriptions.id, id)).get();
+      if (sub) {
+        const r = await syncSubscription(db, sub);
+        if (r.ok) msg = `${r.count} Termine geladen.`;
+        else error = `Abruf fehlgeschlagen: ${r.error}`;
+      }
+    }
+    invalidate();
+  }
+}
+
+const subs = listSubscriptions(db);
+const rooms = allRooms(db).filter((r) => !r.combines?.length);
+const now = new Date();
+const upcoming = externalEventsBetween(db, now, new Date(now.getTime() + 60 * DAY));
+const preview = (id: number) => upcoming.filter((e) => e.subscriptionId === id).slice(0, 8);
+---
+<Admin title="Kalender-Abos">
+  <h1>Kalender-Abos</h1>
+  <p class="muted">
+    Externe Kalender (iCal-Adresse, bei Nextcloud der Freigabe-Link mit <code>?export</code>) werden alle 15 Minuten abgerufen.
+    Passt der <strong>Ort</strong> eines Termins zu einem Raum, ist der Raum in dieser Zeit (plus Pufferzeit) nicht mehr buchbar.
+    Die Stichwörter pro Raum stellst du unter <a href="/admin/raeume">Räume</a> ein.
+  </p>
+  <p class="small muted">Stichwörter jetzt: {rooms.map((r, i) => <>{i > 0 && ' · '}<strong>{r.name}</strong>: {(r.locationKeywords ?? [r.name]).join(', ')}</>)}</p>
+  {msg && <p class="ok-box" role="status">{msg}</p>}
+  {error && <p class="error-box" role="alert">{error}</p>}
+
+  {subs.length === 0 && <p>Noch keine Kalender abonniert.</p>}
+  {subs.map((s) => (
+    <section class="card sub">
+      <form method="post">
+        <input type="hidden" name="id" value={s.id} />
+        <div class="row wrap2">
+          <div class="field"><label for={`l-${s.id}`}>Name</label><input id={`l-${s.id}`} type="text" name="label" value={s.label} required /></div>
+          <div class="field grow"><label for={`u-${s.id}`}>Adresse</label><input id={`u-${s.id}`} type="url" name="url" value={s.url} required /></div>
+        </div>
+        <label class="check"><input type="checkbox" name="oeffentlich" value="ja" checked={s.showPublic} /> Termine öffentlich auf der Website zeigen</label>
+        <label class="check"><input type="checkbox" name="sperren" value="ja" checked={s.blockRooms} /> Räume sperren, wenn der Ort passt</label>
+        <label class="check"><input type="checkbox" name="aktiv" value="ja" checked={s.enabled} /> Aktiv</label>
+        <p class="small muted status">
+          {s.lastFetchedAt ? <>Zuletzt abgerufen {fmt.dateTime(s.lastFetchedAt)} · {s.eventCount} Termine gespeichert</> : 'Noch nicht abgerufen'}
+          {s.lastError && <><br /><span class="err">Fehler beim letzten Abruf: {s.lastError} (die zuletzt geladenen Termine gelten weiter)</span></>}
+        </p>
+        <div class="row">
+          <button class="btn small" type="submit" name="aktion" value="speichern">Speichern</button>
+          <button class="btn small ghost" type="submit" name="aktion" value="abrufen" formnovalidate>Jetzt abrufen</button>
+          <button class="btn small ghost danger" type="submit" name="aktion" value="loeschen" formnovalidate>Löschen</button>
+        </div>
+      </form>
+      {preview(s.id).length > 0 && (
+        <details>
+          <summary>Nächste Termine aus diesem Kalender</summary>
+          <table class="small">
+            <thead><tr><th>Wann</th><th>Titel</th><th>Ort</th><th>Sperrt</th></tr></thead>
+            <tbody>
+              {preview(s.id).map((e) => {
+                const matched = roomsForLocation(e.location, rooms);
+                return (
+                  <tr>
+                    <td>{e.allDay ? `${fmt.numeric(e.start)} ganztägig` : `${fmt.dateTime(e.start)}–${fmt.time(e.end)}`}</td>
+                    <td>{e.title}</td>
+                    <td>{e.location ?? '–'}</td>
+                    <td>{s.blockRooms && matched.length ? matched.map((r) => r.name).join(', ') : '–'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </details>
+      )}
+    </section>
+  ))}
+
+  <h2 style="margin-top:40px">Neuen Kalender abonnieren</h2>
+  <form method="post" class="card narrow">
+    <input type="hidden" name="aktion" value="anlegen" />
+    <div class="field"><label for="label">Name</label><input type="text" id="label" name="label" required placeholder="z. B. Hauskalender" /></div>
+    <div class="field"><label for="url">Adresse (iCal / ICS)</label><input type="url" id="url" name="url" required placeholder="https://…/remote.php/dav/public-calendars/…?export" /></div>
+    <label class="check"><input type="checkbox" name="oeffentlich" value="ja" /> Termine öffentlich auf der Website zeigen</label>
+    <label class="check"><input type="checkbox" name="sperren" value="ja" checked /> Räume sperren, wenn der Ort passt</label>
+    <button class="btn small" type="submit" style="margin-top:12px">Abonnieren</button>
+  </form>
+</Admin>
+<style>
+  .sub { margin-bottom: 20px; }
+  .wrap2 { gap: 12px 16px; align-items: flex-end; }
+  .wrap2 .field { flex: 1 1 220px; }
+  .wrap2 .grow { flex: 3 1 320px; }
+  .status { margin: 10px 0; }
+  .err { color: var(--err, #b00020); }
+  .danger { margin-left: auto; }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  table { margin-top: 8px; }
+</style>

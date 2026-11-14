@@ -14,7 +14,7 @@ const { events, showAdd = false } = Astro.props;
       </div>
       <div class="what">
         <h3>{e.offer ? <a href={`/angebote/${e.offer}`}>{e.title}</a> : e.title}</h3>
-        <p class="muted small"><span class="sr-only">{fmt.long(e.start)}, </span>{fmt.range(e.start, e.end)} · {e.roomName}</p>
+        <p class="muted small"><span class="sr-only">{fmt.long(e.start)}, </span>{e.allDay ? 'ganztägig' : fmt.range(e.start, e.end)}{e.roomName && ` · ${e.roomName}`}</p>
       </div>
       {e.category && <span class="cat">{CATEGORY_LABEL[e.category as Category] ?? e.category}</span>}
     </li>

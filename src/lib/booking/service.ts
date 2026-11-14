@@ -19,6 +19,8 @@ import {
   type Room,
 } from '../db/schema';
 import { bookingIcs } from '../ical';
+import { externalEventsBetween, roomsForLocation } from '../calendars';
+import { createHash } from 'node:crypto';
 import { log } from '../log';
 import { DAY, HOUR, MINUTE, addDays, dayStart, overlaps, parseLocal } from '../time';
 import {
@@ -104,8 +106,26 @@ export function buildCandidates(db: Q, room: Room, occurrences: Interval[]): Can
   return out;
 }
 
-/** Sperrzeiten (aufgelöst) für einen Raum im Zeitraum. */
-export function blockIntervals(db: Q, roomSlug: string | null, from: Date, to: Date) {
+export interface BlockInterval {
+  /** Sperrzeit-ID; bei Kalenderterminen negativ (−ID des Vorkommens). */
+  blockId: number;
+  roomSlug: string | null;
+  start: Date;
+  end: Date;
+  /** Ende inkl. Pufferzeit des Raums (nur bei Kalenderterminen länger als end). */
+  bufferEnd: Date;
+  /** Für Gäste sichtbarer Grund. */
+  reason: string;
+  /** Für die Raum-AG (bei Kalenderterminen mit Titel und Kalender). */
+  detail: string;
+  kind: 'block' | 'event';
+}
+
+/**
+ * Sperrzeiten (aufgelöst) für einen Raum im Zeitraum – inklusive Terminen aus abonnierten
+ * Kalendern, deren Ort zu diesem Raum passt.
+ */
+export function blockIntervals(db: Q, roomSlug: string | null, from: Date, to: Date): BlockInterval[] {
   const rows = db
     .select()
     .from(blocks)
@@ -117,11 +137,29 @@ export function blockIntervals(db: Q, roomSlug: string | null, from: Date, to: D
       ),
     )
     .all();
-  const out: { blockId: number; roomSlug: string | null; start: Date; end: Date; reason: string }[] = [];
+  const out: BlockInterval[] = [];
   for (const b of rows) {
     if (!b.rule && !(b.end > from)) continue;
     for (const iv of expandRule({ start: b.start, end: b.end }, b.rule, from, to, b.until)) {
-      out.push({ blockId: b.id, roomSlug: b.roomSlug, start: iv.start, end: iv.end, reason: b.reason });
+      out.push({ blockId: b.id, roomSlug: b.roomSlug, start: iv.start, end: iv.end, bufferEnd: iv.end, reason: b.reason, detail: b.reason, kind: 'block' });
+    }
+  }
+  const room = roomSlug ? getRoom(db, roomSlug) : undefined;
+  if (room && !room.combines?.length) {
+    const buffer = room.bufferMinutes * MINUTE;
+    for (const e of externalEventsBetween(db, new Date(from.getTime() - buffer), to, { blockRooms: true })) {
+      if (!roomsForLocation(e.location, [room]).length) continue;
+      out.push({
+        blockId: -e.id,
+        roomSlug: room.slug,
+        start: e.start,
+        end: e.end,
+        bufferEnd: new Date(e.end.getTime() + buffer),
+        // Titel nur bei öffentlichen Kalendern zeigen
+        reason: e.showPublic ? `Termin: ${e.title}` : 'Termin im Haus',
+        detail: `${e.title} (Kalender: ${e.label})`,
+        kind: 'event',
+      });
     }
   }
   return out;
@@ -184,7 +222,12 @@ export function findConflicts(
     }
     for (const b of blockMap.get(c.roomSlug) ?? []) {
       // Sperrzeiten betreffen die eigentliche Nutzung, nicht die Reinigung danach.
-      if (overlaps(c.start.getTime(), c.end.getTime(), b.start.getTime(), b.end.getTime())) {
+      // Kalendertermine zählen wie Buchungen: mit Pufferzeit auf beiden Seiten.
+      const hit =
+        b.kind === 'event'
+          ? overlaps(c.start.getTime(), c.endWithBuffer.getTime(), b.start.getTime(), b.bufferEnd.getTime())
+          : overlaps(c.start.getTime(), c.end.getTime(), b.start.getTime(), b.end.getTime());
+      if (hit) {
         conflicts.push({
           occurrence: c.occurrence,
           roomSlug: c.roomSlug,
@@ -229,7 +272,10 @@ export function occupancy(db: Q, room: Room, from: Date, to: Date): Segment[] {
     state: r.status === 'bestaetigt' ? 'belegt' : 'angefragt',
   }));
   for (const p of phys) {
-    for (const b of blockIntervals(db, p, from, to)) segs.push({ start: b.start, end: b.end, state: 'gesperrt' });
+    for (const b of blockIntervals(db, p, from, to)) {
+      // Kalendertermine erscheinen wie Buchungen als „belegt“ (inkl. Reinigung danach).
+      segs.push(b.kind === 'event' ? { start: b.start, end: b.bufferEnd, state: 'belegt' } : { start: b.start, end: b.end, state: 'gesperrt' });
+    }
   }
   return segs;
 }
@@ -342,6 +388,24 @@ export function publicEvents(db: Q, from: Date, to: Date, limit = 500): PublicEv
       .all();
     const seen = new Set<string>();
     const out: PublicEvent[] = [];
+    // Termine aus öffentlichen Kalender-Abos
+    const physRooms = db.select().from(rooms).all();
+    for (const e of externalEventsBetween(db, from, to, { showPublic: true })) {
+      const matched = roomsForLocation(e.location, physRooms);
+      const uidHash = createHash('sha1').update(`${e.subscriptionId}:${e.uid}`).digest('hex').slice(0, 12);
+      out.push({
+        key: `k${uidHash}-${e.start.getTime()}`,
+        bookingId: null,
+        title: e.title,
+        roomSlug: matched[0]?.slug ?? '',
+        roomName: matched.length ? matched.map((r) => r.name).join(' + ') : (e.location ?? ''),
+        start: e.start,
+        end: e.end,
+        category: null,
+        offer: null,
+        allDay: e.allDay,
+      });
+    }
     for (const r of rows) {
       const key = `${r.publicId}-${r.start.getTime()}`;
       if (seen.has(key)) continue;
@@ -357,9 +421,9 @@ export function publicEvents(db: Q, from: Date, to: Date, limit = 500): PublicEv
         category: r.category,
         offer: r.offer,
       });
-      if (out.length >= limit) break;
     }
-    return out;
+    out.sort((a, b) => a.start.getTime() - b.start.getTime());
+    return out.slice(0, limit);
   });
 }
 

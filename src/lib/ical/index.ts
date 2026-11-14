@@ -21,8 +21,9 @@ export function eventsFeed(events: PublicEvent[], name = 'Treibhaus Donaufeld â€
       id: `${e.key}@treibhausdonaufeld.at`,
       start: e.start,
       end: e.end,
+      allDay: e.allDay ?? false,
       summary: e.title,
-      location: `${e.roomName}, ${LOCATION}`,
+      location: e.roomName ? `${e.roomName}, ${LOCATION}` : LOCATION,
       url: e.offer ? `${config.publicUrl}/angebote/${e.offer}` : `${config.publicUrl}/termine`,
     });
   }

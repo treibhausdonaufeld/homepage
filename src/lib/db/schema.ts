@@ -31,6 +31,11 @@ export const rooms = sqliteTable('rooms', {
   combines: text('combines', { mode: 'json' }).$type<string[] | null>(),
   bookable: integer('bookable', { mode: 'boolean' }).notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),
+  /**
+   * Stichwörter im Ort (LOCATION) eines abonnierten Kalendertermins, bei denen dieser Raum
+   * gesperrt wird (JSON-Liste). null = Raumname. Groß/klein und ä/ae egal.
+   */
+  locationKeywords: text('location_keywords', { mode: 'json' }).$type<string[] | null>(),
 });
 
 export const bookings = sqliteTable(
@@ -194,3 +199,41 @@ export const notificationTargets = sqliteTable('notification_targets', {
 });
 
 export type NotificationTarget = typeof notificationTargets.$inferSelect;
+
+/** Abonnierte externe Kalender (iCal/ICS-URL, z. B. Nextcloud-Freigabe mit ?export). */
+export const calendarSubscriptions = sqliteTable('calendar_subscriptions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  label: text('label').notNull(),
+  url: text('url').notNull(),
+  /** Termine als öffentliche Termine auf der Website zeigen. */
+  showPublic: integer('show_public', { mode: 'boolean' }).notNull().default(false),
+  /** Räume sperren, wenn der Ort eines Termins zu einem Raum passt. */
+  blockRooms: integer('block_rooms', { mode: 'boolean' }).notNull().default(true),
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: ts('created_at').notNull().default(now),
+  lastFetchedAt: ts('last_fetched_at'),
+  lastError: text('last_error'),
+  eventCount: integer('event_count').notNull().default(0),
+});
+
+/** Vorkommen aus abonnierten Kalendern (bei jedem Abruf neu geschrieben, Serien aufgelöst). */
+export const externalEvents = sqliteTable(
+  'external_events',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    subscriptionId: integer('subscription_id')
+      .notNull()
+      .references(() => calendarSubscriptions.id, { onDelete: 'cascade' }),
+    uid: text('uid').notNull(),
+    start: ts('start').notNull(),
+    end: ts('end').notNull(),
+    allDay: integer('all_day', { mode: 'boolean' }).notNull().default(false),
+    title: text('title').notNull(),
+    location: text('location'),
+  },
+  (t) => [index('external_events_time').on(t.start, t.end), index('external_events_sub').on(t.subscriptionId)],
+);
+
+export type CalendarSubscription = typeof calendarSubscriptions.$inferSelect;
+export type ExternalEvent = typeof externalEvents.$inferSelect;
